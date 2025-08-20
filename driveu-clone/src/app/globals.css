@@ -39,6 +39,10 @@ body {
   --tw-text-opacity: 1;
 }
 
+.my-border {
+  @apply border border-gray-300;
+}
+
 .high-contrast * {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
   color: rgb(0 0 0 / var(--tw-text-opacity)) !important;

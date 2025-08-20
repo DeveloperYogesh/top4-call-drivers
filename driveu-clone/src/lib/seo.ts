@@ -1,9 +1,10 @@
+// seo.ts
 import { Metadata } from 'next';
 import { APP_CONFIG, SUPPORTED_CITIES } from '@/utils/constants';
 import { CityData } from '@/types';
 
 export function getCityData(citySlug: string): CityData | null {
-  return SUPPORTED_CITIES.find(city => city.slug === citySlug) || null;
+  return SUPPORTED_CITIES.find((city) => city.slug === citySlug) || null;
 }
 
 export function generateCityMetadata(cityData: CityData): Metadata {
@@ -11,6 +12,7 @@ export function generateCityMetadata(cityData: CityData): Metadata {
   const description = cityData.description;
   const url = `/call-drivers-in-${cityData.slug}`;
 
+  // Next.js metadata "type" must be 'website' | 'article' — use 'website' for service pages.
   return generateMetadata({
     title,
     description,
@@ -26,7 +28,8 @@ interface SEOProps {
   keywords?: string[];
   image?: string;
   url?: string;
-  type?: 'website' | 'article' | 'service';
+  // Next.js Metadata supports 'website' | 'article' for openGraph type
+  type?: 'website' | 'article';
   publishedTime?: string;
   modifiedTime?: string;
   author?: string;
@@ -36,6 +39,11 @@ interface SEOProps {
   canonical?: string;
 }
 
+/**
+ * Generates Next.js Metadata object.
+ * Note: For service-specific structured data (schema.org Service),
+ * continue to use generateStructuredData('service', ... ) and inject JSON-LD in the page.
+ */
 export function generateMetadata({
   title,
   description = APP_CONFIG.description,
@@ -65,7 +73,7 @@ export function generateMetadata({
     'car maintenance',
     'car insurance',
     'fastag recharge',
-    'driveu',
+    APP_CONFIG.name.toLowerCase(),
     'india',
   ];
 
@@ -74,7 +82,7 @@ export function generateMetadata({
   const metadata: Metadata = {
     title: fullTitle,
     description,
-    keywords: allKeywords.join(', '),
+    keywords: allKeywords,
     authors: [{ name: author }],
     creator: author,
     publisher: APP_CONFIG.name,
@@ -88,7 +96,8 @@ export function generateMetadata({
       canonical: canonical || fullUrl,
     },
     openGraph: {
-      type,
+      // Next.js openGraph type: 'website' | 'article'
+      type: type,
       locale: 'en_IN',
       url: fullUrl,
       title: fullTitle,
@@ -108,8 +117,9 @@ export function generateMetadata({
       title: fullTitle,
       description,
       images: [imageUrl],
-      creator: '@driveuindia',
-      site: '@driveuindia',
+      // use your brand handle if you have one
+      creator: '@top4calldrivers',
+      site: '@top4calldrivers',
     },
     robots: {
       index: !noIndex,
@@ -123,33 +133,41 @@ export function generateMetadata({
       },
     },
     verification: {
+      // replace these with your real verification codes
       google: 'your-google-verification-code',
       yandex: 'your-yandex-verification-code',
       yahoo: 'your-yahoo-verification-code',
     },
   };
 
-  // Add article-specific metadata
+  // Add article-specific metadata details when requested
   if (type === 'article') {
     metadata.openGraph = {
       ...metadata.openGraph,
       type: 'article',
+      // The standard OpenGraph article fields
+      // Note: Next.js's OpenGraph typing may not include all of these keys explicitly,
+      // but they are commonly used in meta tags. Adjust to your needs.
       publishedTime,
       modifiedTime,
+      // authors in OpenGraph article typically used as 'article:author' meta tags, here kept for convenience
       authors: [author],
       section,
       tags,
-    };
+    } as any;
   }
 
   return metadata;
 }
 
-// Generate structured data for different page types
+/**
+ * Generate structured data (JSON-LD) for embedding in pages.
+ * This returns plain objects; serialize with JSON.stringify when injecting into <script type="application/ld+json">.
+ *
+ * Important: baseData is deliberately neutral (no @context or @type), so per-schema fields won't be overwritten by spreads.
+ */
 export function generateStructuredData(type: string, data: any = {}) {
   const baseData = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
     name: APP_CONFIG.name,
     description: APP_CONFIG.description,
     url: APP_CONFIG.url,
@@ -158,13 +176,14 @@ export function generateStructuredData(type: string, data: any = {}) {
       '@type': 'ContactPoint',
       telephone: APP_CONFIG.supportPhone,
       contactType: 'Customer Service',
-      availableLanguage: ['English', 'Hindi'],
+      // include local language(s) for your region
+      availableLanguage: ['English', 'Tamil'],
     },
     sameAs: [
-      'https://www.facebook.com/TOP4 Call DriversIndia',
-      'https://www.instagram.com/driveuindia',
-      'https://twitter.com/driveuindia',
-      'https://www.linkedin.com/company/driveu',
+      'https://www.facebook.com/top4calldrivers',
+      'https://www.instagram.com/top4calldrivers',
+      'https://twitter.com/top4calldrivers',
+      'https://www.linkedin.com/company/top4calldrivers',
     ],
   };
 
@@ -176,7 +195,7 @@ export function generateStructuredData(type: string, data: any = {}) {
         name: data.name || 'Professional Driver Service',
         description: data.description || 'Hire verified, professional drivers for hassle-free commutes',
         provider: baseData,
-        areaServed: data.cities || ['Bangalore', 'Chennai', 'Delhi', 'Mumbai', 'Hyderabad'],
+        areaServed: data.cities || ['Tirupur', 'Chennai', 'Madurai', 'Trichy', 'Coimbatore'],
         serviceType: 'Driver Service',
         category: 'Transportation',
       };
@@ -190,8 +209,9 @@ export function generateStructuredData(type: string, data: any = {}) {
         address: {
           '@type': 'PostalAddress',
           addressCountry: 'IN',
-          addressRegion: data.state || 'Karnataka',
-          addressLocality: data.city || 'Bangalore',
+          // default to Tamil Nadu for your supported cities
+          addressRegion: data.state || 'Tamil Nadu',
+          addressLocality: data.city || 'Tirupur',
         },
         geo: data.coordinates && {
           '@type': 'GeoCoordinates',
@@ -221,34 +241,41 @@ export function generateStructuredData(type: string, data: any = {}) {
       return {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
-        itemListElement: data.items?.map((item: any, index: number) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          name: item.name,
-          item: item.url,
-        })) || [],
+        itemListElement:
+          data.items?.map((item: any, index: number) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.name,
+            item: item.url,
+          })) || [],
       };
 
     case 'faq':
       return {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: data.faqs?.map((faq: any) => ({
-          '@type': 'Question',
-          name: faq.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: faq.answer,
-          },
-        })) || [],
+        mainEntity:
+          data.faqs?.map((faq: any) => ({
+            '@type': 'Question',
+            name: faq.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: faq.answer,
+            },
+          })) || [],
       };
 
     default:
-      return baseData;
+      // default to organization info (include @context)
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        ...baseData,
+      };
   }
 }
 
-// City-specific SEO data
+// City-specific SEO data (old helper). Ensure type is 'website' for Next.js openGraph compatibility.
 export function generateCityMetadataOld(city: string, state: string) {
   const cityTitle = `Call Drivers in ${city} - Professional Driver Service`;
   const cityDescription = `Hire verified professional drivers in ${city}, ${state}. Book experienced drivers for safe commutes, errands, and after-party drops. Available 24/7 with instant booking.`;
@@ -268,18 +295,18 @@ export function generateCityMetadataOld(city: string, state: string) {
     description: cityDescription,
     keywords: cityKeywords,
     url: `/call-drivers-in-${city.toLowerCase()}`,
-    type: 'service',
+    type: 'website',
   });
 }
 
-// Service-specific SEO data
+// Service-specific metadata helper — returns Next.js Metadata (OG as website) and you can attach structured data using generateStructuredData('service', {...})
 export function generateServiceMetadata(serviceName: string, description: string) {
   const serviceTitle = `${serviceName} - Professional Car Services`;
   const serviceKeywords = [
     serviceName.toLowerCase(),
     'car service',
     'professional service',
-    'driveu service',
+    `${APP_CONFIG.name.toLowerCase()} service`,
     'car maintenance',
     'vehicle service',
   ];
@@ -288,7 +315,7 @@ export function generateServiceMetadata(serviceName: string, description: string
     title: serviceTitle,
     description,
     keywords: serviceKeywords,
-    type: 'service',
+    // keep 'website' for openGraph
+    type: 'website',
   });
 }
-

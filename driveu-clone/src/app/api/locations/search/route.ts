@@ -1,20 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Location } from '@/types';
 
-// Mock location data - in a real app, this would come from a database
+// Mock location data for only the five cities:
+// Chennai, Trichy, Madurai, Tirupur, Coimbatore
 const locations: Location[] = [
-  // Bangalore
-  { id: 'blr-1', name: 'Bangalore', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-2', name: 'Bangalore International Airport (KIA)', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-3', name: 'Koramangala', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-4', name: 'Indiranagar', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-5', name: 'Whitefield', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-6', name: 'Electronic City', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-7', name: 'Marathahalli', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-8', name: 'HSR Layout', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-9', name: 'BTM Layout', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-10', name: 'Jayanagar', city: 'Bangalore', state: 'Karnataka' },
-  
   // Chennai
   { id: 'che-1', name: 'Chennai', city: 'Chennai', state: 'Tamil Nadu' },
   { id: 'che-2', name: 'Chennai International Airport (MAA)', city: 'Chennai', state: 'Tamil Nadu' },
@@ -26,56 +15,54 @@ const locations: Location[] = [
   { id: 'che-8', name: 'Tambaram', city: 'Chennai', state: 'Tamil Nadu' },
   { id: 'che-9', name: 'Porur', city: 'Chennai', state: 'Tamil Nadu' },
   { id: 'che-10', name: 'Egmore', city: 'Chennai', state: 'Tamil Nadu' },
-  
-  // Delhi NCR
-  { id: 'del-1', name: 'Delhi', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-2', name: 'Indira Gandhi International Airport (DEL)', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-3', name: 'Connaught Place', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-4', name: 'Gurgaon', city: 'Gurgaon', state: 'Haryana' },
-  { id: 'del-5', name: 'Noida', city: 'Noida', state: 'Uttar Pradesh' },
-  { id: 'del-6', name: 'Faridabad', city: 'Faridabad', state: 'Haryana' },
-  { id: 'del-7', name: 'Ghaziabad', city: 'Ghaziabad', state: 'Uttar Pradesh' },
-  { id: 'del-8', name: 'Dwarka', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-9', name: 'Rohini', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-10', name: 'Lajpat Nagar', city: 'Delhi', state: 'Delhi' },
-  
-  // Mumbai
-  { id: 'mum-1', name: 'Mumbai', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-2', name: 'Chhatrapati Shivaji International Airport (BOM)', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-3', name: 'Andheri', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-4', name: 'Bandra', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-5', name: 'Powai', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-6', name: 'Thane', city: 'Thane', state: 'Maharashtra' },
-  { id: 'mum-7', name: 'Navi Mumbai', city: 'Navi Mumbai', state: 'Maharashtra' },
-  { id: 'mum-8', name: 'Juhu', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-9', name: 'Malad', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-10', name: 'Goregaon', city: 'Mumbai', state: 'Maharashtra' },
-  
-  // Hyderabad
-  { id: 'hyd-1', name: 'Hyderabad', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-2', name: 'Rajiv Gandhi International Airport (HYD)', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-3', name: 'HITEC City', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-4', name: 'Gachibowli', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-5', name: 'Madhapur', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-6', name: 'Banjara Hills', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-7', name: 'Jubilee Hills', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-8', name: 'Secunderabad', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-9', name: 'Kondapur', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-10', name: 'Kukatpally', city: 'Hyderabad', state: 'Telangana' },
-  
-  // Kolkata
-  { id: 'kol-1', name: 'Kolkata', city: 'Kolkata', state: 'West Bengal' },
-  { id: 'kol-2', name: 'Netaji Subhas Chandra Bose International Airport (CCU)', city: 'Kolkata', state: 'West Bengal' },
-  { id: 'kol-3', name: 'Salt Lake', city: 'Kolkata', state: 'West Bengal' },
-  { id: 'kol-4', name: 'Park Street', city: 'Kolkata', state: 'West Bengal' },
-  { id: 'kol-5', name: 'Howrah', city: 'Howrah', state: 'West Bengal' },
-  
-  // Pune
-  { id: 'pun-1', name: 'Pune', city: 'Pune', state: 'Maharashtra' },
-  { id: 'pun-2', name: 'Pune International Airport (PNQ)', city: 'Pune', state: 'Maharashtra' },
-  { id: 'pun-3', name: 'Hinjewadi', city: 'Pune', state: 'Maharashtra' },
-  { id: 'pun-4', name: 'Koregaon Park', city: 'Pune', state: 'Maharashtra' },
-  { id: 'pun-5', name: 'Wakad', city: 'Pune', state: 'Maharashtra' },
+
+  // Trichy (Tiruchirappalli)
+  { id: 'tri-1', name: 'Trichy', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-2', name: 'Tiruchirappalli International Airport (TRZ)', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-3', name: 'Srirangam', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-4', name: 'Thillai Nagar', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-5', name: 'Golden Rock', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-6', name: 'BHEL Township', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-7', name: 'Woraiyur', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-8', name: 'Tennur', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-9', name: 'Cantonment', city: 'Trichy', state: 'Tamil Nadu' },
+  { id: 'tri-10', name: 'Tiruchirappalli Railway Station', city: 'Trichy', state: 'Tamil Nadu' },
+
+  // Madurai
+  { id: 'mad-1', name: 'Madurai', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-2', name: 'Madurai Airport (IXM)', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-3', name: 'Goripalayam', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-4', name: 'Tallakulam', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-5', name: 'East Gate', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-6', name: 'West Masi', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-7', name: 'Alagar Kovil Road', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-8', name: 'Thirupparankundram', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-9', name: 'Anna Nagar (Madurai)', city: 'Madurai', state: 'Tamil Nadu' },
+  { id: 'mad-10', name: 'KK Nagar (Madurai)', city: 'Madurai', state: 'Tamil Nadu' },
+
+  // Tirupur
+  { id: 'tir-1', name: 'Tirupur', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-2', name: 'Tirupur Bus Stand', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-3', name: 'Avinashi (near Tirupur)', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-4', name: 'Palladam', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-5', name: 'New Tirupur Industrial Park (NIT)', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-6', name: 'Uthukuli', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-7', name: 'Kangeyam (nearby)', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-8', name: 'Tirupur Railway Station', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-9', name: 'Kumaran Nagar', city: 'Tirupur', state: 'Tamil Nadu' },
+  { id: 'tir-10', name: 'Karumathampatti', city: 'Tirupur', state: 'Tamil Nadu' },
+
+  // Coimbatore
+  { id: 'coi-1', name: 'Coimbatore', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-2', name: 'Coimbatore International Airport (CJB)', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-3', name: 'Gandhipuram', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-4', name: 'RS Puram', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-5', name: 'Peelamedu', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-6', name: 'Avinashi Road (Coimbatore)', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-7', name: 'Saravanampatti', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-8', name: 'Podanur', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-9', name: 'Singanallur', city: 'Coimbatore', state: 'Tamil Nadu' },
+  { id: 'coi-10', name: 'Kovaipudur', city: 'Coimbatore', state: 'Tamil Nadu' },
 ];
 
 export async function GET(request: NextRequest) {
@@ -127,4 +114,3 @@ export async function POST(request: NextRequest) {
     { status: 405 }
   );
 }
-

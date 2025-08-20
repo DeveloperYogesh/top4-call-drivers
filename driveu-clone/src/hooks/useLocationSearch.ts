@@ -12,17 +12,17 @@ interface UseLocationSearchState {
 }
 
 const mockLocations: Location[] = [
-  // Bangalore
-  { id: 'blr-1', name: 'Bangalore', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-2', name: 'Bangalore International Airport (KIA)', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-3', name: 'Koramangala', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-4', name: 'Indiranagar', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-5', name: 'Whitefield', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-6', name: 'Electronic City', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-7', name: 'Marathahalli', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-8', name: 'HSR Layout', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-9', name: 'BTM Layout', city: 'Bangalore', state: 'Karnataka' },
-  { id: 'blr-10', name: 'Jayanagar', city: 'Bangalore', state: 'Karnataka' },
+  // Tirupur
+  { id: 'blr-1', name: 'Tirupur', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-2', name: 'Tirupur International Airport (KIA)', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-3', name: 'Koramangala', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-4', name: 'Indiranagar', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-5', name: 'Whitefield', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-6', name: 'Electronic City', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-7', name: 'Marathahalli', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-8', name: 'HSR Layout', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-9', name: 'BTM Layout', city: 'Tirupur', state: 'Karnataka' },
+  { id: 'blr-10', name: 'Jayanagar', city: 'Tirupur', state: 'Karnataka' },
   
   // Chennai
   { id: 'che-1', name: 'Chennai', city: 'Chennai', state: 'Tamil Nadu' },
@@ -36,41 +36,41 @@ const mockLocations: Location[] = [
   { id: 'che-9', name: 'Porur', city: 'Chennai', state: 'Tamil Nadu' },
   { id: 'che-10', name: 'Egmore', city: 'Chennai', state: 'Tamil Nadu' },
   
-  // Delhi NCR
-  { id: 'del-1', name: 'Delhi', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-2', name: 'Indira Gandhi International Airport (DEL)', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-3', name: 'Connaught Place', city: 'Delhi', state: 'Delhi' },
+  // Coimbatore NCR
+  { id: 'del-1', name: 'Coimbatore', city: 'Coimbatore', state: 'Coimbatore' },
+  { id: 'del-2', name: 'Indira Gandhi International Airport (DEL)', city: 'Coimbatore', state: 'Coimbatore' },
+  { id: 'del-3', name: 'Connaught Place', city: 'Coimbatore', state: 'Coimbatore' },
   { id: 'del-4', name: 'Gurgaon', city: 'Gurgaon', state: 'Haryana' },
   { id: 'del-5', name: 'Noida', city: 'Noida', state: 'Uttar Pradesh' },
   { id: 'del-6', name: 'Faridabad', city: 'Faridabad', state: 'Haryana' },
   { id: 'del-7', name: 'Ghaziabad', city: 'Ghaziabad', state: 'Uttar Pradesh' },
-  { id: 'del-8', name: 'Dwarka', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-9', name: 'Rohini', city: 'Delhi', state: 'Delhi' },
-  { id: 'del-10', name: 'Lajpat Nagar', city: 'Delhi', state: 'Delhi' },
+  { id: 'del-8', name: 'Dwarka', city: 'Coimbatore', state: 'Coimbatore' },
+  { id: 'del-9', name: 'Rohini', city: 'Coimbatore', state: 'Coimbatore' },
+  { id: 'del-10', name: 'Lajpat Nagar', city: 'Coimbatore', state: 'Coimbatore' },
   
-  // Mumbai
-  { id: 'mum-1', name: 'Mumbai', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-2', name: 'Chhatrapati Shivaji International Airport (BOM)', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-3', name: 'Andheri', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-4', name: 'Bandra', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-5', name: 'Powai', city: 'Mumbai', state: 'Maharashtra' },
+  // Trichy
+  { id: 'mum-1', name: 'Trichy', city: 'Trichy', state: 'Maharashtra' },
+  { id: 'mum-2', name: 'Chhatrapati Shivaji International Airport (BOM)', city: 'Trichy', state: 'Maharashtra' },
+  { id: 'mum-3', name: 'Andheri', city: 'Trichy', state: 'Maharashtra' },
+  { id: 'mum-4', name: 'Bandra', city: 'Trichy', state: 'Maharashtra' },
+  { id: 'mum-5', name: 'Powai', city: 'Trichy', state: 'Maharashtra' },
   { id: 'mum-6', name: 'Thane', city: 'Thane', state: 'Maharashtra' },
-  { id: 'mum-7', name: 'Navi Mumbai', city: 'Navi Mumbai', state: 'Maharashtra' },
-  { id: 'mum-8', name: 'Juhu', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-9', name: 'Malad', city: 'Mumbai', state: 'Maharashtra' },
-  { id: 'mum-10', name: 'Goregaon', city: 'Mumbai', state: 'Maharashtra' },
+  { id: 'mum-7', name: 'Navi Trichy', city: 'Navi Trichy', state: 'Maharashtra' },
+  { id: 'mum-8', name: 'Juhu', city: 'Trichy', state: 'Maharashtra' },
+  { id: 'mum-9', name: 'Malad', city: 'Trichy', state: 'Maharashtra' },
+  { id: 'mum-10', name: 'Goregaon', city: 'Trichy', state: 'Maharashtra' },
   
-  // Hyderabad
-  { id: 'hyd-1', name: 'Hyderabad', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-2', name: 'Rajiv Gandhi International Airport (HYD)', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-3', name: 'HITEC City', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-4', name: 'Gachibowli', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-5', name: 'Madhapur', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-6', name: 'Banjara Hills', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-7', name: 'Jubilee Hills', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-8', name: 'Secunderabad', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-9', name: 'Kondapur', city: 'Hyderabad', state: 'Telangana' },
-  { id: 'hyd-10', name: 'Kukatpally', city: 'Hyderabad', state: 'Telangana' },
+  // Coimbatore
+  { id: 'hyd-1', name: 'Coimbatore', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-2', name: 'Rajiv Gandhi International Airport (HYD)', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-3', name: 'HITEC City', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-4', name: 'Gachibowli', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-5', name: 'Madhapur', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-6', name: 'Banjara Hills', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-7', name: 'Jubilee Hills', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-8', name: 'Secunderabad', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-9', name: 'Kondapur', city: 'Coimbatore', state: 'Telangana' },
+  { id: 'hyd-10', name: 'Kukatpally', city: 'Coimbatore', state: 'Telangana' },
 ];
 
 export function useLocationSearch() {

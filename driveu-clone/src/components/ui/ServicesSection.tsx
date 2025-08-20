@@ -1,16 +1,12 @@
-'use client';
-
 import React from 'react';
 import {
   Box,
   Container,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardActions,
   Button,
-  useTheme,
 } from '@mui/material';
 import {
   DirectionsCar,
@@ -24,6 +20,8 @@ import {
 import Link from 'next/link';
 import { SERVICES, ROUTES } from '@/utils/constants';
 
+
+// Define icon map for services
 const iconMap = {
   DirectionsCar,
   LocalCarWash,
@@ -33,11 +31,30 @@ const iconMap = {
   Security,
 };
 
-export default function ServicesSection() {
-  const theme = useTheme();
+// Define static theme values to avoid useTheme
+const theme = {
+  palette: {
+    primary: {
+      main: '#1976d2', // Replace with your theme's primary color
+      light: '#42a5f5',
+      dark: '#1565c0',
+    },
+    success: {
+      main: '#4caf50', // Replace with your theme's success color
+    },
+    text: {
+      primary: '#000000',
+      secondary: '#666666',
+    },
+    background: {
+      default: '#ffffff',
+    },
+  },
+};
 
+export default async function ServicesSection() {
   return (
-    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: 'background.default' }}>
+    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: theme.palette.background.default }}>
       <Container maxWidth="lg">
         {/* Section Header */}
         <Box sx={{ textAlign: 'center', mb: 6 }}>
@@ -64,13 +81,13 @@ export default function ServicesSection() {
           </Typography>
         </Box>
 
-        {/* Services Grid */}
-        <Grid container spacing={4}>
-          {SERVICES.map((service, index) => {
-            const IconComponent = iconMap[service.icon as keyof typeof iconMap] || DirectionsCar;
-            
+        {/* Services div */}
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-center'>
+          {SERVICES.map((service) => {
+            const IconComponent = iconMap[service.icon] || DirectionsCar;
+
             return (
-              <Grid item xs={12} sm={6} md={4} key={service.id}>
+              <div className="" key={service.id}>
                 <Card
                   sx={{
                     height: '100%',
@@ -78,6 +95,7 @@ export default function ServicesSection() {
                     flexDirection: 'column',
                     position: 'relative',
                     overflow: 'hidden',
+                    transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-8px)',
                       boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
@@ -88,7 +106,6 @@ export default function ServicesSection() {
                         transform: 'translateX(4px)',
                       },
                     },
-                    transition: 'all 0.3s ease',
                   }}
                 >
                   {/* Service Icon */}
@@ -196,10 +213,10 @@ export default function ServicesSection() {
                     </Box>
                   )}
                 </Card>
-              </Grid>
+              </div>
             );
           })}
-        </Grid>
+        </div>
 
         {/* CTA Section */}
         <Box sx={{ textAlign: 'center', mt: 8 }}>
@@ -222,7 +239,7 @@ export default function ServicesSection() {
               mx: 'auto',
             }}
           >
-            Download the TOP4 Call Drivers app on iOS / Android phones for a seamless car ownership experience. 
+            Download the TOP4 Call Drivers app on iOS / Android phones for a seamless car ownership experience.
             Track all your bookings and get rewarded for every transaction.
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -260,4 +277,3 @@ export default function ServicesSection() {
     </Box>
   );
 }
-
