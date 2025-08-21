@@ -43,7 +43,7 @@ export const SERVICES = [
     description:
       'Pressure wash, eco wash & daily wash by trained executives equipped with high-grade machines and premium materials',
     icon: 'LocalCarWash',
-    available: true,
+    available: false,
     cities: ['chennai', 'trichy', 'madurai', 'tirupur', 'coimbatore'],
   },
   {
@@ -61,7 +61,7 @@ export const SERVICES = [
     description:
       'TOP4 Call Drivers brings on-demand car cleaning to your doorstep with satisfaction guarantee. Now available in select cities — more coming soon.',
     icon: 'CleaningServices',
-    available: true,
+    available: false,
     cities: ['chennai', 'coimbatore', 'tirupur'],
   },
   {
@@ -70,7 +70,7 @@ export const SERVICES = [
     description:
       'Discover and book the best car services and maintenance options near you. Seamless booking experience and secure online payments.',
     icon: 'Build',
-    available: true,
+    available: false,
     cities: ['chennai', 'trichy', 'madurai', 'tirupur', 'coimbatore'],
   },
   {
