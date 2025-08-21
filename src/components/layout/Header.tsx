@@ -30,7 +30,7 @@ export default function HeaderServer({ currentPath }: Props) {
           {/* Brand / Logo */}
           <div className="flex-shrink-0">
             <Link href={ROUTES.HOME} aria-label={`${APP_CONFIG.name} home`} className="inline-flex items-center">
-              <span className="text-lg font-extrabold text-blue-600">{APP_CONFIG.name}</span>
+              <span className="text-lg font-extrabold text-[#354B9C]">{APP_CONFIG.name}</span>
             </Link>
           </div>
 
@@ -43,7 +43,7 @@ export default function HeaderServer({ currentPath }: Props) {
                   key={item.href}
                   href={item.href}
                   className={`px-2 py-1 rounded-md font-semibold transition-colors ${
-                    isActive ? 'text-blue-600' : 'text-gray-700 hover:bg-gray-100'
+                    isActive ? 'text-[#354B9C]' : 'text-gray-700 hover:bg-gray-100'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -71,7 +71,7 @@ export default function HeaderServer({ currentPath }: Props) {
                         <Link
                           href={c.href}
                           className={`block px-3 py-2 rounded-md text-sm font-medium ${
-                            isActive ? 'text-blue-600' : 'text-gray-800 hover:bg-gray-100'
+                            isActive ? 'text-[#354B9C]' : 'text-gray-800 hover:bg-gray-100'
                           }`}
                           aria-current={isActive ? 'page' : undefined}
                         >
@@ -89,7 +89,7 @@ export default function HeaderServer({ currentPath }: Props) {
             {/* CTA anchor styled like MUI button but server-only */}
             <Link
               href={ROUTES.DOWNLOAD}
-              className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-600 text-white font-bold hover:opacity-95"
+              className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-[#354B9C] text-white font-semibold hover:opacity-95"
               aria-label="Download App"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden className="inline-block">
@@ -123,7 +123,7 @@ export default function HeaderServer({ currentPath }: Props) {
         aria-label="Mobile menu"
       >
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <Link href={ROUTES.HOME} className="text-lg font-extrabold text-blue-600" aria-label={`${APP_CONFIG.name} home`}>
+          <Link href={ROUTES.HOME} className="text-lg font-extrabold text-[#354B9C]" aria-label={`${APP_CONFIG.name} home`}>
             {APP_CONFIG.name}
           </Link>
           <label htmlFor="nav-toggle" className="p-2 text-gray-700 hover:bg-gray-100 rounded-md" aria-label="Close menu" role="button">
@@ -139,7 +139,7 @@ export default function HeaderServer({ currentPath }: Props) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`block px-3 py-2 rounded-md font-semibold ${isActive ? 'text-blue-600' : 'text-gray-800 hover:bg-gray-100'}`}
+                    className={`block px-3 py-2 rounded-md font-semibold ${isActive ? 'text-[#354B9C]' : 'text-gray-800 hover:bg-gray-100'}`}
                     aria-current={isActive ? 'page' : undefined}
                   >
                     {item.label}
@@ -159,7 +159,7 @@ export default function HeaderServer({ currentPath }: Props) {
                       <li key={c.href}>
                         <Link
                           href={c.href}
-                          className={`block px-3 py-2 rounded-md font-semibold ${isActive ? 'text-blue-600' : 'text-gray-800 hover:bg-gray-100'}`}
+                          className={`block px-3 py-2 rounded-md font-semibold ${isActive ? 'text-[#354B9C]' : 'text-gray-800 hover:bg-gray-100'}`}
                           aria-current={isActive ? 'page' : undefined}
                         >
                           {c.label}
@@ -174,7 +174,7 @@ export default function HeaderServer({ currentPath }: Props) {
             <li className="mt-3">
               <Link
                 href={ROUTES.DOWNLOAD}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white font-bold"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-[#354B9C] text-white font-bold"
                 aria-label="Download App"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>

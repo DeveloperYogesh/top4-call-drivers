@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 import './globals.css';
 import ThemeProvider from '@/components/common/ThemeProvider';
 import AccessibilityProvider from '@/components/common/AccessibilityProvider';
@@ -8,7 +8,12 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
 
-const inter = Inter({ subsets: ['latin'] });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+});
+
 
 export const metadata: Metadata = generateSEOMetadata();
 
@@ -19,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={poppins.className}>
         <AccessibilityProvider>
           <ThemeProvider>
             <div className="min-h-screen flex flex-col">

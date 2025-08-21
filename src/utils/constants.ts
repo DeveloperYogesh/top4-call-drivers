@@ -207,7 +207,7 @@ export const SUPPORTED_CITIES = [
       'K.K. Nagar (Trichy)',
     ],
     description:
-      'Hire professional drivers in Trichy for reliable transportation across Tiruchirappalli and surrounding localities.',
+      'Hire TOP4 Call Drivers in Trichy for reliable transportation across Tiruchirappalli and surrounding localities.',
     keywords: ['driver hire trichy', 'professional drivers trichy', 'car driver booking trichy'],
   },
 ];

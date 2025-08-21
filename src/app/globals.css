@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -9,6 +10,20 @@
   --warning-color: #ed6c02;
   --error-color: #d32f2f;
   --font-size-multiplier: 1;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 @theme inline {
@@ -48,6 +63,35 @@ body {
   color: rgb(0 0 0 / var(--tw-text-opacity)) !important;
   border-color: rgb(0 0 0 / var(--tw-border-opacity, 1)) !important;
 }
+
+h1 {
+  @apply text-4xl lg:text-5xl mb-5 lg:mb-7 leading-tight sm:leading-tight md:leading-tight lg:leading-tight xl:leading-tight 2xl:leading-tight font-semibold;
+}
+h2 {
+  @apply text-2xl lg:text-3xl mb-4 lg:mb-6 leading-tight sm:leading-tight md:leading-tight lg:leading-tight xl:leading-tight 2xl:leading-tight font-semibold;
+}
+h3 {
+  @apply text-xl my-3 md:my-4 lg:my-5 leading-tight sm:leading-tight md:leading-tight lg:leading-tight xl:leading-tight 2xl:leading-tight font-semibold;
+}
+h4 {
+  @apply text-lg my-3 leading-tight sm:leading-tight md:leading-tight lg:leading-tight xl:leading-tight 2xl:leading-tight font-semibold;
+}
+h5 {
+  @apply text-base my-2 leading-tight sm:leading-tight md:leading-tight lg:leading-tight xl:leading-tight 2xl:leading-tight lg:my-4 font-semibold;
+}
+h6 {
+  @apply text-base my-2 leading-tight sm:leading-tight md:leading-tight lg:leading-tight xl:leading-tight 2xl:leading-tight font-semibold;
+}
+
+p, li {
+  @apply text-xs md:text-sm 2xl:text-base;
+}
+
+
+.a {
+  @apply no-underline;
+}
+
 
 .high-contrast button,
 .high-contrast .MuiButton-root {
@@ -130,4 +174,9 @@ html {
   * {
     transition: none !important;
   }
+}
+
+
+.custom-container {
+  @apply mx-auto py-8 md:py-10 lg:py-12 2xl:py-14 overflow-hidden px-3 md:px-10 lg:px-16 max-w-[1400px] m-0;
 }

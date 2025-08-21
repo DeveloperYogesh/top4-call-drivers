@@ -1,18 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  Button,
-  Chip,
-  useTheme,
-  useMediaQuery,
-} from "@mui/material";
+import { Button, Chip, useTheme, useMediaQuery } from "@mui/material";
 import {
   LocationOn,
   Star,
@@ -67,405 +56,219 @@ export default function CityPage({ cityData }: CityPageProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
-    <Box>
+    <div>
       {/* Hero Section */}
-      <Box
-        sx={{
-          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-          color: "white",
-          py: { xs: 8, md: 12 },
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <Container maxWidth="lg">
+      <div className="bg-gradient-to-r from-[#354B9C] to-blue-800 text-white py-8 md:py-12 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div>
-              <Box sx={{ mb: 3 }}>
-                <Chip
-                  label={`Available in ${cityData.name}`}
-                  sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    color: "white",
-                    mb: 2,
-                  }}
-                />
-              </Box>
-
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">
-                Hire Professional Drivers in {cityData.name}
-              </h1>
-
-              <h5 className="text-lg md:text-xl mb-6">
-                Book verified, professional drivers for safe and comfortable
-                rides across {cityData.name}. Available 24/7 with transparent
-                pricing starting from {formatCurrency(cityData.basePrice)}.
-              </h5>
-
-              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-                <Button
-                  component={Link}
-                  href="/book-driver"
-                  variant="contained"
-                  size="large"
-                  sx={{
-                    backgroundColor: "white",
-                    color: theme.palette.primary.main,
-                    px: 4,
-                    py: 1.5,
-                    fontSize: "1.1rem",
-                    fontWeight: 600,
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    },
-                  }}
-                  startIcon={<Phone />}
-                >
-                  Book Driver Now
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  size="large"
-                  sx={{
-                    borderColor: "white",
-                    color: "white",
-                    px: 4,
-                    py: 1.5,
-                    fontSize: "1.1rem",
-                    "&:hover": {
-                      borderColor: "white",
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                  }}
-                >
-                  View Pricing
-                </Button>
+            <div className="mb-3">
+              <div className="bg-white/20 text-white py-2 px-4 rounded-full w-fit mx-auto">
+                <p className="text-xs uppercase text-white">
+                  Available in {cityData.name}
+                </p>
               </div>
             </div>
 
-            <div className="w-fit mx-auto">
-              <Card
-                sx={{
-                  p: 3,
-                  textAlign: "center",
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  backdropFilter: "blur(10px)",
-                }}
+            <h1 className="text-3xl md:text-4xl font-bold text-center mb-6">
+              Hire TOP4 Call Drivers in {cityData.name}
+            </h1>
+
+            <p className="text-lg md:text-xl text-white/90 mb-6 max-w-2xl mx-auto">
+              Book verified, professional drivers for safe and comfortable rides
+              across {cityData.name}. Available 24/7 with transparent pricing
+              starting from {formatCurrency(cityData.basePrice)}.
+            </p>
+
+            <div className="flex flex-col sm:flex-row justify-center gap-4 my-6">
+              <Button
+                component={Link}
+                href="/book-driver"
+                variant="contained"
+                size="large"
+                className="bg-white text-[#354B9C] px-6 py-3 text-lg font-semibold hover:bg-white/90"
+                startIcon={<Phone />}
               >
-                <Typography
-                  variant="h6"
-                  sx={{ mb: 2, color: theme.palette.text.primary }}
-                >
+                Book Driver Now
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="large"
+                className="!border-white !text-white px-6 py-3 text-lg hover:!bg-white/10"
+              >
+                View Pricing
+              </Button>
+            </div>
+
+            <div className="w-fit mx-auto">
+              <div className="p-4 2xl:p-6 text-center bg-white/95 backdrop-blur-lg rounded-lg">
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 mt-0">
                   Quick Stats for {cityData.name}
-                </Typography>
+                </h3>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <h3 className="text-[#354B9C]">{cityData.driversCount}+</h3>
+                    <p className="text-sm text-gray-600">Verified Drivers</p>
+                  </div>
 
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 700,
-                        color: theme.palette.primary.main,
-                      }}
-                    >
-                      {cityData.driversCount}+
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Verified Drivers
-                    </Typography>
-                  </Grid>
+                  <div>
+                    <h3 className="text-[#354B9C]">{cityData.areasCount}+</h3>
+                    <p className="text-sm text-gray-600">Areas Covered</p>
+                  </div>
 
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 700,
-                        color: theme.palette.primary.main,
-                      }}
-                    >
-                      {cityData.areasCount}+
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Areas Covered
-                    </Typography>
-                  </Grid>
+                  <div>
+                    <h3 className="text-[#354B9C]">4.8★</h3>
+                    <p className="text-sm text-gray-600">Average Rating</p>
+                  </div>
 
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 700,
-                        color: theme.palette.primary.main,
-                      }}
-                    >
-                      4.8★
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Average Rating
-                    </Typography>
-                  </Grid>
-
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 700,
-                        color: theme.palette.primary.main,
-                      }}
-                    >
-                      24/7
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Availability
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Card>
+                  <div>
+                    <h3 className="text-[#354B9C]">24/7</h3>
+                    <p className="text-sm text-gray-600">Availability</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </Container>
-      </Box>
+        </div>
+      </div>
 
       {/* Features Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Box sx={{ textAlign: "center", mb: 6 }}>
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 700,
-              mb: 2,
-              fontSize: { xs: "2rem", md: "2.5rem" },
-            }}
-          >
+      <div className="custom-container">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">
             Why Choose TOP4 Call Drivers in {cityData.name}?
-          </Typography>
-          <Typography
-            variant="h6"
-            color="text.secondary"
-            sx={{ maxWidth: 600, mx: "auto" }}
-          >
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Experience the best driver hiring service with our professional and
             reliable drivers
-          </Typography>
-        </Box>
+          </p>
+        </div>
 
         <div className="flex flex-col md:flex-row justify-center gap-4 mb-6">
           {features.map((feature, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card
-                sx={{
-                  p: 3,
-                  textAlign: "center",
-                  height: "100%",
-                  transition: "transform 0.3s ease-in-out",
-                  "&:hover": {
-                    transform: "translateY(-8px)",
-                  },
-                }}
-              >
-                <Box sx={{ mb: 2 }}>{feature.icon}</Box>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                  {feature.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {feature.description}
-                </Typography>
-              </Card>
-            </Grid>
+            <div
+              key={index}
+              className="p-6 text-center bg-white rounded-lg my-border hover:shadow-md"
+            >
+              <div className="mb-2">{feature.icon}</div>
+              <h3 className="text-xl font-semibold mb-1 text-gray-900">
+                {feature.title}
+              </h3>
+              <p className="text-sm text-gray-600">{feature.description}</p>
+            </div>
           ))}
         </div>
-      </Container>
+      </div>
 
       {/* Areas Covered Section */}
-      <Box sx={{ backgroundColor: theme.palette.grey[50], py: 8 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 6 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                mb: 2,
-                fontSize: { xs: "2rem", md: "2.5rem" },
-              }}
-            >
+      <div className="bg-[#354B9C]">
+        <div className="custom-container">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">
               Areas We Cover in {cityData.name}
-            </Typography>
-            <Typography
-              variant="h6"
-              color="text.secondary"
-              sx={{ maxWidth: 600, mx: "auto" }}
-            >
+            </h2>
+            <p className="text-lg text-white max-w-2xl mx-auto">
               Our professional drivers are available across all major areas in{" "}
               {cityData.name}
-            </Typography>
-          </Box>
+            </p>
+          </div>
 
-          <div className="flex md:flex-wrap justify-center gap-4 mb-6">
+          <div className="flex flex-wrap justify-center gap-4 mb-6">
             {cityData.areas.map((area, index) => (
-              <Grid item xs={6} sm={4} md={3} key={index}>
-                <Card
-                  sx={{
-                    p: 2,
-                    textAlign: "center",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease-in-out",
-                    "&:hover": {
-                      backgroundColor: theme.palette.primary.main,
-                      color: "white",
-                    },
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <LocationOn sx={{ fontSize: 20 }} />
-                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                      {area}
-                    </Typography>
-                  </Box>
-                </Card>
-              </Grid>
+              <div
+                key={index}
+                className="p-4 text-center text-white rounded-lg cursor-pointer my-border hover:bg-white/10 transition-all duration-300"
+              >
+                <div className="flex items-center gap-1">
+                  <LocationOn className="text-lg" />
+                  <p className="font-medium">{area}</p>
+                </div>
+              </div>
             ))}
           </div>
-        </Container>
-      </Box>
+        </div>
+      </div>
 
       {/* Benefits Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
+      <div className="custom-container">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-x-8 mb-6">
-          <Card sx={{ p: 4}}>
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
+          <div className="p-6 bg-white rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-3 text-gray-900">
               Pricing in {cityData.name}
-            </Typography>
+            </h3>
 
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Starting from
-              </Typography>
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  color: theme.palette.primary.main,
-                  mb: 1,
-                }}
-              >
+            <div className="mb-3">
+              <p className="text-sm text-gray-600 mb-1">Starting from</p>
+              <h3 className="font-bold text-[#354B9C] mb-1">
                 {formatCurrency(cityData.basePrice)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                per trip (base fare)
-              </Typography>
-            </Box>
+              </h3>
+              <p className="text-sm text-gray-600">per trip (base fare)</p>
+            </div>
 
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                <strong>Popular vehicle types:</strong>
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            <div className="mb-3">
+              <p className="font-semibold mb-2">Popular vehicle types:</p>
+              <div className="flex flex-wrap gap-2">
                 <Chip label="Hatchback - ₹299" variant="outlined" />
                 <Chip label="Sedan - ₹399" variant="outlined" />
                 <Chip label="SUV - ₹499" variant="outlined" />
-              </Box>
-            </Box>
+              </div>
+            </div>
 
-            <Typography variant="body2" color="text.secondary">
+            <p className="text-sm text-gray-600">
               * Final fare may vary based on distance, time, and vehicle type
-            </Typography>
-          </Card>
-          <Grid item xs={12} md={6}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                mb: 3,
-                fontSize: { xs: "2rem", md: "2.5rem" },
-              }}
-            >
+            </p>
+          </div>
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3 text-gray-900">
               Benefits of Hiring Drivers in {cityData.name}
-            </Typography>
+            </h2>
 
-            <Box sx={{ mb: 4 }}>
+            <div className="mb-4">
               {benefits.map((benefit, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    mb: 2,
-                  }}
-                >
+                <div key={index} className="flex items-center gap-2 mb-2">
                   <CheckCircle color="primary" />
-                  <Typography variant="body1">{benefit}</Typography>
-                </Box>
+                  <p className="text-base">{benefit}</p>
+                </div>
               ))}
-            </Box>
+            </div>
 
             <Button
               component={Link}
               href="/book-driver"
               variant="contained"
               size="large"
-              sx={{
-                px: 4,
-                py: 1.5,
-                fontSize: "1.1rem",
-                fontWeight: 600,
-              }}
+              className="px-6 py-3 text-lg font-semibold"
             >
               Book Your Driver Now
             </Button>
-          </Grid>
+          </div>
         </div>
-      </Container>
+      </div>
 
       {/* CTA Section */}
-      <Box
-        sx={{
-          backgroundColor: theme.palette.primary.main,
-          color: "white",
-          py: 8,
-          textAlign: "center",
-        }}
-      >
-        <Container maxWidth="md">
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 700,
-              mb: 2,
-              fontSize: { xs: "2rem", md: "2.5rem" },
-            }}
-          >
+      <div className="bg-[#354B9C] text-white py-8 text-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-2">
             Ready to Book a Driver in {cityData.name}?
-          </Typography>
+          </h2>
 
-          <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
+          <p className="text-lg mb-4 opacity-90">
             Join thousands of satisfied customers who trust TOP4 Call Drivers
             for their transportation needs
-          </Typography>
+          </p>
 
           <Button
             component={Link}
             href="/book-driver"
             variant="contained"
             size="large"
-            sx={{
-              backgroundColor: "white",
-              color: theme.palette.primary.main,
-              px: 6,
-              py: 2,
-              fontSize: "1.2rem",
-              fontWeight: 600,
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-              },
-            }}
+            className="bg-white text-[#354B9C] px-8 py-4 text-lg font-semibold hover:bg-white/90"
             startIcon={<Phone />}
           >
             Book Driver Now
           </Button>
-        </Container>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -102,7 +102,7 @@ export default function BookingForm({
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div
-        className={`max-w-[600px] mx-auto ${
+        className={`max-w-[600px] min-w-[400px] md:min-w-[450px] mx-auto ${
           isEmbedded ? "" : "px-4"
         } bg-white rounded-2xl`}
       >
@@ -330,7 +330,7 @@ export default function BookingForm({
                   </div>
                 </div>
 
-                <Divider sx={{ my: 2 }} />
+                {/* <Divider sx={{ my: 2 }} /> */}
 
                 {/* Additional Options */}
 
@@ -351,7 +351,7 @@ export default function BookingForm({
                     }}
                   />
                 </div> */}
-                <div className="mt-2">
+                {/* <div className="mt-2">
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -372,7 +372,7 @@ export default function BookingForm({
                       </Box>
                     }
                   />
-                </div>
+                </div> */}
               </CardContent>
             </div>
           </div>
