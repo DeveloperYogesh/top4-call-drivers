@@ -1,42 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  Select,
-  MenuItem,
-  Checkbox,
-  TextField,
-  InputAdornment,
-  useTheme,
-  useMediaQuery,
-  Divider,
-} from "@mui/material";
-import {
-  LocationOn,
-  Schedule,
-  DirectionsCar,
-  LocalOffer,
-  Phone,
-  SwapVert,
-} from "@mui/icons-material";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 import LocationAutocomplete from "@/components/ui/LocationAutocomplete";
 import PhoneModal from "@/components/ui/PhoneModal";
 import { useBooking } from "@/hooks/useBooking";
 import { formatCurrency } from "@/utils/helpers";
+import {
+  DirectionsCar,
+  LocationOn,
+  Phone,
+  Schedule
+} from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs from "dayjs";
+import { useState } from "react";
 
 const tripTypes = [
   { value: "one-way", label: "One Way" },

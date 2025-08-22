@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { Location } from '@/types';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Mock location data for only the five cities:
 // Chennai, Trichy, Madurai, Tirupur, Coimbatore

@@ -1,8 +1,6 @@
 // components/HeroSection.tsx
-import Link from "next/link";
-import { ROUTES } from "@/utils/constants";
-import { JSX } from "@emotion/react/jsx-runtime";
 import BookingForm from "@/components/forms/BookingForm";
+import { JSX } from "@emotion/react/jsx-runtime";
 
 const features = [
   {

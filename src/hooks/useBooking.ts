@@ -14,7 +14,8 @@ interface UseBookingState {
   couponCode: string;
   phoneNumber: string;
   isLoading: boolean;
-  errors: Record<string, string>;
+  // allow undefined so clearing an error can be represented
+  errors: Record<string, string | undefined>;
 }
 
 const initialState: UseBookingState = {
@@ -34,28 +35,36 @@ const initialState: UseBookingState = {
 export function useBooking() {
   const [state, setState] = useState<UseBookingState>(initialState);
 
-  const updateField = useCallback(<K extends keyof UseBookingState>(
-    field: K,
-    value: UseBookingState[K]
-  ) => {
-    setState(prev => ({
-      ...prev,
-      [field]: value,
-      errors: {
-        ...prev.errors,
-        [field]: undefined, // Clear error when field is updated
-      },
-    }));
-  }, []);
+  /**
+   * Update a single field (except `errors`) and clear any error for that field.
+   * We exclude 'errors' from this helper to keep semantics clear; use setError / clearErrors for errors specifically.
+   */
+  const updateField = useCallback(
+    <K extends Exclude<keyof UseBookingState, 'errors'>>(field: K, value: UseBookingState[K]) => {
+      setState(prev => {
+        const next = { ...prev } as UseBookingState;
+        // assign via `any` to satisfy TS when indexing by generic key
+        (next as any)[field] = value;
+        // clear any error keyed by this field name (string)
+        next.errors = {
+          ...prev.errors,
+          [(field as string)]: undefined,
+        };
+        return next;
+      });
+    },
+    []
+  );
 
   const setError = useCallback((field: string, message: string) => {
-    setState(prev => ({
-      ...prev,
-      errors: {
+    setState(prev => {
+      const next = { ...prev } as UseBookingState;
+      next.errors = {
         ...prev.errors,
         [field]: message,
-      },
-    }));
+      };
+      return next;
+    });
   }, []);
 
   const clearErrors = useCallback(() => {
@@ -77,7 +86,7 @@ export function useBooking() {
   }, []);
 
   const validateBooking = useCallback((): boolean => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string | undefined> = {};
 
     if (!state.pickupLocation) {
       newErrors.pickupLocation = 'Please select a pickup location';
@@ -134,10 +143,10 @@ export function useBooking() {
   }, [state]);
 
   return {
-    // State
+    // state fields
     ...state,
-    
-    // Actions
+
+    // actions
     updateField,
     setError,
     clearErrors,
@@ -146,9 +155,8 @@ export function useBooking() {
     validateBooking,
     getBookingRequest,
     isFormValid,
-    
-    // Computed values
+
+    // computed
     canProceed: isFormValid(),
   };
 }
-

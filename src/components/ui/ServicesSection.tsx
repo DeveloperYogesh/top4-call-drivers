@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, CardActions } from "@mui/material";
+import { Button } from "@mui/material";
 import {
   DirectionsCar,
   LocalCarWash,
@@ -22,28 +22,10 @@ const iconMap = {
   Security,
 };
 
-// Define static theme values to avoid useTheme
-const theme = {
-  palette: {
-    primary: {
-      main: "#1976d2",
-      light: "#42a5f5",
-      dark: "#1565c0",
-    },
-    success: {
-      main: "#4caf50",
-    },
-    text: {
-      primary: "#000000",
-      secondary: "#666666",
-    },
-    background: {
-      default: "#ffffff",
-    },
-  },
-};
+type IconMap = typeof iconMap;     // inferred type
+type IconKey = keyof IconMap;      // "DirectionsCar" | "LocalCarWash" | ...
 
-export default async function ServicesSection() {
+export default function ServicesSection() {
   return (
     <div className="bg-white">
       <div className="custom-container">
@@ -53,15 +35,14 @@ export default async function ServicesSection() {
             Our Services
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Comprehensive car services and professional drivers at your
-            fingertips
+            Comprehensive car services and professional drivers at your fingertips
           </p>
         </div>
 
-        {/* Services div */}
+        {/* Services grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-center">
           {SERVICES.map((service) => {
-            const IconComponent = iconMap[service.icon] || DirectionsCar;
+            const IconComponent = iconMap[service.icon as IconKey] || DirectionsCar;
 
             return (
               <div key={service.id}>
@@ -124,9 +105,7 @@ export default async function ServicesSection() {
               Simplify Car Ownership
             </h3>
             <p className="text-base text-gray-600 mb-4 max-w-2xl mx-auto">
-              Download the TOP4 Call Drivers app on iOS / Android phones for a
-              seamless car ownership experience. Track all your bookings and get
-              rewarded for every transaction.
+              Download the TOP4 Call Drivers app on iOS / Android phones for a seamless car ownership experience. Track all your bookings and get rewarded for every transaction.
             </p>
             <div className="flex gap-2 justify-center flex-wrap">
               <Button

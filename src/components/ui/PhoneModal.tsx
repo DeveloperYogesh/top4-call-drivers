@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import { formatPhoneNumber, generateOTP, isValidPhoneNumber } from '@/utils/helpers';
+import { Close, Phone, Verified } from '@mui/icons-material';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
+  Alert,
   Box,
-  Typography,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   InputAdornment,
-  Alert,
-  CircularProgress,
+  TextField,
+  Typography,
 } from '@mui/material';
-import { Close, Phone, Verified } from '@mui/icons-material';
-import { isValidPhoneNumber, formatPhoneNumber, generateOTP } from '@/utils/helpers';
+import { useState } from 'react';
 
 interface PhoneModalProps {
   open: boolean;

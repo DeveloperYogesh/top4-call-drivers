@@ -1,19 +1,18 @@
 "use client";
 
-import React from "react";
-import { Button, Chip, useTheme, useMediaQuery } from "@mui/material";
-import {
-  LocationOn,
-  Star,
-  Schedule,
-  Security,
-  Phone,
-  DirectionsCar,
-  CheckCircle,
-} from "@mui/icons-material";
-import Link from "next/link";
 import { CityData } from "@/types";
 import { formatCurrency } from "@/utils/helpers";
+import {
+  CheckCircle,
+  DirectionsCar,
+  LocationOn,
+  Phone,
+  Schedule,
+  Security,
+  Star,
+} from "@mui/icons-material";
+import { Button, Chip, useMediaQuery, useTheme } from "@mui/material";
+import Link from "next/link";
 
 interface CityPageProps {
   cityData: CityData;

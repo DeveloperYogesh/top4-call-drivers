@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
 import { Location } from '@/types';
 import { debounce } from '@/utils/helpers';
+import { useCallback, useState } from 'react';
 
 interface UseLocationSearchState {
   query: string;

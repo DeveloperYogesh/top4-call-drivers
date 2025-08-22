@@ -7,10 +7,12 @@ export const locationSchema = z.object({
   name: z.string().min(1, 'Location name is required'),
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
-  coordinates: z.object({
-    lat: z.number(),
-    lng: z.number(),
-  }).optional(),
+  coordinates: z
+    .object({
+      lat: z.number(),
+      lng: z.number(),
+    })
+    .optional(),
 });
 
 // Phone number validation
@@ -36,23 +38,16 @@ export const couponSchema = z
 
 // Booking request schema
 export const bookingRequestSchema = z.object({
-  tripType: z.enum(['one-way', 'round-trip', 'outstation'], {
-    required_error: 'Please select a trip type',
-  }),
+  // use readonly tuple for enum values
+  tripType: z.enum(['one-way', 'round-trip', 'outstation'] as const),
   pickupLocation: locationSchema,
   dropLocation: locationSchema.optional(),
-  scheduledTime: z.date({
-    required_error: 'Please select when you need the driver',
-  }).refine(
-    (date) => date > new Date(),
-    'Scheduled time must be in the future'
-  ),
-  carType: z.enum(['manual', 'automatic'], {
-    required_error: 'Please select car type',
-  }),
-  vehicleSize: z.enum(['hatchback', 'sedan', 'suv'], {
-    required_error: 'Please select vehicle size',
-  }),
+  // no options object here — use refine for future-date validation
+  scheduledTime: z
+    .date()
+    .refine((date) => date > new Date(), 'Scheduled time must be in the future'),
+  carType: z.enum(['manual', 'automatic'] as const),
+  vehicleSize: z.enum(['hatchback', 'sedan', 'suv'] as const),
   damageProtection: z.boolean().default(false),
   couponCode: couponSchema,
   phoneNumber: phoneSchema,
@@ -106,9 +101,9 @@ export const searchLocationSchema = z.object({
 export const fareCalculationSchema = z.object({
   distance: z.number().positive('Distance must be positive'),
   duration: z.number().positive('Duration must be positive'),
-  carType: z.enum(['manual', 'automatic']),
-  vehicleSize: z.enum(['hatchback', 'sedan', 'suv']),
-  tripType: z.enum(['one-way', 'round-trip', 'outstation']),
+  carType: z.enum(['manual', 'automatic'] as const),
+  vehicleSize: z.enum(['hatchback', 'sedan', 'suv'] as const),
+  tripType: z.enum(['one-way', 'round-trip', 'outstation'] as const),
   damageProtection: z.boolean().default(false),
   couponCode: couponSchema,
 });
@@ -121,7 +116,7 @@ export const driverRegistrationSchema = z.object({
   licenseNumber: z.string().min(10, 'License number must be at least 10 characters'),
   experience: z.number().min(1, 'Experience must be at least 1 year'),
   city: z.string().min(1, 'City is required'),
-  vehicleTypes: z.array(z.enum(['hatchback', 'sedan', 'suv'])).min(1, 'Select at least one vehicle type'),
+  vehicleTypes: z.array(z.enum(['hatchback', 'sedan', 'suv'] as const)).min(1, 'Select at least one vehicle type'),
   documents: z.object({
     license: z.string().url('License document is required'),
     aadhar: z.string().url('Aadhar document is required'),
@@ -137,9 +132,7 @@ export const businessInquirySchema = z.object({
   email: emailSchema,
   phoneNumber: phoneSchema,
   city: z.string().min(1, 'City is required'),
-  employeeCount: z.enum(['1-10', '11-50', '51-200', '201-500', '500+'], {
-    required_error: 'Please select employee count',
-  }),
+  employeeCount: z.enum(['1-10', '11-50', '51-200', '201-500', '500+'] as const),
   serviceType: z.array(z.string()).min(1, 'Select at least one service type'),
   message: z.string().min(10, 'Message must be at least 10 characters').optional(),
 });
@@ -156,4 +149,3 @@ export type SearchLocationInput = z.infer<typeof searchLocationSchema>;
 export type FareCalculationInput = z.infer<typeof fareCalculationSchema>;
 export type DriverRegistrationInput = z.infer<typeof driverRegistrationSchema>;
 export type BusinessInquiryInput = z.infer<typeof businessInquirySchema>;
-
