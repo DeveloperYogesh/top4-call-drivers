@@ -100,7 +100,7 @@ export default function CityPage({ cityData }: CityPageProps) {
 
             <div className="w-fit mx-auto">
               <div className="p-4 2xl:p-6 text-center bg-white/95 backdrop-blur-lg rounded-lg">
-                <h3 className="text-xl font-semibold mb-2 text-gray-900 mt-0">
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 !my-0">
                   Quick Stats for {cityData.name}
                 </h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
