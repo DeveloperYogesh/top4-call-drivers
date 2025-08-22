@@ -1,7 +1,7 @@
 // app/call-drivers-in/[city]/page.tsx
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import CityPage from '@/components/pages/CityPage';
+import CustomerCityPage from '@/components/pages/customerCityPage';
 import { generateCityMetadata, getCityData } from '@/lib/seo';
 import { SUPPORTED_CITIES } from '@/utils/constants';
 import { JSX } from '@emotion/react/jsx-runtime';
@@ -36,5 +36,5 @@ export default async function CityPageRoute({ params }: PageProps): Promise<JSX.
 
   if (!cityData) notFound();
 
-  return <CityPage cityData={cityData} />;
+  return <CustomerCityPage cityData={cityData} />;
 }

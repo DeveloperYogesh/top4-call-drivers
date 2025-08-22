@@ -239,7 +239,7 @@ export const SOCIAL_LINKS = {
 
 export const APP_STORE_LINKS = {
   android: 'https://play.google.com/store/apps/details?id=com.top3.android',
-  ios: 'https://apps.apple.com/in/app/top3-car-drivers-services/id1037756294',
+  ios: 'https://apps.apple.com/in/app/top4-car-drivers-services/id1037756294',
 };
 
 export const DAMAGE_PROTECTION_COST = 15; // in INR
