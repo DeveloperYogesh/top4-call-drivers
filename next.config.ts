@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
       {
         source: "/call-drivers-in-:city",
         destination: "/call-drivers-in/:city"
+      },
+      {
+        source: "/car-driver-job-in-:city",
+        destination: "/car-driver-job-in/:city"
       }
     ];
   },

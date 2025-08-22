@@ -14,7 +14,7 @@ import {
 import { Button, Chip, useMediaQuery, useTheme } from "@mui/material";
 import Link from "next/link";
 
-interface CityPageProps {
+interface CustomerCityPageProps {
   cityData: CityData;
 }
 
@@ -50,8 +50,18 @@ const benefits = [
   "Multiple payment options",
 ];
 
-export default function CityPage({ cityData }: CityPageProps) {
-  const theme = useTheme();
+
+/**
+ * CustomerCityPage component
+ *
+ * @param {CityData} cityData - City data including name, areas, drivers count, base price, and more
+ * @returns {JSX.Element} Customer city page component
+ *
+ * This page is rendered when a user navigates to a city-specific route e.g. /call-drivers-in-chennai
+ * The page displays city-specific information, features, benefits, and a call-to-action to book a driver
+ */
+
+export default function CustomerCityPage({ cityData }: CustomerCityPageProps) {
 
   return (
     <div>
