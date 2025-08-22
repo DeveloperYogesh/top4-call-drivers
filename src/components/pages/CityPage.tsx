@@ -67,7 +67,7 @@ export default function CityPage({ cityData }: CityPageProps) {
               </div>
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-center mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold text-center mb-2">
               Hire TOP4 Call Drivers in {cityData.name}
             </h1>
 

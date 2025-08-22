@@ -133,7 +133,7 @@ export default function BookingForm({
                       sx={{
                         fontWeight: 600,
                         color: theme.palette.text.primary,
-                        mb: 2,
+                        mb: 1,
                       }}
                     >
                       Trip Type
@@ -158,7 +158,7 @@ export default function BookingForm({
                   </FormControl>
                 </div>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider sx={{ mb: 2 }} />
 
                 {/* Locations */}
                 <div className="mb-2">
