@@ -2,60 +2,6 @@
 import BookingForm from "@/components/forms/BookingForm";
 import { JSX } from "@emotion/react/jsx-runtime";
 
-const features = [
-  {
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        className="w-8 h-8"
-        aria-hidden
-      >
-        <path fill="none" d="M0 0h24v24H0z" />
-        <path
-          d="M12 2l7 3v5c0 5-3.8 9.8-7 11-3.2-1.2-7-6-7-11V5l7-3z"
-          fill="currentColor"
-        />
-      </svg>
-    ),
-    text: "Motor insurance is renewed",
-  },
-  {
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        className="w-8 h-8"
-        aria-hidden
-      >
-        <path fill="none" d="M0 0h24v24H0z" />
-        <path
-          d="M3 13l1.5-4.5C5 7 6 6 8 6h8c2 0 3 1 3.5 2.5L21 13v6a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H6v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM6.5 10.5h11"
-          fill="currentColor"
-        />
-      </svg>
-    ),
-    text: "Your car wash is booked",
-  },
-  {
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        className="w-8 h-8"
-        aria-hidden
-      >
-        <path fill="none" d="M0 0h24v24H0z" />
-        <path
-          d="M10 15l-3.5-3.5L8 10l2 2 6-6 1.5 1.5L10 15z"
-          fill="currentColor"
-        />
-      </svg>
-    ),
-    text: "Your FASTag is recharged",
-  },
-];
-
 export default function HeroSection(): JSX.Element {
   return (
     <section

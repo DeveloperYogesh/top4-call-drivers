@@ -56,7 +56,6 @@ export default function BookingForm({
   isEmbedded?: boolean;
 }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
 
   const {
@@ -67,19 +66,12 @@ export default function BookingForm({
     carType,
     vehicleSize,
     damageProtection,
-    couponCode,
     phoneNumber,
     errors,
     updateField,
     canProceed,
   } = useBooking();
 
-  const handleSwapLocations = () => {
-    if (pickupLocation && dropLocation) {
-      updateField("pickupLocation", dropLocation);
-      updateField("dropLocation", pickupLocation);
-    }
-  };
 
   const handleRequestDriver = () => {
     if (canProceed) {
