@@ -8,7 +8,7 @@ import {
   DirectionsCar,
   LocationOn,
   Phone,
-  Schedule
+  Schedule,
 } from "@mui/icons-material";
 import {
   Box,
@@ -24,39 +24,53 @@ import {
   RadioGroup,
   Select,
   Typography,
-  useMediaQuery,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";
 
-const tripTypes = [
+interface TripTypeOption {
+  value: string;
+  label: string;
+}
+
+interface VehicleSizeOption {
+  value: string;
+  label: string;
+  price: number;
+}
+
+const tripTypes: TripTypeOption[] = [
   { value: "one-way", label: "One Way" },
   { value: "round-trip", label: "Round Trip" },
   { value: "outstation", label: "Outstation" },
+  { value: "daily", label: "Daily" },
 ];
 
-const carTypes = [
+const carTypes: TripTypeOption[] = [
   { value: "manual", label: "Manual" },
   { value: "automatic", label: "Automatic" },
 ];
 
-const vehicleSizes = [
+const vehicleSizes: VehicleSizeOption[] = [
   { value: "hatchback", label: "Hatchback", price: 299 },
   { value: "sedan", label: "Sedan", price: 399 },
   { value: "suv", label: "SUV", price: 499 },
 ];
 
-export default function BookingForm({
-  isEmbedded = false,
-}: {
+const usageOptions: number[] = [4, 6, 8, 10, 12];
+
+interface BookingFormProps {
   isEmbedded?: boolean;
-}) {
+}
+
+export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
   const theme = useTheme();
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+  const [estimatedUsage, setEstimatedUsage] = useState<number>(4);
 
   const {
     tripType,
@@ -72,18 +86,22 @@ export default function BookingForm({
     canProceed,
   } = useBooking();
 
-
   const handleRequestDriver = () => {
     if (canProceed) {
       setPhoneModalOpen(true);
     }
   };
 
-  const calculateEstimatedFare = () => {
+  const calculateEstimatedFare = (): number => {
     const basePrice =
       vehicleSizes.find((v) => v.value === vehicleSize)?.price || 299;
     const damageProtectionFee = damageProtection ? 50 : 0;
     return basePrice + damageProtectionFee;
+  };
+
+  const handleSetPickupTime = () => {
+    // Logic to trigger DateTimePicker or proceed based on trip type
+    console.log("Set Pickup Time or Continue to Schedule");
   };
 
   return (
@@ -93,170 +111,194 @@ export default function BookingForm({
           isEmbedded ? "" : "px-4"
         } bg-white rounded-2xl`}
       >
-        {!isEmbedded && (
-          <Box sx={{ mb: 4, textAlign: "center" }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                mb: 2,
-                color: theme.palette.text.primary,
-                fontSize: { xs: "2rem", md: "2.5rem" },
-              }}
-            >
-              Book Professional Driver
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{
-                color: theme.palette.text.secondary,
-                maxWidth: 600,
-                mx: "auto",
-              }}
-            >
-              Hire verified professional drivers for hassle-free commutes and
-              safe rides
-            </Typography>
-          </Box>
-        )}
-
         <div className="">
-          {/* Booking Form */}
-          <div className="col-span-1 md:col-span-8">
-            <div>
-              <CardContent>
-                {/* Trip Type */}
-                <div className="mb-2">
-                  <FormControl component="fieldset">
-                    <FormLabel
-                      component="legend"
-                      sx={{
-                        fontWeight: 600,
-                        color: theme.palette.text.primary,
-                        mb: 1,
-                      }}
-                    >
-                      Trip Type
-                    </FormLabel>
-                    <RadioGroup
-                      row
-                      value={tripType}
-                      onChange={(e) =>
-                        updateField("tripType", e.target.value as any)
-                      }
-                    >
-                      {tripTypes.map((type) => (
-                        <FormControlLabel
-                          key={type.value}
-                          value={type.value}
-                          control={<Radio />}
-                          label={type.label}
-                          sx={{ mr: 3 }}
-                        />
-                      ))}
-                    </RadioGroup>
-                  </FormControl>
-                </div>
+          <CardContent>
+            {/* Trip Type */}
+            <div className="mb-2">
+              <FormControl component="fieldset">
+                <FormLabel
+                  component="legend"
+                  sx={{
+                    fontWeight: 600,
+                    color: theme.palette.text.primary,
+                    mb: 1,
+                  }}
+                >
+                  Trip Type
+                </FormLabel>
+                <RadioGroup
+                  row
+                  value={tripType}
+                  onChange={(e) =>
+                    updateField("tripType", e.target.value as any)
+                  }
+                  sx={{
+                    flexWrap: "nowrap", // prevent wrapping
+                    overflowX: "auto", // allow horizontal scroll
+                    WebkitOverflowScrolling: "touch",
+                    "& .MuiFormControlLabel-root": {
+                      whiteSpace: "nowrap", // keep label text on one line
+                      mr: 2,
+                    },
+                    "& .MuiFormControlLabel-label": {
+                      fontSize: "0.85rem", // ~13.6px (try 0.75rem, 0.8rem, etc.)
+                    },
+                  }}
+                >
+                  {tripTypes.map((type) => (
+                    <FormControlLabel
+                      key={type.value}
+                      value={type.value}
+                      control={<Radio />}
+                      label={type.label}
+                    />
+                  ))}
+                </RadioGroup>
+              </FormControl>
+            </div>
 
-                <Divider sx={{ mb: 2 }} />
+            <Divider sx={{ mb: 2 }} />
 
-                {/* Locations */}
-                <div className="mb-2">
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 600,
-                      mb: 3,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <LocationOn color="primary" />
-                    Locations
-                  </Typography>
+            {/* Locations */}
+            <div className="mb-2">
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  mb: 3,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <LocationOn color="primary" />
+                Locations
+              </Typography>
 
-                  <div className="flx items-center">
-                    <div className="w-full">
-                      <div className="col-span-1 md:col-span-5">
-                        <LocationAutocomplete
-                          label="Pickup Location"
-                          placeholder="Enter pickup location"
-                          value={pickupLocation}
-                          onChange={(location) =>
-                            updateField("pickupLocation", location)
-                          }
-                          error={!!errors.pickupLocation}
-                          helperText={errors.pickupLocation}
-                        />
-                      </div>
-                      <div className="mt-5">
-                        <LocationAutocomplete
-                          label="Drop Location"
-                          placeholder="Enter drop location"
-                          value={dropLocation}
-                          onChange={(location) =>
-                            updateField("dropLocation", location)
-                          }
-                          error={!!errors.dropLocation}
-                          helperText={errors.dropLocation}
-                        />
-                      </div>
-                    </div>
-                    {/* <div className="">
-                      <Button
-                        variant="outlined"
-                        onClick={handleSwapLocations}
-                        disabled={!pickupLocation || !dropLocation}
-                        sx={{
-                          minWidth: "auto",
-                          width: { xs: "100%", md: "auto" },
-                          height: 56,
-                          borderRadius: 2,
-                        }}
-                      >
-                        <SwapVert />
-                      </Button>
-                    </div> */}
-                  </div>
-                </div>
-
-                <Divider sx={{ my: 2 }} />
-
-                {/* Schedule */}
-                <div className="mb-2">
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 600,
-                      mb: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <Schedule color="primary" />
-                    When is driver needed?
-                  </Typography>
-
-                  <DateTimePicker
-                    label="Select date and time"
-                    value={scheduledTime ? dayjs(scheduledTime) : null}
-                    onChange={(newValue) =>
-                      updateField("scheduledTime", newValue?.toDate() || null)
+              <div className="flex items-center">
+                <div className="w-full">
+                  <LocationAutocomplete
+                    label="Pickup Location"
+                    placeholder="Enter pickup location"
+                    value={pickupLocation}
+                    onChange={(location) =>
+                      updateField("pickupLocation", location)
                     }
-                    minDateTime={dayjs().add(1, "hour")}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        error: !!errors.scheduledTime,
-                        helperText: errors.scheduledTime,
-                      },
-                    }}
+                    error={!!errors.pickupLocation}
+                    helperText={errors.pickupLocation}
+                    defaultSuggestions={[
+                      "35C6+W4C, 117, Vellala St, Ayanambakkam, Chennai",
+                      "Chennai International Airport, Airport Rd, Meenambakkam",
+                      "Phoenix Marketcity, Velachery Rd, Indira Gandhi Nagar",
+                    ]}
                   />
                 </div>
+              </div>
 
+              {(tripType === "one-way" ||
+                tripType === "round-trip" ||
+                tripType === "outstation") && (
+                <div className="mt-5">
+                  <LocationAutocomplete
+                    label={
+                      tripType === "outstation" ? "Where to?" : "Drop Location"
+                    }
+                    placeholder="Enter drop location"
+                    value={dropLocation}
+                    onChange={(location) =>
+                      updateField("dropLocation", location)
+                    }
+                    error={!!errors.dropLocation}
+                    helperText={errors.dropLocation}
+                    defaultSuggestions={[
+                      "Chennai International Airport, Airport Rd, Meenambakkam",
+                      "Phoenix Marketcity, Velachery Rd, Indira Gandhi Nagar",
+                      "Tirupati, Andhra Pradesh",
+                      "Pondicherry, Tamil Nadu",
+                    ]}
+                  />
+                </div>
+              )}
+
+              {tripType === "outstation" && (
+                <div className="mt-5">
+                  <LocationAutocomplete
+                    label="Where from?"
+                    placeholder="Enter pickup location"
+                    value={pickupLocation}
+                    onChange={(location) =>
+                      updateField("pickupLocation", location)
+                    }
+                    error={!!errors.pickupLocation}
+                    helperText={errors.pickupLocation}
+                    defaultSuggestions={[
+                      "35C6+W4C, 117, Vellala St, Ayanambakkam, Chennai",
+                      "Chennai International Airport, Airport Rd, Meenambakkam",
+                    ]}
+                  />
+                </div>
+              )}
+            </div>
+
+            <Divider sx={{ my: 2 }} />
+
+            {/* Schedule */}
+            <div className="mb-2">
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 600,
+                  mb: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Schedule color="primary" />
+                When is driver needed?
+              </Typography>
+
+              <DateTimePicker
+                label="Select date and time"
+                value={scheduledTime ? dayjs(scheduledTime) : null}
+                onChange={(newValue: Dayjs | null) =>
+                  updateField("scheduledTime", newValue?.toDate() || null)
+                }
+                minDateTime={dayjs().add(1, "hour")} // Minimum 1 hour from now (04:17 PM IST, Sep 04, 2025)
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    error: !!errors.scheduledTime,
+                    helperText: errors.scheduledTime,
+                  },
+                }}
+              />
+            </div>
+
+            {tripType === "daily" && (
+              <>
                 <Divider sx={{ my: 2 }} />
+
+                {/* Estimated Usage */}
+                <div className="mb-2">
+                  <FormControl fullWidth>
+                    <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
+                      Estimated Usage
+                    </FormLabel>
+                    <Select
+                      value={estimatedUsage}
+                      onChange={(e) =>
+                        setEstimatedUsage(e.target.value as number)
+                      }
+                    >
+                      {usageOptions.map((hours) => (
+                        <MenuItem key={hours} value={hours}>
+                          {hours} Hrs
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
 
                 {/* Car Preferences */}
                 <div className="mb-2">
@@ -316,149 +358,56 @@ export default function BookingForm({
                     </div>
                   </div>
                 </div>
+              </>
+            )}
 
-                {/* <Divider sx={{ my: 2 }} /> */}
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
+              onClick={handleSetPickupTime}
+              sx={{
+                mt: 2,
+                py: 1.5,
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                borderRadius: 2,
+                backgroundColor: tripType === "daily" ? "#000" : "#2e7d32",
+              }}
+            >
+              {tripType === "daily"
+                ? "Continue to Schedule Driver"
+                : "Set Pickup Time"}
+            </Button>
 
-                {/* Additional Options */}
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                textAlign: "center",
+                mt: 2,
+                color: theme.palette.text.secondary,
+              }}
+            >
+              * Final fare may vary based on actual distance and time
+            </Typography>
 
-                {/* Coupon Code */}
-                {/* <div className="mt-2">
-                  <TextField
-                    fullWidth
-                    label="Coupon Code (Optional)"
-                    placeholder="Enter coupon code"
-                    value={couponCode}
-                    onChange={(e) => updateField("couponCode", e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LocalOffer />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </div> */}
-                {/* <div className="mt-2">
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={damageProtection}
-                        onChange={(e) =>
-                          updateField("damageProtection", e.target.checked)
-                        }
-                      />
-                    }
-                    label={
-                      <Box>
-                        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                          Damage Protection (+₹50)
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Get coverage for minor damages during the trip
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                </div> */}
-              </CardContent>
-            </div>
-          </div>
-
-          {/* Fare Summary */}
-          <div className="col-span-1 md:col-span-4 hidden">
-            <Card sx={{ position: "sticky", top: 24 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                  Fare Summary
-                </Typography>
-
-                <Box sx={{ mb: 3 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mb: 1,
-                    }}
-                  >
-                    <Typography variant="body2">Base Fare</Typography>
-                    <Typography variant="body2">
-                      {formatCurrency(
-                        vehicleSizes.find((v) => v.value === vehicleSize)
-                          ?.price || 299
-                      )}
-                    </Typography>
-                  </Box>
-
-                  {damageProtection && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 1,
-                      }}
-                    >
-                      <Typography variant="body2">Damage Protection</Typography>
-                      <Typography variant="body2">
-                        {formatCurrency(50)}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  <Divider sx={{ my: 2 }} />
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mb: 3,
-                    }}
-                  >
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Estimated Total
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 600,
-                        color: theme.palette.primary.main,
-                      }}
-                    >
-                      {formatCurrency(calculateEstimatedFare())}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Button
-                  variant="contained"
-                  size="large"
-                  fullWidth
-                  onClick={handleRequestDriver}
-                  disabled={!canProceed}
-                  startIcon={<Phone />}
-                  sx={{
-                    py: 1.5,
-                    fontSize: "1.1rem",
-                    fontWeight: 600,
-                    borderRadius: 2,
-                  }}
-                >
-                  Request Driver
-                </Button>
-
-                <Typography
-                  variant="caption"
-                  sx={{
-                    display: "block",
-                    textAlign: "center",
-                    mt: 2,
-                    color: theme.palette.text.secondary,
-                  }}
-                >
-                  * Final fare may vary based on actual distance and time
-                </Typography>
-              </CardContent>
-            </Card>
-          </div>
+            {/* Promotional Message */}
+            <Box
+              sx={{
+                mt: 2,
+                p: 2,
+                backgroundColor: "#fff3e0",
+                borderRadius: 1,
+                textAlign: "center",
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                Rs 100 off on your first trip - Don&apos;t forget to apply
+                FIRST100
+              </Typography>
+            </Box>
+          </CardContent>
         </div>
 
         {/* Phone Modal */}
