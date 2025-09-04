@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { BookingRequest, Location } from '@/types';
 
 interface UseBookingState {
-  tripType: 'one-way' | 'round-trip' | 'outstation';
+  tripType: 'one-way' | 'round-trip' | 'outstation' | 'daily';
   pickupLocation: Location | null;
   dropLocation: Location | null;
   scheduledTime: Date | null;

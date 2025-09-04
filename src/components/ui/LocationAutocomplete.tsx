@@ -19,6 +19,7 @@ interface LocationAutocompleteProps {
   onChange: (location: Location | null) => void;
   error?: boolean;
   helperText?: string;
+  defaultSuggestions?: string[];
 }
 
 export default function LocationAutocomplete({

@@ -12,7 +12,7 @@ export interface Location {
 }
 
 export interface BookingRequest {
-  tripType: 'one-way' | 'round-trip' | 'outstation';
+  tripType: 'one-way' | 'round-trip' | 'outstation' | 'daily';
   pickupLocation: Location;
   dropLocation?: Location;
   scheduledTime: Date;
