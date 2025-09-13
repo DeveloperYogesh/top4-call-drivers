@@ -14,7 +14,7 @@ export default function HeroSection(): JSX.Element {
         backgroundPosition: "bottom center",
       }}
     >
-      <div className="custom-container py-24">
+      <div className="custom-container">
         <div className="lg:flex gap-8 items-end max-h-screen">
           {/* Left Content */}
           <div className="">
