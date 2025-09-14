@@ -13,6 +13,20 @@ const nextConfig: NextConfig = {
       }
     ];
   },
+  // Enable for Replit environment - allow all hosts
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
