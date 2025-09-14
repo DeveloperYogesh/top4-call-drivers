@@ -13,22 +13,22 @@ const nextConfig: NextConfig = {
       }
     ];
   },
-  // Enable for Replit environment - allow all hosts
+  // Configure for Replit environment
   async headers() {
     return [
       {
         source: '/(.*)',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://replit.com https://*.replit.com https://*.replit.dev",
           },
         ],
       },
     ];
   },
-  // Configure for Replit environment
-  allowedDevOrigins: ["*.replit.dev", "127.0.0.1"],
+  // Standalone output for production deployments
+  output: 'standalone',
 };
 
 export default nextConfig;
