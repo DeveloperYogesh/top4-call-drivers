@@ -1,9 +1,21 @@
 import Link from "next/link";
 import { ROUTES, APP_CONFIG, SERVICES } from "@/utils/constants";
+import { getCurrentUser, AuthUser } from "@/lib/auth";
+import HeaderControls from "@/components/layout/HeaderControls";
 
 type Props = {
   currentPath?: string;
 };
+
+// Server component that fetches user data
+async function getUserData(): Promise<AuthUser | null> {
+  try {
+    return await getCurrentUser();
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return null;
+  }
+}
 
 const NAV_ITEMS = [
   { label: "Home", href: ROUTES.HOME },
@@ -19,7 +31,9 @@ const CITIES = [
   { label: "Coimbatore", customerHref: "/call-drivers-in-coimbatore", driverHref: "/car-driver-job-in-coimbatore" },
 ];
 
-export default function HeaderServer({ currentPath }: Props) {
+export default async function HeaderServer({ currentPath }: Props) {
+  const user = await getUserData();
+  
   return (
     <header className="sticky top-0 z-50 bg-white my-border border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -139,9 +153,26 @@ export default function HeaderServer({ currentPath }: Props) {
           </nav>
 
           <div className="flex items-center ml-auto gap-3">
+            {user ? (
+              <div className="hidden md:flex items-center gap-3">
+                <span className="text-sm text-gray-700">
+                  Welcome, <span className="font-semibold text-[#354B9C]">{user.firstname}</span>
+                </span>
+                <HeaderControls />
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-[#354B9C] text-white font-semibold hover:opacity-95"
+                aria-label="Sign In"
+              >
+                Sign In
+              </Link>
+            )}
+            
             <Link
               href={ROUTES.DOWNLOAD}
-              className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-[#354B9C] text-white font-semibold hover:opacity-95"
+              className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md border border-[#354B9C] text-[#354B9C] font-semibold hover:bg-[#354B9C] hover:text-white transition-colors"
               aria-label="Download App"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden className="inline-block">

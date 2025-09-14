@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start -H 0.0.0.0 -p ${PORT:-5000}",
+    "lint": "next lint",
+    "analyze": "ANALYZE=true npm run build",
+    "postbuild": "next-sitemap",
+    "compress:images": "node scripts/compress-images.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -15,8 +18,16 @@
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
     "@mui/x-date-pickers": "^8.10.0",
+    "@next/bundle-analyzer": "^15.5.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/pg": "^8.15.5",
+    "bcryptjs": "^3.0.2",
     "dayjs": "^1.11.13",
+    "jsonwebtoken": "^9.0.2",
     "next": "15.5.0",
+    "next-sitemap": "^4.2.3",
+    "pg": "^8.16.3",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-hook-form": "^7.62.0",
