@@ -27,6 +27,8 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Configure for Replit environment
+  allowedDevOrigins: ["*.replit.dev", "127.0.0.1"],
 };
 
 export default nextConfig;
