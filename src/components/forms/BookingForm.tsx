@@ -186,11 +186,6 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                     }
                     error={!!errors.pickupLocation}
                     helperText={errors.pickupLocation}
-                    defaultSuggestions={[
-                      "35C6+W4C, 117, Vellala St, Ayanambakkam, Chennai",
-                      "Chennai International Airport, Airport Rd, Meenambakkam",
-                      "Phoenix Marketcity, Velachery Rd, Indira Gandhi Nagar",
-                    ]}
                   />
                 </div>
               </div>
@@ -200,30 +195,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                 tripType === "outstation") && (
                 <div className="mt-5">
                   <LocationAutocomplete
-                    label={
-                      tripType === "outstation" ? "Where to?" : "Drop Location"
-                    }
-                    placeholder="Enter drop location"
-                    value={dropLocation}
-                    onChange={(location) =>
-                      updateField("dropLocation", location)
-                    }
-                    error={!!errors.dropLocation}
-                    helperText={errors.dropLocation}
-                    defaultSuggestions={[
-                      "Chennai International Airport, Airport Rd, Meenambakkam",
-                      "Phoenix Marketcity, Velachery Rd, Indira Gandhi Nagar",
-                      "Tirupati, Andhra Pradesh",
-                      "Pondicherry, Tamil Nadu",
-                    ]}
-                  />
-                </div>
-              )}
-
-              {tripType === "outstation" && (
-                <div className="mt-5">
-                  <LocationAutocomplete
-                    label="Where from?"
+                    label="Pickup Location"
                     placeholder="Enter pickup location"
                     value={pickupLocation}
                     onChange={(location) =>
@@ -231,10 +203,21 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                     }
                     error={!!errors.pickupLocation}
                     helperText={errors.pickupLocation}
-                    defaultSuggestions={[
-                      "35C6+W4C, 117, Vellala St, Ayanambakkam, Chennai",
-                      "Chennai International Airport, Airport Rd, Meenambakkam",
-                    ]}
+                  />
+                </div>
+              )}
+
+              {tripType === "outstation" && (
+                <div className="mt-5">
+                  <LocationAutocomplete
+                    label="Pickup Location"
+                    placeholder="Enter pickup location"
+                    value={pickupLocation}
+                    onChange={(location) =>
+                      updateField("pickupLocation", location)
+                    }
+                    error={!!errors.pickupLocation}
+                    helperText={errors.pickupLocation}
                   />
                 </div>
               )}
