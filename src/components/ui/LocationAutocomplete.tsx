@@ -8,13 +8,14 @@ import {
   Box,
   Typography,
   CircularProgress,
+  InputAdornment,
 } from '@mui/material';
 import { LocationOn } from '@mui/icons-material';
 import { Location } from '@/types';
 import { useGoogleMapsLoader } from '@/hooks/useGoogleMapsLoader';
 import { useLocationSearch } from '@/hooks/useLocationSearch';
 
-interface LocationAutocompleteProps {
+interface Props {
   label: string;
   placeholder?: string;
   value: Location | null;
@@ -202,9 +203,10 @@ export default function LocationAutocomplete({
 
   return (
     <Autocomplete
-      value={value}
+      freeSolo={false}
+      value={value ?? null}
       onChange={handleChange}
-      inputValue={query}
+      inputValue={inputValue}
       onInputChange={handleInputChange}
       options={suggestions}
       getOptionLabel={getOptionLabel as any}
@@ -226,7 +228,7 @@ export default function LocationAutocomplete({
             startAdornment: <LocationOn sx={{ color: 'text.secondary', mr: 1 }} />,
             endAdornment: (
               <>
-                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                {isLoading ? <CircularProgress size={18} /> : null}
                 {params.InputProps.endAdornment}
               </>
             ),

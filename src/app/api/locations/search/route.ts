@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { searchPlaces } from '@/lib/google-places';
 import { Location } from '@/types';
 
+function normalizeLocations(list: Location[]) {
+  return list.map(loc => ({
+    id: loc.id,
+    name: loc.name,
+    city: loc.city ?? '',
+    state: loc.state ?? '',
+    // leave raw Lat/Lng undefined if not available
+  }));
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('query');

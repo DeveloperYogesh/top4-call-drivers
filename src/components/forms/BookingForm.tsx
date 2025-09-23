@@ -184,7 +184,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
               {tripType === 'outstation' && (
                 <div className="mt-5">
                   <LocationAutocomplete
-                    label="Where from?"
+                    label="Pickup Location"
                     placeholder="Enter pickup location"
                     value={pickupLocation}
                     onChange={(location) => updateField('pickupLocation', location)}
