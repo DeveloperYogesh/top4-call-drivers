@@ -11,7 +11,8 @@ const API_RATE_LIMIT_MAX_REQUESTS = 50; // API requests per window
 
 function getRateLimitKey(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0] : request.ip || 'unknown';
+  // NextRequest doesn't always expose `ip`; fallback to header only
+  const ip = forwarded ? forwarded.split(',')[0] : 'unknown';
   return `rate_limit:${ip}`;
 }
 
@@ -76,61 +77,30 @@ export async function middleware(request: NextRequest) {
   }
 
   // API Authentication middleware
-  if (pathname.startsWith('/api/')) {
-    // Skip authentication for public endpoints
-    const publicEndpoints = [
-      '/api/auth/login',
-      '/api/auth/signup',
-      '/api/auth/send-otp',
-      '/api/auth/verify-otp',
-      '/api/data/states',
-      '/api/data/cities',
-      '/api/data/vehicles',
-      '/api/pricing/calculate',
-    ];
-
-    const isPublicEndpoint = publicEndpoints.some(endpoint => 
-      pathname.startsWith(endpoint)
-    );
-
-    if (!isPublicEndpoint) {
-      // Check for authentication token
-      const token = request.cookies.get('auth-token')?.value;
-      
-      if (!token) {
+  // Only protect endpoints under /api/private/*
+  if (pathname.startsWith('/api/private/')) {
+    const token = request.cookies.get('auth-token')?.value;
+    if (!token) {
+      return NextResponse.json(
+        { status: 'error', message: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+    try {
+      const user = verifyToken(token);
+      if (!user) {
         return NextResponse.json(
-          { 
-            status: 'error', 
-            message: 'Authentication required' 
-          },
+          { status: 'error', message: 'Invalid or expired token' },
           { status: 401 }
         );
       }
-
-      try {
-        const user = verifyToken(token);
-        if (!user) {
-          return NextResponse.json(
-            { 
-              status: 'error', 
-              message: 'Invalid or expired token' 
-            },
-            { status: 401 }
-          );
-        }
-
-        // Add user info to request headers for API routes
-        response.headers.set('x-user-id', user.id);
-        response.headers.set('x-user-mobile', user.mobileno);
-      } catch (error) {
-        return NextResponse.json(
-          { 
-            status: 'error', 
-            message: 'Invalid or expired token' 
-          },
-          { status: 401 }
-        );
-      }
+      if ((user as any).userId) response.headers.set('x-user-id', (user as any).userId);
+      if ((user as any).mobileno) response.headers.set('x-user-mobile', (user as any).mobileno);
+    } catch (error) {
+      return NextResponse.json(
+        { status: 'error', message: 'Invalid or expired token' },
+        { status: 401 }
+      );
     }
   }
 

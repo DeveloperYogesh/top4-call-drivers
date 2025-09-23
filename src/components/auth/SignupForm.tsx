@@ -68,12 +68,12 @@ export default function SignupForm() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/send-otp', {
+      const response = await fetch('http://top4mobileapp.vbsit.in/api/V1/booking/sendOTP', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phone: formData.phone }),
+        body: JSON.stringify({ mobileno: formData.phone }),
       });
 
       const data = await response.json();

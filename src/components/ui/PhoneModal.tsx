@@ -41,7 +41,7 @@ export default function PhoneModal({
     setStep('phone');
     setOtp('');
     setError('');
-    setGeneratedOTP('');
+    setServerOTPForDev('');
     onClose();
   };
 
@@ -55,7 +55,7 @@ export default function PhoneModal({
     setError('');
 
     try {
-      const response = await fetch('/api/auth/send-otp', {
+      const response = await fetch('http://top4mobileapp.vbsit.in/api/V1/booking/sendOTP', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobileno: phoneNumber }),
@@ -112,7 +112,7 @@ export default function PhoneModal({
     setError('');
 
     try {
-      const response = await fetch('/api/auth/send-otp', {
+      const response = await fetch('http://top4mobileapp.vbsit.in/api/V1/booking/sendOTP', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobileno: phoneNumber }),
