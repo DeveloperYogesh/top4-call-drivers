@@ -8,7 +8,7 @@ function normalizeLocations(list: Location[]) {
     name: loc.name,
     city: loc.city ?? '',
     state: loc.state ?? '',
-    // leave raw Lat/Lng undefined if not available
+    // leave raw Lat/Lng undefined if not availabl
   }));
 }
 
