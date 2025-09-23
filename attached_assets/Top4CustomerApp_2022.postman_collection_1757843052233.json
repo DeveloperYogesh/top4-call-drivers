@@ -346,18 +346,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:7856/api/V1/booking/sendOTP",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "7856",
-							"path": [
-								"api",
-								"V1",
-								"booking",
-								"sendOTP"
-							]
+							"raw": "http://top4mobileapp.vbsit.in/api/V1/booking/sendOTP",
+ 							"protocol": "http",
+  							"host": ["top4mobileapp", "vbsit", "in"],
+  							"path": ["api", "V1", "booking", "sendOTP"]
 						}
 					},
 					"status": "Not Found",
@@ -842,19 +834,11 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:7856/api/V1/booking/fetchCityNames",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "7856",
-					"path": [
-						"api",
-						"V1",
-						"booking",
-						"fetchCityNames"
-					]
-				}
+  "raw": "http://top4mobileapp.vbsit.in/api/V1/booking/fetchCityNames",
+  "protocol": "http",
+  "host": ["top4mobileapp", "vbsit", "in"],
+  "path": ["api", "V1", "booking", "fetchCityNames"]
+}
 			},
 			"response": []
 		},

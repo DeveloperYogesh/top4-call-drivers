@@ -5,10 +5,13 @@ import { storeOTP } from '@/lib/database';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { mobileno } = body;
+    const { mobileno, phone } = body;
+    
+    // Accept both 'phone' and 'mobileno' for compatibility
+    const mobileNumber = phone || mobileno;
 
     // Validate input
-    if (!mobileno || typeof mobileno !== 'string') {
+    if (!mobileNumber || typeof mobileNumber !== 'string') {
       return NextResponse.json(
         { 
           status: 'error', 
@@ -19,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate mobile number format
-    if (!validateMobileNumber(mobileno)) {
+    if (!validateMobileNumber(mobileNumber)) {
       return NextResponse.json(
         { 
           status: 'error', 
@@ -33,11 +36,11 @@ export async function POST(request: NextRequest) {
     const otp = generateOTP();
     
     // Store OTP in database (expires in 5 minutes)
-    await storeOTP(mobileno, otp, 5);
+    await storeOTP(mobileNumber, otp, 5);
 
     // In a real application, you would send the OTP via SMS here
     // For development, we'll log it to console
-    console.log(`OTP for ${mobileno}: ${otp}`);
+    console.log(`OTP for ${mobileNumber}: ${otp}`);
 
     // Simulate SMS sending success
     return NextResponse.json({

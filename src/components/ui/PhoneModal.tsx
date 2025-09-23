@@ -1,6 +1,6 @@
 'use client';
 
-import { formatPhoneNumber, generateOTP, isValidPhoneNumber } from '@/utils/helpers';
+import { formatPhoneNumber, isValidPhoneNumber } from '@/utils/helpers';
 import { Close, Phone, Verified } from '@mui/icons-material';
 import {
   Alert,
@@ -35,7 +35,7 @@ export default function PhoneModal({
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [generatedOTP, setGeneratedOTP] = useState('');
+  const [serverOTPForDev, setServerOTPForDev] = useState('');
 
   const handleClose = () => {
     setStep('phone');
@@ -55,15 +55,21 @@ export default function PhoneModal({
     setError('');
 
     try {
-      // Simulate API call to send OTP
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Generate OTP for demo purposes
-      const newOTP = generateOTP();
-      setGeneratedOTP(newOTP);
-      
-      setStep('otp');
-      setError('');
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobileno: phoneNumber }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.status === 'success') {
+        // In development, backend may return OTP for easy testing
+        if (data.otp) setServerOTPForDev(data.otp);
+        setStep('otp');
+        setError('');
+      } else {
+        setError(data.message || 'Failed to send OTP. Please try again.');
+      }
     } catch (err) {
       setError('Failed to send OTP. Please try again.');
     } finally {
@@ -81,17 +87,18 @@ export default function PhoneModal({
     setError('');
 
     try {
-      // Simulate API call to verify OTP
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, accept any 6-digit OTP or the generated one
-      if (otp === generatedOTP || otp === '123456') {
-        // OTP verified successfully
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobileno: phoneNumber, otp }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data.status === 'success') {
         handleClose();
-        // Here you would typically proceed with the booking
         alert('Phone number verified successfully! Proceeding with booking...');
       } else {
-        setError('Invalid OTP. Please try again.');
+        setError(data.message || 'Invalid OTP. Please try again.');
       }
     } catch (err) {
       setError('Failed to verify OTP. Please try again.');
@@ -105,14 +112,18 @@ export default function PhoneModal({
     setError('');
 
     try {
-      // Simulate API call to resend OTP
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generate new OTP for demo purposes
-      const newOTP = generateOTP();
-      setGeneratedOTP(newOTP);
-      
-      alert(`New OTP sent! (Demo OTP: ${newOTP})`);
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobileno: phoneNumber }),
+      });
+      const data = await response.json();
+      if (response.ok && data.status === 'success') {
+        if (data.otp) setServerOTPForDev(data.otp);
+        alert('OTP resent successfully');
+      } else {
+        setError(data.message || 'Failed to resend OTP. Please try again.');
+      }
     } catch (err) {
       setError('Failed to resend OTP. Please try again.');
     } finally {
@@ -183,9 +194,9 @@ export default function PhoneModal({
               We've sent a 6-digit OTP to {formatPhoneNumber(phoneNumber)}
             </Typography>
             
-            {generatedOTP && (
+            {serverOTPForDev && (
               <Alert severity="info" sx={{ mb: 2 }}>
-                Demo OTP: {generatedOTP} (or use 123456)
+                Demo OTP: {serverOTPForDev}
               </Alert>
             )}
             

@@ -1,16 +1,5 @@
 // Common types for the TOP4 Call Drivers clone application
 
-export interface Location {
-  id: string;
-  name: string;
-  city: string;
-  state: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}
-
 export interface BookingRequest {
   tripType: 'one-way' | 'round-trip' | 'outstation' | 'daily';
   pickupLocation: Location;
@@ -117,3 +106,12 @@ export interface NavigationItem {
   children?: NavigationItem[];
 }
 
+// src/types/index.ts
+export interface Location {
+  id: string;
+  name: string;
+  city?: string;
+  state?: string;
+  lat?: number;
+  lng?: number;
+}
