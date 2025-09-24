@@ -5,10 +5,14 @@ import { verifyOTP, findUserByMobile, createUser, userToAuthUser } from '@/lib/d
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { mobileno, OTP: otp, devicetoken } = body;
+    const { mobileno, phone, OTP, otp, devicetoken } = body;
+    
+    // Accept both parameter names for compatibility
+    const mobileNumber = phone || mobileno;
+    const otpCode = otp || OTP;
 
     // Validate input
-    if (!mobileno || !otp) {
+    if (!mobileNumber || !otpCode) {
       return NextResponse.json(
         { 
           status: 'error', 
@@ -19,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify OTP
-    const isOTPValid = await verifyOTP(mobileno, otp);
+    const isOTPValid = await verifyOTP(mobileNumber, otpCode);
     
     if (!isOTPValid) {
       return NextResponse.json(
@@ -32,15 +36,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Find or create user
-    let user = await findUserByMobile(mobileno);
+    let user = await findUserByMobile(mobileNumber);
     
     if (!user) {
       // Create new user with basic info
       user = await createUser({
-        mobileno,
+        mobileno: mobileNumber,
         firstname: 'User', // Default name, can be updated later
         lastname: '',
+        isVerified: true, // Since OTP is verified
+        isActive: true
       });
+    } else {
+      // Update user verification status
+      user.isVerified = true;
     }
 
     // Convert to AuthUser and create token

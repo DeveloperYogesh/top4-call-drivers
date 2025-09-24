@@ -1,34 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createToken, setAuthCookie, validateMobileNumber, validateEmail } from '@/lib/auth';
-import { findUserByMobile, createUser, userToAuthUser } from '@/lib/database';
+import { createToken, setAuthCookie, validateMobileNumber, validateEmail, hashPassword } from '@/lib/auth';
+import { findUserByMobile, createUser, userToAuthUser, verifyOTP } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { 
-      mobileno, 
-      firstname, 
-      lastname, 
-      emailid, 
-      vehiclemodel, 
-      segment, 
-      vehicletype, 
-      userImage 
+      firstName,
+      lastName,
+      phone,
+      email,
+      password,
+      otp
     } = body;
 
     // Validate required fields
-    if (!mobileno || !firstname) {
+    if (!phone || !firstName || !email || !password || !otp) {
       return NextResponse.json(
         { 
           status: 'error', 
-          message: 'Mobile number and first name are required' 
+          message: 'Phone, first name, email, password, and OTP are required' 
         },
         { status: 400 }
       );
     }
 
     // Validate mobile number format
-    if (!validateMobileNumber(mobileno)) {
+    if (!validateMobileNumber(phone)) {
       return NextResponse.json(
         { 
           status: 'error', 
@@ -38,8 +36,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate email if provided
-    if (emailid && !validateEmail(emailid)) {
+    // Validate email format
+    if (!validateEmail(email)) {
       return NextResponse.json(
         { 
           status: 'error', 
@@ -49,8 +47,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate password length
+    if (password.length < 6) {
+      return NextResponse.json(
+        { 
+          status: 'error', 
+          message: 'Password must be at least 6 characters long' 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Verify OTP
+    const isOTPValid = await verifyOTP(phone, otp);
+    if (!isOTPValid) {
+      return NextResponse.json(
+        { 
+          status: 'error', 
+          message: 'Invalid or expired OTP' 
+        },
+        { status: 400 }
+      );
+    }
+
     // Check if user already exists
-    const existingUser = await findUserByMobile(mobileno);
+    const existingUser = await findUserByMobile(phone);
     if (existingUser) {
       return NextResponse.json(
         { 
@@ -61,16 +82,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Hash password
+    const passwordHash = await hashPassword(password);
+
     // Create new user
     const user = await createUser({
-      mobileno,
-      firstname,
-      lastname: lastname || '',
-      emailid,
-      vehiclemodel,
-      segment,
-      vehicletype,
-      userImage
+      mobileno: phone,
+      firstname: firstName,
+      lastname: lastName || '',
+      emailid: email,
+      passwordHash,
+      isVerified: true, // Since OTP is verified
+      isActive: true
     });
 
     // Convert to AuthUser and create token

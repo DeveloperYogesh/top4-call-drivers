@@ -1,27 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { clearAuthCookie } from '@/lib/auth';
+// app/api/auth/logout/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { clearAuthCookie } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    // Create response
-    const response = NextResponse.json({
-      status: 'success',
-      message: 'Logged out successfully'
-    });
+    const url = new URL(request.url);
+    const redirectTo = url.origin + "/"; // change to "/login" if you prefer
 
-    // Clear the authentication cookie
-    response.headers.set('Set-Cookie', clearAuthCookie());
+    const res = NextResponse.redirect(redirectTo);
 
-    return response;
+    // `clearAuthCookie()` from your auth.ts returns a cookie-string for 'token'
+    res.headers.set("Set-Cookie", clearAuthCookie());
 
+    return res;
   } catch (error) {
-    console.error('Logout error:', error);
-    return NextResponse.json(
-      { 
-        status: 'error', 
-        message: 'Logout failed. Please try again.' 
-      },
-      { status: 500 }
-    );
+    console.error("Logout error:", error);
+    return NextResponse.json({ status: "error", message: "Logout failed. Please try again." }, { status: 500 });
   }
 }

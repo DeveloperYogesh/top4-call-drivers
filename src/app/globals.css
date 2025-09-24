@@ -90,7 +90,7 @@ li {
 
 /* Focus styles */
 *:focus {
-  outline: 2px solid var(--primary-color);
+  outline: 0.5px solid var(--primary-color);
   outline-offset: 2px;
 }
 

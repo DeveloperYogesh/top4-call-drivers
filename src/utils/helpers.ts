@@ -24,6 +24,7 @@ export const isValidCouponCode = (code: string): boolean => {
 };
 
 // Format currency
+// src/utils/helpers.ts
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -32,6 +33,7 @@ export const formatCurrency = (amount: number): string => {
     maximumFractionDigits: 2,
   }).format(amount);
 };
+
 
 // Format date
 export const formatDate = (date: Date): string => {

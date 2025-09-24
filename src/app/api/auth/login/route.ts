@@ -31,15 +31,75 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Find user by email (in our simple database, we'll search by email in the user records)
-      // In a real application, you'd have proper email-based lookup
-      return NextResponse.json(
-        { 
-          status: 'error', 
-          message: 'Email/password login not yet implemented. Please use OTP login.' 
-        },
-        { status: 501 }
-      );
+      // Find user by email (search through all users)
+      let user = null;
+      // In a real database, you'd have an email index, but for this in-memory version:
+      const { users } = await import('@/lib/database');
+      for (const userRecord of users.values()) {
+        if (userRecord.emailid === email) {
+          user = userRecord;
+          break;
+        }
+      }
+
+      if (!user) {
+        return NextResponse.json(
+          { 
+            status: 'error', 
+            message: 'User not found with this email' 
+          },
+          { status: 404 }
+        );
+      }
+
+      if (!user.passwordHash) {
+        return NextResponse.json(
+          { 
+            status: 'error', 
+            message: 'Password not set for this account. Please use OTP login.' 
+          },
+          { status: 400 }
+        );
+      }
+
+      // Verify password
+      const isPasswordValid = await comparePassword(password, user.passwordHash);
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { 
+            status: 'error', 
+            message: 'Invalid password' 
+          },
+          { status: 401 }
+        );
+      }
+
+      // Check if user is active
+      if (!user.isActive) {
+        return NextResponse.json(
+          { 
+            status: 'error', 
+            message: 'Account is deactivated. Please contact support.' 
+          },
+          { status: 403 }
+        );
+      }
+
+      // Convert to AuthUser and create token
+      const authUser = userToAuthUser(user);
+      const token = createToken(authUser);
+
+      // Create response with cookie
+      const response = NextResponse.json({
+        status: 'success',
+        message: 'Login successful',
+        user: authUser
+      });
+
+      // Set the httpOnly cookie
+      response.headers.set('Set-Cookie', setAuthCookie(token));
+
+      return response;
     }
 
     // If neither valid combination is provided
