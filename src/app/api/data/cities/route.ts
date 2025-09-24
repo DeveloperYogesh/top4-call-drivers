@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     
     if (stateId) {
       // Get cities for a specific state
-      cities = await getCitiesByState(parseInt(stateId));
+      cities = await getCitiesByState(stateId);
     } else {
       // Get all cities
       cities = await getAllCities();

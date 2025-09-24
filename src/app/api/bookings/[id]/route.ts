@@ -11,7 +11,7 @@ function normalizeId(id: string | string[] | undefined): string | null {
 // GET /api/bookings/[id] - Get specific booking details
 export async function GET(
   request: NextRequest,
-  context: { params: { id?: string | string[] } }
+  context: any
 ): Promise<NextResponse> {
   try {
     const id = normalizeId(context.params.id);
@@ -43,7 +43,7 @@ export async function GET(
 // PUT /api/bookings/[id] - Update booking status
 export async function PUT(
   request: NextRequest,
-  context: { params: { id?: string | string[] } }
+  context: any
 ): Promise<NextResponse> {
   try {
     const id = normalizeId(context.params.id);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createToken, setAuthCookie, validateMobileNumber, validateEmail, comparePassword } from '@/lib/auth';
-import { findUserByMobile, userToAuthUser } from '@/lib/database';
+import { findUserByMobile, findUserByEmail, userToAuthUser } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,16 +31,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Find user by email (search through all users)
-      let user = null;
-      // In a real database, you'd have an email index, but for this in-memory version:
-      const { users } = await import('@/lib/database');
-      for (const userRecord of users.values()) {
-        if (userRecord.emailid === email) {
-          user = userRecord;
-          break;
-        }
-      }
+      const user = await findUserByEmail(email);
 
       if (!user) {
         return NextResponse.json(

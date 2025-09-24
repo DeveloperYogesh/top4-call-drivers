@@ -214,7 +214,7 @@ export const memoryManagement = {
     let timeout: NodeJS.Timeout;
     return ((...args: any[]) => {
       clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(null, args), wait);
+      timeout = setTimeout(() => func(...args), wait);
     }) as T;
   },
 
@@ -223,7 +223,7 @@ export const memoryManagement = {
     let inThrottle: boolean;
     return ((...args: any[]) => {
       if (!inThrottle) {
-        func.apply(null, args);
+        func(...args);
         inThrottle = true;
         setTimeout(() => inThrottle = false, limit);
       }

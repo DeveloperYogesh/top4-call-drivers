@@ -26,17 +26,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate fare
-    const fareDetails = await calculateFare({
-      pickupPlace,
-      dropPlace,
-      vehicleType,
-      tripType,
-      distance: distance || 0,
-      duration: duration || 0,
-      travelDate,
-      travelTime
-    });
+    // Calculate fare using database util signature: (tripType, vehicleType, distance, hours, cityId?)
+    const distanceKm = typeof distance === 'number' ? distance : 0;
+    const hours = typeof duration === 'number' ? duration : 0;
+    const fareDetails = await calculateFare(tripType, vehicleType, distanceKm, hours);
 
     return NextResponse.json({
       status: 'success',

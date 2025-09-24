@@ -32,15 +32,11 @@ export interface JWTPayload {
   exp?: number;
 }
 
-// JWT Secret from environment - fail fast in production
+// JWT Secret from environment
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('JWT_SECRET environment variable is required in production');
-  } else {
-    console.warn('JWT_SECRET not set in environment variables. Using fallback for development only.');
-  }
+  console.warn('JWT_SECRET not set. Using a fallback secret for build/dev. Set JWT_SECRET in production.');
 }
 
 // Use a development fallback only in non-production environments

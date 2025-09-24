@@ -1,12 +1,11 @@
 // src/utils/debounce.ts
 export function debounce<T extends (...args: any[]) => void>(fn: T, wait = 300) {
-  let timer: number | null = null;
+  let timer: ReturnType<typeof globalThis.setTimeout> | null = null;
   return (...args: Parameters<T>) => {
     if (timer) {
-      window.clearTimeout(timer);
+      globalThis.clearTimeout(timer);
     }
-    // @ts-ignore
-    timer = window.setTimeout(() => {
+    timer = globalThis.setTimeout(() => {
       fn(...args);
     }, wait);
   };
