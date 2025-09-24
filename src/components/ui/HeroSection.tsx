@@ -8,10 +8,10 @@ export default function HeroSection(): JSX.Element {
       aria-label="Hero"
       className="bg-slate-100"
       style={{
-        backgroundImage: "url(/images/top4-call-drivers-hero-img.webp)",
+        backgroundImage: "url(/images/top4-call-drivers-hero-img.png)",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
-        backgroundPosition: "bottom center",
+        backgroundPosition: "center center",
       }}
     >
       <div className="custom-container">

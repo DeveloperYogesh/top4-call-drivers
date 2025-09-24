@@ -158,7 +158,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                     label="Pickup Location"
                     placeholder="Enter pickup location"
                     value={pickupLocation}
-                    onChange={(location) => updateField('pickupLocation', location)}
+                    onChange={(location: Location | null) => updateField('pickupLocation', location)}
                     error={!!errors.pickupLocation}
                     helperText={errors.pickupLocation}
                     // pass fetchSuggestions to use your server endpoint (keeps API key server-side)
@@ -173,7 +173,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                     label={tripType === 'outstation' ? 'Where to?' : 'Drop Location'}
                     placeholder="Enter drop location"
                     value={dropLocation}
-                    onChange={(location) => updateField('dropLocation', location)}
+                    onChange={(location: Location | null) => updateField('dropLocation', location)}
                     error={!!errors.dropLocation}
                     helperText={errors.dropLocation}
                     fetchSuggestions={fetchSuggestions}
@@ -187,7 +187,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                     label="Pickup Location"
                     placeholder="Enter pickup location"
                     value={pickupLocation}
-                    onChange={(location) => updateField('pickupLocation', location)}
+                    onChange={(location: Location | null) => updateField('pickupLocation', location)}
                     error={!!errors.pickupLocation}
                     helperText={errors.pickupLocation}
                     fetchSuggestions={fetchSuggestions}

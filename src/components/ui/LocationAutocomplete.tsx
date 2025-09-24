@@ -36,7 +36,7 @@ export default function LocationAutocomplete({
   helperText,
   fetchSuggestions,
   minLength = 3,
-}: LocationAutocompleteProps) {
+}: Props) {
   const googleApiKey = process.env.GOOGLE_API_KEY;
   const { loaded: googleLoaded, error: googleError } = useGoogleMapsLoader(googleApiKey);
   const { debounced: serverDebounced } = useLocationSearch();
@@ -200,6 +200,9 @@ export default function LocationAutocomplete({
   useEffect(() => {
     if (googleError) console.warn('Google load error:', googleError.message);
   }, [googleError]);
+
+  // Keep inputValue in sync with query state
+  const inputValue = query;
 
   return (
     <Autocomplete
