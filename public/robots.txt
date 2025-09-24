@@ -1,0 +1,17 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /login
+Disallow: /signup
+Disallow: /profile
+
+# Host
+Host: https://driveu-clone.replit.dev
+
+# Sitemaps
+Sitemap: https://driveu-clone.replit.dev/sitemap.xml

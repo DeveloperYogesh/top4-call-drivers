@@ -46,9 +46,9 @@ interface BookingRecord {
 }
 
 // In-memory storage (replace with actual database in production)
-let users: Map<string, UserRecord> = new Map();
-let otpRecords: Map<string, OTPRecord> = new Map();
-let bookings: Map<string, BookingRecord> = new Map();
+const users: Map<string, UserRecord> = new Map();
+const otpRecords: Map<string, OTPRecord> = new Map();
+const bookings: Map<string, BookingRecord> = new Map();
 
 // Initialize with some sample data
 function initializeDatabase() {

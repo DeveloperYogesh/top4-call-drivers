@@ -133,16 +133,28 @@ export interface CouponRecord {
 }
 
 // In-memory storage
-let users: Map<string, UserRecord> = new Map();
-let otpRecords: Map<string, OTPRecord> = new Map();
-let states: Map<string, StateRecord> = new Map();
-let cities: Map<string, CityRecord> = new Map();
-let vehicleTypes: Map<string, VehicleTypeRecord> = new Map();
-let tripTypes: Map<string, TripTypeRecord> = new Map();
-let bookings: Map<string, BookingRecord> = new Map();
-let drivers: Map<string, DriverRecord> = new Map();
-let fareRules: Map<string, FareRuleRecord> = new Map();
-let coupons: Map<string, CouponRecord> = new Map();
+const users: Map<string, UserRecord> = new Map();
+const otpRecords: Map<string, OTPRecord> = new Map();
+const states: Map<string, StateRecord> = new Map();
+const cities: Map<string, CityRecord> = new Map();
+const vehicleTypes: Map<string, VehicleTypeRecord> = new Map();
+const tripTypes: Map<string, TripTypeRecord> = new Map();
+const bookings: Map<string, BookingRecord> = new Map();
+const drivers: Map<string, DriverRecord> = new Map();
+const _fareRules: Map<string, FareRuleRecord> = new Map();
+const coupons: Map<string, CouponRecord> = new Map();
+// Live driver location storage keyed by bookingId
+interface DriverLocationRecord {
+  bookingId: string;
+  driverId: string;
+  latitude: number;
+  longitude: number;
+  heading: number;
+  speed: number;
+  accuracy: number;
+  timestamp: Date;
+}
+const driverLocations: Map<string, DriverLocationRecord> = new Map();
 
 // Initialize with comprehensive seed data
 function initializeDatabase() {
@@ -309,6 +321,15 @@ export async function findUserById(id: string): Promise<UserRecord | null> {
   return null;
 }
 
+export async function findUserByEmail(email: string): Promise<UserRecord | null> {
+  for (const user of users.values()) {
+    if (user.emailid === email) {
+      return user;
+    }
+  }
+  return null;
+}
+
 export async function createUser(userData: Partial<UserRecord>): Promise<UserRecord> {
   const id = Date.now().toString();
   const user: UserRecord = {
@@ -414,7 +435,7 @@ export async function getAllTripTypes(): Promise<TripTypeRecord[]> {
 }
 
 // Booking functions (enhanced)
-export async function createBooking(bookingData: Omit<BookingRecord, 'id' | 'status' | 'bookingReference' | 'createdAt' | 'updatedAt'>): Promise<BookingRecord> {
+export async function createBooking(bookingData: Omit<BookingRecord, 'id' | 'status' | 'bookingReference' | 'createdAt' | 'updatedAt' | 'discountAmount' | 'finalAmount'> & { discountAmount?: number }): Promise<BookingRecord> {
   const id = Date.now().toString();
   const bookingReference = `TOP4${Date.now()}`;
   
@@ -558,5 +579,15 @@ export function userToAuthUser(user: UserRecord): AuthUser {
 
 export function generateBookingReference(): string {
   return `TOP4${Date.now()}${Math.floor(Math.random() * 1000)}`;
+}
+
+// Driver tracking functions
+export async function getDriverLocation(bookingId: string): Promise<DriverLocationRecord | null> {
+  return driverLocations.get(bookingId) || null;
+}
+
+export async function updateDriverLocation(update: DriverLocationRecord): Promise<DriverLocationRecord> {
+  driverLocations.set(update.bookingId, { ...update, timestamp: update.timestamp ?? new Date() });
+  return driverLocations.get(update.bookingId)!;
 }
 

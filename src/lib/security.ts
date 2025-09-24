@@ -199,26 +199,30 @@ export const encryption = {
   // Encrypt sensitive data
   encrypt: (text: string, key: string): string => {
     const algorithm = 'aes-256-gcm';
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher(algorithm, key);
-    
-    let encrypted = cipher.update(text, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    
-    return iv.toString('hex') + ':' + encrypted;
+    const iv = crypto.randomBytes(12);
+    const keyBuf = Buffer.from(key, 'hex').subarray(0, 32);
+    const cipher = crypto.createCipheriv(algorithm, keyBuf, iv);
+
+    const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+    const authTag = cipher.getAuthTag();
+
+    return [iv.toString('hex'), authTag.toString('hex'), encrypted.toString('hex')].join(':');
   },
 
   // Decrypt sensitive data
   decrypt: (encryptedText: string, key: string): string => {
     const algorithm = 'aes-256-gcm';
-    const [ivHex, encrypted] = encryptedText.split(':');
+    const [ivHex, authTagHex, encryptedHex] = encryptedText.split(':');
     const iv = Buffer.from(ivHex, 'hex');
-    const decipher = crypto.createDecipher(algorithm, key);
-    
-    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    
-    return decrypted;
+    const authTag = Buffer.from(authTagHex, 'hex');
+    const encryptedBuf = Buffer.from(encryptedHex, 'hex');
+    const keyBuf = Buffer.from(key, 'hex').subarray(0, 32);
+
+    const decipher = crypto.createDecipheriv(algorithm, keyBuf, iv);
+    decipher.setAuthTag(authTag);
+
+    const decrypted = Buffer.concat([decipher.update(encryptedBuf), decipher.final()]);
+    return decrypted.toString('utf8');
   },
 
   // Generate encryption key
@@ -293,7 +297,7 @@ export const auditLogging = {
 };
 
 // Export all security utilities
-export default {
+const securityUtils = {
   sanitization,
   csrfProtection,
   requestValidation,
@@ -304,4 +308,6 @@ export default {
   securityHeaders,
   auditLogging,
 };
+
+export default securityUtils;
 

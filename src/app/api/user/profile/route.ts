@@ -54,9 +54,9 @@ export async function GET(request: NextRequest) {
 // PUT /api/user/profile - Update user profile
 export async function PUT(request: NextRequest) {
   try {
-    const user = await getCurrentUserFromRequest(request);
+    const authUser = await getCurrentUserFromRequest(request);
 
-    if (!user) {
+    if (!authUser) {
       return NextResponse.json(
         { 
           status: 'error', 
@@ -77,15 +77,21 @@ export async function PUT(request: NextRequest) {
       userImage
     } = body;
 
+    // Load full user record to use as defaults
+    const existing = await findUserByMobile(authUser.mobileno);
+    if (!existing) {
+      return NextResponse.json({ status: 'error', message: 'User not found' }, { status: 404 });
+    }
+
     // Update user profile
-    const updatedUser = await updateUser(user.mobileno, {
-      firstname: firstname || user.firstname,
-      lastname: lastname || user.lastname,
-      emailid: emailid || user.emailid,
-      vehiclemodel: vehiclemodel || user.vehiclemodel,
-      segment: segment || user.segment,
-      vehicletype: vehicletype || user.vehicletype,
-      userImage: userImage || user.userImage
+    const updatedUser = await updateUser(authUser.mobileno, {
+      firstname: firstname ?? existing.firstname,
+      lastname: lastname ?? existing.lastname,
+      emailid: emailid ?? existing.emailid,
+      vehiclemodel: vehiclemodel ?? existing.vehiclemodel,
+      segment: segment ?? existing.segment,
+      vehicletype: vehicletype ?? existing.vehicletype,
+      userImage: userImage ?? existing.userImage
     });
 
     if (!updatedUser) {
