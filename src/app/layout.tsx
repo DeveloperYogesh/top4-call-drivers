@@ -4,9 +4,9 @@ import './globals.css';
 import ThemeProvider from '@/components/common/ThemeProvider';
 import AccessibilityProvider from '@/components/common/AccessibilityProvider';
 import SkipToContent from '@/components/common/SkipToContent';
-import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
+import HeaderServer from '@/components/layout/HeaderServer';
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,8 +29,8 @@ export default function RootLayout({
           <ThemeProvider>
             <div className="min-h-screen flex flex-col">
               <SkipToContent />
-              <Header />
-              <main id="main-content" className="flex-1" tabIndex={-1}>
+              <HeaderServer />
+              <main id="main-content" className="flex-1 pt-[64px]" tabIndex={-1}>
                 {children}
               </main>
               <Footer />

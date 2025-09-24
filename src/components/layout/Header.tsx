@@ -12,7 +12,7 @@ export default async function HeaderServer({ currentPath }: Props) {
   const user: AuthUser | null = await getCurrentUser();
 
   const NAV_ITEMS = [
-    { label: "Home", href: ROUTES.HOME },
+    { label: "Home", href: "/" },
     { label: "For Business", href: ROUTES.BUSINESS },
     { label: "About Us", href: ROUTES.ABOUT },
   ];
@@ -25,13 +25,30 @@ export default async function HeaderServer({ currentPath }: Props) {
     { label: "Coimbatore", customerHref: "/call-drivers-in-coimbatore", driverHref: "/car-driver-job-in-coimbatore" },
   ];
 
+  const isTransparent = currentPath === ROUTES.HOME;  
+
+  // utility classes that change based on transparent state
+  const headerClass = `sticky top-0 z-50 ${isTransparent ? "bg-transparent border-transparent" : "bg-white my-border border-b"}`;
+  const logoClass = `${isTransparent ? "text-white" : "text-[#354B9C]"}`;
+  const navTextActive = isTransparent ? "text-white" : "text-[#354B9C]";
+  const navTextInactive = isTransparent ? "text-white hover:bg-white/5" : "text-gray-700 hover:bg-gray-100";
+  const summaryBase = `list-none px-2 py-1 rounded-md font-semibold cursor-pointer ${isTransparent ? "text-white hover:bg-white/5" : "text-gray-700 hover:bg-gray-100"}`;
+  const dropdownBg = isTransparent ? "bg-white my-border border rounded-md shadow-lg" : "bg-white my-border border rounded-md shadow-lg";
+  const signInBtn = isTransparent
+    ? "hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white text-[#354B9C] font-semibold hover:opacity-95"
+    : "hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-[#354B9C] text-white font-semibold hover:opacity-95";
+  const downloadBtn = isTransparent
+    ? "hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md border border-white text-white font-semibold hover:bg-white hover:text-[#354B9C] transition-colors"
+    : "hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md border border-[#354B9C] text-[#354B9C] font-semibold hover:bg-[#354B9C] hover:text-white transition-colors";
+  const mobileToggleClass = `inline-flex items-center justify-center h-10 w-10 rounded-md ${isTransparent ? "text-white hover:bg-white/5" : "text-gray-700 hover:bg-gray-100"}`;
+
   return (
-    <header className="sticky top-0 z-50 bg-white my-border border-b">
+    <header className={headerClass}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-6 h-16">
           <div className="flex-shrink-0">
-            <Link href={ROUTES.HOME} aria-label={`${APP_CONFIG.name} home`} className="inline-flex items-center">
-              <span className="text-lg font-extrabold text-[#354B9C]">{APP_CONFIG.name}</span>
+            <Link href={ROUTES.HOME} aria-label={`${APP_CONFIG.name} home`} className={`inline-flex items-center`}>
+              <span className={`text-lg font-extrabold ${logoClass}`}>{APP_CONFIG.name}</span>
             </Link>
           </div>
 
@@ -46,7 +63,7 @@ export default async function HeaderServer({ currentPath }: Props) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-2 py-1 rounded-md font-semibold transition-colors ${isActive ? "text-[#354B9C]" : "text-gray-700 hover:bg-gray-100"}`}
+                  className={`px-2 py-1 rounded-md font-semibold transition-colors ${isActive ? navTextActive : navTextInactive}`}
                   aria-current={isActive ? "page" : undefined}
                 >
                   {item.label}
@@ -55,13 +72,10 @@ export default async function HeaderServer({ currentPath }: Props) {
             })}
 
             <details className="relative group">
-              <summary
-                className="list-none px-2 py-1 rounded-md font-semibold cursor-pointer text-gray-700 hover:bg-gray-100"
-                aria-haspopup="true"
-              >
+              <summary className={summaryBase} aria-haspopup="true">
                 Services
               </summary>
-              <div className="absolute left-0 mt-2 w-56 bg-white my-border border rounded-md shadow-lg z-40">
+              <div className={`absolute left-0 mt-2 w-56 ${dropdownBg} z-40`}>
                 <ul className="p-2">
                   {SERVICES.map((s) => {
                     const isActive = currentPath ? currentPath === `/services/${s.id}` : false;
@@ -69,7 +83,7 @@ export default async function HeaderServer({ currentPath }: Props) {
                       <li key={s.id}>
                         <Link
                           href={`/services/${s.id}`}
-                          className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive ? "text-[#354B9C]" : "text-gray-800 hover:bg-gray-100"}`}
+                          className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive ? navTextActive : (isTransparent ? "text-gray-800 hover:bg-gray-100" : "text-gray-800 hover:bg-gray-100")}`}
                           aria-current={isActive ? "page" : undefined}
                         >
                           {s.name}
@@ -82,13 +96,10 @@ export default async function HeaderServer({ currentPath }: Props) {
             </details>
 
             <details className="relative group">
-              <summary
-                className="list-none px-2 py-1 rounded-md font-semibold cursor-pointer text-gray-700 hover:bg-gray-100"
-                aria-haspopup="true"
-              >
+              <summary className={summaryBase} aria-haspopup="true">
                 Cities
               </summary>
-              <div className="absolute left-0 mt-2 w-56 bg-white my-border border rounded-md shadow-lg z-40">
+              <div className={`absolute left-0 mt-2 w-56 ${dropdownBg} z-40`}>
                 <ul className="p-2">
                   {CITIES.map((c) => {
                     const isActive = currentPath ? currentPath === c.customerHref : false;
@@ -96,7 +107,7 @@ export default async function HeaderServer({ currentPath }: Props) {
                       <li key={c.customerHref}>
                         <Link
                           href={c.customerHref}
-                          className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive ? "text-[#354B9C]" : "text-gray-800 hover:bg-gray-100"}`}
+                          className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive ? navTextActive : "text-gray-800 hover:bg-gray-100"}`}
                           aria-current={isActive ? "page" : undefined}
                         >
                           {c.label}
@@ -109,13 +120,10 @@ export default async function HeaderServer({ currentPath }: Props) {
             </details>
 
             <details className="relative group">
-              <summary
-                className="list-none px-2 py-1 rounded-md font-semibold cursor-pointer text-gray-700 hover:bg-gray-100"
-                aria-haspopup="true"
-              >
+              <summary className={summaryBase} aria-haspopup="true">
                 Driver Jobs
               </summary>
-              <div className="absolute left-0 mt-2 w-56 bg-white my-border border rounded-md shadow-lg z-40">
+              <div className={`absolute left-0 mt-2 w-56 ${dropdownBg} z-40`}>
                 <ul className="p-2">
                   {CITIES.map((c) => {
                     const isActive = currentPath ? currentPath === c.driverHref : false;
@@ -123,7 +131,7 @@ export default async function HeaderServer({ currentPath }: Props) {
                       <li key={c.driverHref}>
                         <Link
                           href={c.driverHref}
-                          className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive ? "text-[#354B9C]" : "text-gray-800 hover:bg-gray-100"}`}
+                          className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive ? navTextActive : "text-gray-800 hover:bg-gray-100"}`}
                           aria-current={isActive ? "page" : undefined}
                         >
                           {c.label}
@@ -138,8 +146,8 @@ export default async function HeaderServer({ currentPath }: Props) {
 
           <div className="flex items-center ml-auto gap-3">
             {user ? (
-              <div className="hidden md:flex items-center gap-3">
-                <span className="text-sm text-gray-700">
+              <div className={`hidden md:flex items-center gap-3 ${isTransparent ? "text-white" : ""}`}>
+                <span className={isTransparent ? "text-sm text-white" : "text-sm text-gray-700"}>
                   Welcome, <span className="font-semibold text-[#354B9C]">{user.firstname}</span>
                 </span>
                 <HeaderControls user={user} />
@@ -147,7 +155,7 @@ export default async function HeaderServer({ currentPath }: Props) {
             ) : (
               <Link
                 href="/login"
-                className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-[#354B9C] text-white font-semibold hover:opacity-95"
+                className={signInBtn}
                 aria-label="Sign In"
               >
                 Sign In
@@ -156,7 +164,7 @@ export default async function HeaderServer({ currentPath }: Props) {
 
             <Link
               href={ROUTES.DOWNLOAD}
-              className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md border border-[#354B9C] text-[#354B9C] font-semibold hover:bg-[#354B9C] hover:text-white transition-colors"
+              className={downloadBtn}
               aria-label="Download App"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden className="inline-block">
@@ -169,7 +177,7 @@ export default async function HeaderServer({ currentPath }: Props) {
 
             <div className="md:hidden">
               <input id="nav-toggle" type="checkbox" className="peer hidden" aria-hidden="true" />
-              <label htmlFor="nav-toggle" className="inline-flex items-center justify-center h-10 w-10 rounded-md text-gray-700 hover:bg-gray-100" aria-label="Open menu" role="button">
+              <label htmlFor="nav-toggle" className={mobileToggleClass} aria-label="Open menu" role="button">
                 <span className="block w-5 h-0.5 bg-current relative before:content-[''] before:block before:w-5 before:h-0.5 before:bg-current before:absolute before:-top-1.5 after:content-[''] after:block after:w-5 after:h-0.5 after:bg-current after:absolute after:top-1.5" />
               </label>
             </div>
