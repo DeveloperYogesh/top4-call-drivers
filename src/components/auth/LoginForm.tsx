@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type LoginMethod = 'otp' | 'password';
 
@@ -308,12 +309,12 @@ export default function LoginForm() {
 
             {/* Forgot Password Link */}
             <div className="text-right">
-              <a
+              <Link
                 href="/forgot-password"
                 className="text-sm font-medium text-[#354B9C] hover:text-[#2a3a7a]"
               >
                 Forgot your password?
-              </a>
+              </Link>
             </div>
           </>
         )}
