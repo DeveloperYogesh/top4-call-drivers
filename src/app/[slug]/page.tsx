@@ -5,18 +5,13 @@ import { generateCityMetadata, getCityData } from "@/lib/seo";
 import { SUPPORTED_CITIES } from "@/utils/constants";
 import CustomerCityPage from "@/components/pages/customerCityPage";
 
-// Use the inferred params type from Next.js for dynamic routes
-type PageProps = {
-  params: {
-    slug: string; // Remove optional (?) to match Next.js expectation
-  };
-};
+// Use inline typing for params to avoid alias conflicts with Next.js generated types
 
 export const dynamicParams = false;
 export const revalidate = 3600;
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = params;
+export async function generateMetadata({ params }: any): Promise<Metadata> {
+  const { slug } = await params;
 
   if (!slug) return {}; // Handle empty slug case
 
@@ -57,8 +52,8 @@ export async function generateStaticParams() {
   ]);
 }
 
-export default async function SlugPageRoute({ params }: PageProps) {
-  const { slug } = params;
+export default async function SlugPageRoute({ params }: any) {
+  const { slug } = await params;
 
   if (!slug) notFound(); // Next.js should always provide a slug for dynamic routes
 

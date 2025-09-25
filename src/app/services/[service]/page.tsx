@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Head from "next/head";
-import Link from "next/link";
+// Removed next/head; not used in the App Router
+// Link not used on this server component
 import { SERVICES } from "@/utils/constants";
 import { Button, Chip } from "@mui/material";
 import {
@@ -12,7 +12,7 @@ import {
   Build,
   Security,
 } from "@mui/icons-material";
-import { JSX } from "@emotion/react/jsx-runtime";
+import type { JSX } from "react";
 
 type Props = {
   params: Promise<{ service: string }>;
@@ -199,27 +199,7 @@ export default async function ServicePage({ params }: Props) {
 
   return (
     <>
-      <Head>
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Service",
-            serviceType: serviceData.name,
-            provider: {
-              "@type": "Organization",
-              name: "TOP4 Call Drivers",
-              sameAs: "https://yourdomain.com",
-            },
-            areaServed: serviceData.cities.includes("all")
-              ? "India"
-              : serviceData.cities.map((city) => ({
-                  "@type": "City",
-                  name: city.charAt(0).toUpperCase() + city.slice(1),
-                })),
-            description: serviceData.description,
-          })}
-        </script>
-      </Head>
+      {/* Structured data can be added via the Metadata API if needed */}
 
       <div>
         {/* Hero */}

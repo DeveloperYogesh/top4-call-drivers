@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
 import SignupForm from "@/components/auth/SignupForm";
+import Link from "next/link";
 
 export const metadata: Metadata = generateSEOMetadata({
   title: "Sign Up - Create Your Account",
@@ -36,12 +37,12 @@ export default function SignupPage() {
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
-            <a
+            <Link
               href="/login"
               className="font-medium text-[#354B9C] hover:text-[#2a3a7a] transition-colors"
             >
               Sign in here
-            </a>
+            </Link>
           </p>
         </div>
       </div>

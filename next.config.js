@@ -2,17 +2,19 @@
 const nextConfig = {
   // Enable experimental features for better performance
   experimental: {
-    // Enable server components by default
-    serverComponentsExternalPackages: [],
     // Optimize CSS loading
     optimizeCss: true,
-    // Enable turbo mode for faster builds
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  },
+
+  // Configure external packages for server runtime (moved from experimental)
+  serverExternalPackages: [],
+
+  // Turbopack configuration (replacing deprecated experimental.turbo)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
   },

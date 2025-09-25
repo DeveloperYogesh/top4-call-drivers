@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface SignupFormData {
   firstName: string;
@@ -356,13 +357,13 @@ export default function SignupForm() {
       {!otpSent && (
         <div className="text-xs text-gray-500 text-center">
           By creating an account, you agree to our{' '}
-          <a href="/terms" className="text-[#354B9C] hover:text-[#2a3a7a]">
+          <Link href="/terms" className="text-[#354B9C] hover:text-[#2a3a7a]">
             Terms of Service
-          </a>{' '}
+          </Link>{' '}
           and{' '}
-          <a href="/privacy" className="text-[#354B9C] hover:text-[#2a3a7a]">
+          <Link href="/privacy" className="text-[#354B9C] hover:text-[#2a3a7a]">
             Privacy Policy
-          </a>
+          </Link>
         </div>
       )}
     </form>
