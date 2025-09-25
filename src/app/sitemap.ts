@@ -77,7 +77,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // City-specific pages
   const cityPages = SUPPORTED_CITIES.map(city => ({
-    url: `${baseUrl}/call-drivers-in-${city.slug}`,
+    url: `${baseUrl}/best-acting-drivers-in-${city.slug}`,
     lastModified: currentDate,
     changeFrequency: 'weekly' as const,
     priority: 0.8,

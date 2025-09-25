@@ -199,10 +199,6 @@ table.tariff-table tbody tr:nth-child(even) {
 table.tariff-table .header-cell {
   font-weight: 600;
 }
-
-.parah-content p {
-  @apply text-sm mb-4;
-}
 .parah-content br {
   @apply mb-2;
 }
@@ -212,7 +208,7 @@ table.tariff-table .header-cell {
 }
 
 .parah-content li {
-  @apply text-xs md:text-sm leading-relaxed ml-1;
+  @apply leading-relaxed ml-1;
 }
 
 .parah-content h1 {
@@ -229,9 +225,4 @@ table.tariff-table .header-cell {
 
 .parah-content h4 {
   @apply text-base my-3 font-semibold;
-}
-
-.parah-content h5,
-.parah-content h6 {
-  @apply text-sm my-2 font-semibold;
 }

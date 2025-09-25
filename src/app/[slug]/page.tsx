@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 
   if (!slug) return {}; // Handle empty slug case
 
-  if (slug.startsWith("call-drivers-in-")) {
-    const city = slug.replace("call-drivers-in-", "");
+  if (slug.startsWith("best-acting-drivers-in-")) {
+    const city = slug.replace("best-acting-drivers-in-", "");
     const cityData = await Promise.resolve(getCityData(city));
     if (!cityData) {
       return {
@@ -35,10 +35,10 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       };
     }
     return {
-      title: `Driver Jobs in ${cityData.name} | TOP4 Call Drivers`,
+      title: `Car Driver Jobs in ${cityData.name} | TOP4 Call Drivers`,
       description: `Join TOP4 as a professional driver in ${cityData.name}. Earn competitive pay, enjoy flexible hours, and get full support. Apply now!`,
       alternates: {
-        canonical: `https://yourdomain.com/${slug}`,
+        canonical: `https://top4calldrivers.com/${slug}`,
       },
     };
   }
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 
 export async function generateStaticParams() {
   return SUPPORTED_CITIES.flatMap((city) => [
-    { slug: `call-drivers-in-${city.slug}` },
+    { slug: `best-acting-drivers-in-${city.slug}` },
     { slug: `car-driver-job-in-${city.slug}` },
   ]);
 }
@@ -57,8 +57,8 @@ export default async function SlugPageRoute({ params }: any) {
 
   if (!slug) notFound(); // Next.js should always provide a slug for dynamic routes
 
-  if (slug.startsWith("call-drivers-in-")) {
-    const city = slug.replace("call-drivers-in-", "");
+  if (slug.startsWith("best-acting-drivers-in-")) {
+    const city = slug.replace("best-acting-drivers-in-", "");
     const cityData = await Promise.resolve(getCityData(city));
     if (!cityData) notFound();
     return <CustomerCityPage cityData={cityData} />;

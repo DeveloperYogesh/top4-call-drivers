@@ -171,10 +171,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${serviceData.name}`,
       description: serviceData.description,
       type: "website",
-      url: `https://yourdomain.com/services/${serviceData.id}`,
+      url: `https://top4calldrivers.com/services/${serviceData.id}`,
     },
     alternates: {
-      canonical: `https://yourdomain.com/services/${serviceData.id}`,
+      canonical: `https://top4calldrivers.com/services/${serviceData.id}`,
     },
   };
 }

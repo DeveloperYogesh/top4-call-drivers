@@ -5,190 +5,146 @@ import {
   APP_STORE_LINKS,
   CITIES,
 } from "@/utils/constants";
+import { EmailOutlined, Facebook, LocationOn, Phone, Twitter } from "@mui/icons-material";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white pt-12 pb-6 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-8">
-          {/* Company Info */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+          {/* Company Info & Contact - First Column */}
           <div className="md:col-span-2">
-            <h2 className="text-lg font-bold mb-2">{APP_CONFIG.name}</h2>
-            <p className="text-gray-300 mb-2 text-sm">
-              {APP_CONFIG.description}
-            </p>
-            <p className="text-gray-300 text-sm">Simplify Car Ownership</p>
+            <div className="flex items-center mb-4">
+            <Link href={ROUTES.HOME} aria-label={`${APP_CONFIG.name} home`} className="inline-flex items-center">
+            <Image
+                width="47"
+                height="47"
+                src="/images/top4-call-drivers-logo.png"
+                className="mr-2"
+                alt={APP_CONFIG.name}
+              />
+              <span className={`text-lg font-semibold text-white`}>{APP_CONFIG.name}</span>
+            </Link>
           </div>
-
-          {/* Services */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Services</h3>
-            <ul className="flex flex-col gap-1 text-sm">
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white">
-                  Professional Drivers
+            
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center gap-3">
+                <Phone className="w-4 h-4 text-gray-400" />
+                <a href="tel:04428287777" className="text-gray-300 hover:text-white">
+                  044-28287777
                 </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white">
-                  Car Wash
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Phone className="w-4 h-4 text-gray-400" />
+                <a href="tel:+918190081900" className="text-gray-300 hover:text-white">
+                  8190081900
                 </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white">
-                  FASTag Recharge
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <EmailOutlined className="w-4 h-4 text-gray-400" />
+                <a href="mailto:info@example.com" className="text-gray-300 hover:text-white">
+                  top4calldriverservices@gmail.com
                 </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white">
-                  Car Maintenance
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white">
-                  Car Insurance
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Cities */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Cities</h3>
-            <ul className="flex flex-col gap-1 text-sm">
-              {CITIES.slice(0, 5).map((city) => (
-                <li key={city.id}>
-                  <a
-                    href={ROUTES.CITY_DRIVERS(city.slug)}
-                    className="text-gray-300 hover:text-white"
-                  >
-                    {city.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Company</h3>
-            <ul className="flex flex-col gap-1 text-sm">
-              <li>
-                <a
-                  href={ROUTES.ABOUT}
-                  className="text-gray-300 hover:text-white"
-                >
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href={ROUTES.TARIFF}
-                  className="text-gray-300 hover:text-white"
-                >
-                  Tariff
-                </a>
-              </li>
-              <li>
-                <a
-                  href={ROUTES.CONTACT}
-                  className="text-gray-300 hover:text-white"
-                >
-                  Contact Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href={ROUTES.BLOG}
-                  className="text-gray-300 hover:text-white"
-                >
-                  Blog
-                </a>
-              </li>
-              <li>
-                <a
-                  href={ROUTES.COMPARE}
-                  className="text-gray-300 hover:text-white"
-                >
-                  Compare
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Download App */}
-          <div className="md:col-span-1">
-            <h3 className="text-lg font-semibold mb-2">Download App</h3>
-            <div className="flex flex-col gap-2 mb-3 text-sm">
-              <a
-                href={APP_STORE_LINKS.android}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-gray-300 hover:text-white"
-              >
-                {/* Android SVG */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M17.6 9.48V4.5h-11.2v4.98H2.4v9.51h19.2V9.48h-4zM9 20.02v-3.5h6v3.5H9z" />
-                </svg>
-                Google Play
-              </a>
-              <a
-                href={APP_STORE_LINKS.ios}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-gray-300 hover:text-white"
-              >
-                {/* Apple SVG */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M16.365 1.43c0 1.14-.427 2.25-1.23 3.04-.785.77-2.02 1.36-3.194 1.27-.112-1.11.438-2.27 1.198-3.04.82-.83 2.264-1.42 3.226-1.27zM21 17.56c-.46 1.09-.997 2.17-1.61 3.23-.94 1.62-1.915 3.23-3.45 3.26-1.5.03-1.98-.95-3.69-.95-1.71 0-2.25.92-3.67.98-1.47.05-2.6-1.75-3.54-3.36C3.07 17.39 2 13.77 3.5 11.15c.96-1.65 2.68-2.69 4.54-2.72 1.42-.03 2.75.98 3.67.98.89 0 2.45-1.21 4.12-1.04.7.03 2.68.28 3.95 2.12-.1.06-2.36 1.38-2.34 4.11.01 3.28 2.88 4.36 2.88 4.36z" />
-                </svg>
-                App Store
-              </a>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <LocationOn className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-300">
+                  No: 26 Jayalakshmipuram, 3rd Street, Nungambakkam, Chennai - 600034.
+                </span>
+              </div>
             </div>
+          </div>
 
-            <p className="text-gray-300 text-sm mb-1">Follow Us</p>
-            <div className="flex gap-2">
-              <a
-                href={SOCIAL_LINKS.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white"
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
+          {/* Online Booking */}
+          <div>
+            <h4 className="text-white font-semibold mb-3">ONLINE BOOKING</h4>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li>Hourly Basis</li>
+              <li>Monthly Basis</li>
+              <li>Valet Parking</li>
+              <li>Outstation</li>
+              <li>Distance Calculator</li>
+              <li>User Login</li>
+            </ul>
+          </div>
+
+          {/* Our Services */}
+          <div>
+            <h4 className="text-white font-semibold mb-3">OUR SERVICES</h4>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li>Airports / Railway Stations</li>
+              <li>Local / Our Stations</li>
+              <li>Home / Office</li>
+              <li>Personal Appointment</li>
+              <li>Well Trained Drivers</li>
+              <li>Tours / Anywheres!</li>
+            </ul>
+          </div>
+
+          {/* Branches & Social */}
+          <div>
+            <h4 className="text-white font-semibold mb-3">BRANCHES</h4>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li>
+                <Link href="/best-acting-drivers-in-chennai/" title="Best Acting Drivers in Chennai - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                  Chennai 044-28287777
+                </Link>
+              </li>
+              <li>Trichy 0431-2791779</li>
+              <li>
+                <Link href="/best-acting-drivers-in-coimbatore/" title="Best Acting Drivers in Coimbatore - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                  Coimbatore 7418922002
+                </Link>
+              </li>
+              <li>
+                <Link href="/best-acting-drivers-in-madurai/" title="Best Acting Drivers in Madurai - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                  Madurai 7338878427
+                </Link>
+              </li>
+              <li>Tirupur 7418922002</li>
+              <li>Bangalore 044-28287777</li>
+              <li>Hyderabad 044-28287777</li>
+            </ul>
+
+            {/* Social Icons */}
+            {/* <div className="mt-6">
+              <h4 className="text-white font-semibold mb-3">FOLLOW US</h4>
+              <div className="flex gap-3">
+                <a
+                  href={SOCIAL_LINKS.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                  aria-label="Facebook"
                 >
-                  <path d="M22 12a10 10 0 10-11.6 9.9v-7h-2.1v-3h2.1V9.5c0-2 1.2-3.1 3-3.1.9 0 1.8.2 1.8.2v2h-1c-1 0-1.3.6-1.3 1.2V12h2.3l-.4 3h-1.9v7A10 10 0 0022 12z" />
-                </svg>
-              </a>
-              <a
-                href={SOCIAL_LINKS.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-300 hover:text-white"
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
+                  <Facebook className="text-white text-lg" />
+                </a>
+                <a
+                  href={SOCIAL_LINKS.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors"
+                  aria-label="Twitter"
                 >
-                  <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm0 2h10c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3zm5 2.8A5.2 5.2 0 0012 17.2 5.2 5.2 0 0017.2 12 5.2 5.2 0 0012 6.8zm0 2A3.2 3.2 0 1112 16a3.2 3.2 0 010-6.2zm5.8-2.9a1.1 1.1 0 110 2.2 1.1 1.1 0 010-2.2z" />
-                </svg>
-              </a>
-              {/* Add similar SVGs for Twitter, LinkedIn, YouTube */}
-            </div>
+                  <Twitter className="text-white text-lg" />
+                </a>
+                <a
+                  href={SOCIAL_LINKS.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-800 transition-colors"
+                  aria-label="LinkedIn"
+                >
+                  <LinkedIn className="text-white text-lg" />
+                </a>
+              </div>
+            </div> */}
           </div>
         </div>
 
@@ -201,15 +157,15 @@ export default function Footer() {
             © {new Date().getFullYear()} {APP_CONFIG.name}. All rights reserved.
           </p>
           <div className="flex gap-4">
-            <a href={ROUTES.TERMS} className="text-gray-400 hover:text-white">
+            <Link href={ROUTES.TERMS} className="text-gray-400 hover:text-white transition-colors">
               Terms & Conditions
-            </a>
-            <a href={ROUTES.PRIVACY} className="text-gray-400 hover:text-white">
+            </Link>
+            <Link href={ROUTES.PRIVACY} className="text-gray-400 hover:text-white transition-colors">
               Privacy Policy
-            </a>
-            <a href={ROUTES.REFUND} className="text-gray-400 hover:text-white">
+            </Link>
+            <Link href={ROUTES.REFUND} className="text-gray-400 hover:text-white transition-colors">
               Refund Policy
-            </a>
+            </Link>
           </div>
         </div>
       </div>

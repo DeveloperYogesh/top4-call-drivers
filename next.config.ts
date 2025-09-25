@@ -9,8 +9,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/call-drivers-in-:city",
-        destination: "/call-drivers-in/:city"
+        source: "/best-acting-drivers-in-:city",
+        destination: "/best-acting-drivers-in/:city"
       },
       {
         source: "/car-driver-job-in-:city",
