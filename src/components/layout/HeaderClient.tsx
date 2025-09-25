@@ -8,6 +8,7 @@ import type { AuthUser } from "@/lib/auth";
 import HeaderControls from "@/components/layout/HeaderControls";
 import PhoneIcon from "@mui/icons-material/Phone";
 import DownloadIcon from "@mui/icons-material/Download";
+import Image from "next/image";
 
 type Props = {
   serverUser: AuthUser | null;
@@ -75,7 +76,6 @@ export default function HeaderClient({ serverUser }: Props) {
   }`;
 
   const NAV_ITEMS = [
-    { label: "Home", href: ROUTES.HOME },
     { label: "Tariff", href: ROUTES.TARIFF },
     { label: "About Us", href: ROUTES.ABOUT },
   ];
@@ -148,8 +148,15 @@ export default function HeaderClient({ serverUser }: Props) {
     <header className={headerClass} data-header-transparent={isTransparent ? "true" : "false"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-6 h-16">
-          <div className="flex-shrink-0">
+          <div className="flex items-center justify-center">
             <Link href={ROUTES.HOME} aria-label={`${APP_CONFIG.name} home`} className="inline-flex items-center">
+            <Image
+                width="47"
+                height="47"
+                src="/images/top4-call-drivers-logo.png"
+                className="mr-2"
+                alt={APP_CONFIG.name}
+              />
               <span className={`text-lg font-extrabold ${logoClass}`}>{APP_CONFIG.name}</span>
             </Link>
           </div>

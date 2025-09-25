@@ -35,10 +35,10 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       };
     }
     return {
-      title: `Driver Jobs in ${cityData.name} | TOP4 Call Drivers`,
+      title: `Car Driver Jobs in ${cityData.name} | TOP4 Call Drivers`,
       description: `Join TOP4 as a professional driver in ${cityData.name}. Earn competitive pay, enjoy flexible hours, and get full support. Apply now!`,
       alternates: {
-        canonical: `https://yourdomain.com/${slug}`,
+        canonical: `https://top4calldrivers.com/${slug}`,
       },
     };
   }

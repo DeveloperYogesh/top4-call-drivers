@@ -6,6 +6,8 @@ import {
   CITIES,
 } from "@/utils/constants";
 import { EmailOutlined, Facebook, LocationOn, Phone, Twitter } from "@mui/icons-material";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -15,16 +17,18 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Company Info & Contact - First Column */}
           <div className="md:col-span-2">
-            <div className="mb-4">
-              <img 
-                width="148" 
-                height="117" 
-                src="/images/logo.png" 
-                className="attachment-large size-large"
+            <div className="flex items-center mb-4">
+            <Link href={ROUTES.HOME} aria-label={`${APP_CONFIG.name} home`} className="inline-flex items-center">
+            <Image
+                width="47"
+                height="47"
+                src="/images/top4-call-drivers-logo.png"
+                className="mr-2"
                 alt={APP_CONFIG.name}
-                loading="lazy"
               />
-            </div>
+              <span className={`text-lg font-semibold text-white`}>{APP_CONFIG.name}</span>
+            </Link>
+          </div>
             
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-3">
@@ -88,18 +92,18 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-3">BRANCHES</h4>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
-                <a href="/best-best-acting-drivers-in-chennai/" className="hover:text-white transition-colors">
+                <a href="/best-acting-drivers-in-chennai/" title="Best Acting Drivers in Chennai - TOP4 Call Drivers" className="hover:text-white transition-colors">
                   Chennai 044-28287777
                 </a>
               </li>
               <li>Trichy 0431-2791779</li>
               <li>
-                <a href="/best-acting-drivers-in-coimbatore/" className="hover:text-white transition-colors">
+                <a href="/best-acting-drivers-in-coimbatore/" title="Best Acting Drivers in Coimbatore - TOP4 Call Drivers" className="hover:text-white transition-colors">
                   Coimbatore 7418922002
                 </a>
               </li>
               <li>
-                <a href="/best-acting-drivers-in-madurai/" className="hover:text-white transition-colors">
+                <a href="/best-acting-drivers-in-madurai/" title="Best Acting Drivers in Madurai - TOP4 Call Drivers" className="hover:text-white transition-colors">
                   Madurai 7338878427
                 </a>
               </li>

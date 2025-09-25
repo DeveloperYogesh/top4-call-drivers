@@ -7,7 +7,7 @@ export default function HeroSection(): JSX.Element {
     <section
       id="home-hero"
       aria-label="Hero"
-      className="bg-slate-100 -mt-[64px] pt-[64px] xl:-ml-1 min-h-screen"
+      className="bg-slate-100 -mt-[64px] pt-[64px] xl:-ml-1 flex items-end"
       style={{
         backgroundImage: "url(/images/top4-call-drivers-hero-img.png)",
         backgroundSize: "cover",
@@ -15,20 +15,20 @@ export default function HeroSection(): JSX.Element {
         backgroundPosition: "center center",
       }}
     >
-      <div className="custom-container">
-        <div className="lg:flex gap-8 items-end">
-          {/* Left Content */}
-          <div className="">
+      <div className="custom-container w-full ">
+        <div className="flex flex-col justify-end min-h-[500px]">
+          {/* Content aligned to bottom left */}
+          <div className="max-w-2xl">
             <p className="text-sm font-semibold tracking-wider mb-3 text-white">
               SIMPLIFY CAR OWNERSHIP
             </p>
 
-            <h1 className="font-extrabold leading-tight mb-4  text-white">
+            <h1 className="font-extrabold leading-tight mb-4 text-white text-4xl lg:text-5xl">
               Hire TOP4 Call Drivers, and all car services at your fingertips.
             </h1>
           </div>
 
-          {/* Right Content - Booking Form */}
+          {/* Right Content - Booking Form (commented out as in original) */}
           {/* <div className="flex justify-center items-center">
             <BookingForm isEmbedded={true} />
           </div> */}

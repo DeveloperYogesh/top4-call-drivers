@@ -8,7 +8,7 @@ export function getCityData(citySlug: string): CityData | null {
 }
 
 export function generateCityMetadata(cityData: CityData): Metadata {
-  const title = `Hire TOP4 Call Drivers in ${cityData.name}`;
+  const title = `Best Acting Drivers in ${cityData.name} - TOP4 Call Drivers`;
   const description = cityData.description;
   const url = `/best-acting-drivers-in-${cityData.slug}`;
 

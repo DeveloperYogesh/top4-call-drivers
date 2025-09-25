@@ -9,7 +9,7 @@ This document outlines the acceptance tests for the server-side authentication s
 ```bash
 JWT_SECRET=your-strong-jwt-secret-key
 NODE_ENV=production
-SITE_URL=https://your-domain.com
+SITE_URL=https://top4calldrivers.com
 ```
 
 ### Installation & Setup

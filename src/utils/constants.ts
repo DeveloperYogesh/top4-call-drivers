@@ -23,7 +23,7 @@ export const ROUTES = {
   BUSINESS: '/business',
   TARIFF: '/call-drivers-tariff',
   COMPARE: '/compare',
-  DOWNLOAD: '/download',
+  DOWNLOAD: 'https://play.google.com/store/apps/details?id=com.orgware.top4drivers&pcampaignid=web_share',
   // Dynamic city routes
   CITY_DRIVERS: (city: string) => `/best-acting-drivers-in-${city.toLowerCase()}`,
 };
@@ -99,7 +99,7 @@ export const SUPPORTED_CITIES = [
     slug: 'tirupur',
     state: 'Tamil Nadu',
     basePrice: 299,
-    driversCount: 250,
+    driversCount: 500,
     areasCount: 25,
     areas: [
       'Tirupur Central',
@@ -122,7 +122,7 @@ export const SUPPORTED_CITIES = [
     slug: 'chennai',
     state: 'Tamil Nadu',
     basePrice: 279,
-    driversCount: 500,
+    driversCount: 6000,
     areasCount: 60,
     areas: [
       'T. Nagar',
@@ -147,7 +147,7 @@ export const SUPPORTED_CITIES = [
     slug: 'coimbatore',
     state: 'Tamil Nadu',
     basePrice: 289,
-    driversCount: 300,
+    driversCount: 1000,
     areasCount: 40,
     areas: [
       'Gandhipuram',
@@ -170,7 +170,7 @@ export const SUPPORTED_CITIES = [
     slug: 'madurai',
     state: 'Tamil Nadu',
     basePrice: 259,
-    driversCount: 180,
+    driversCount: 1000,
     areasCount: 30,
     areas: [
       'Goripalayam',
@@ -193,7 +193,7 @@ export const SUPPORTED_CITIES = [
     slug: 'trichy',
     state: 'Tamil Nadu',
     basePrice: 249,
-    driversCount: 200,
+    driversCount: 1000,
     areasCount: 35,
     areas: [
       'Srirangam',
