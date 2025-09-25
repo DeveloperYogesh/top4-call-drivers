@@ -1,5 +1,3 @@
-"use client";
-
 import { CityData } from "@/types";
 import { formatCurrency } from "@/utils/helpers";
 import {
@@ -11,7 +9,7 @@ import {
   Security,
   Star,
 } from "@mui/icons-material";
-import { Button, Chip, useMediaQuery, useTheme } from "@mui/material";
+import { Button, Chip} from "@mui/material";
 import Link from "next/link";
 
 interface CustomerCityPageProps {

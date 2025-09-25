@@ -1,0 +1,77 @@
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import DriverJobPage from "@/components/pages/driverJobPage";
+import { generateCityMetadata, getCityData } from "@/lib/seo";
+import { SUPPORTED_CITIES } from "@/utils/constants";
+import CustomerCityPage from "@/components/pages/customerCityPage";
+
+// Use the inferred params type from Next.js for dynamic routes
+type PageProps = {
+  params: {
+    slug: string; // Remove optional (?) to match Next.js expectation
+  };
+};
+
+export const dynamicParams = false;
+export const revalidate = 3600;
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = params;
+
+  if (!slug) return {}; // Handle empty slug case
+
+  if (slug.startsWith("call-drivers-in-")) {
+    const city = slug.replace("call-drivers-in-", "");
+    const cityData = await Promise.resolve(getCityData(city));
+    if (!cityData) {
+      return {
+        title: "City Not Found",
+        description: "The requested city page was not found.",
+      };
+    }
+    return generateCityMetadata(cityData);
+  } else if (slug.startsWith("car-driver-job-in-")) {
+    const city = slug.replace("car-driver-job-in-", "");
+    const cityData = await Promise.resolve(getCityData(city));
+    if (!cityData) {
+      return {
+        title: "Driver Jobs Not Available",
+        description: "Driver job opportunities are not available in this city.",
+      };
+    }
+    return {
+      title: `Driver Jobs in ${cityData.name} | TOP4 Call Drivers`,
+      description: `Join TOP4 as a professional driver in ${cityData.name}. Earn competitive pay, enjoy flexible hours, and get full support. Apply now!`,
+      alternates: {
+        canonical: `https://yourdomain.com/${slug}`,
+      },
+    };
+  }
+  return {};
+}
+
+export async function generateStaticParams() {
+  return SUPPORTED_CITIES.flatMap((city) => [
+    { slug: `call-drivers-in-${city.slug}` },
+    { slug: `car-driver-job-in-${city.slug}` },
+  ]);
+}
+
+export default async function SlugPageRoute({ params }: PageProps) {
+  const { slug } = params;
+
+  if (!slug) notFound(); // Next.js should always provide a slug for dynamic routes
+
+  if (slug.startsWith("call-drivers-in-")) {
+    const city = slug.replace("call-drivers-in-", "");
+    const cityData = await Promise.resolve(getCityData(city));
+    if (!cityData) notFound();
+    return <CustomerCityPage cityData={cityData} />;
+  } else if (slug.startsWith("car-driver-job-in-")) {
+    const city = slug.replace("car-driver-job-in-", "");
+    const cityData = await Promise.resolve(getCityData(city));
+    if (!cityData) notFound();
+    return <DriverJobPage cityData={cityData} />;
+  }
+  notFound();
+}
