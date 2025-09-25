@@ -21,6 +21,7 @@ export const ROUTES = {
   PRIVACY: '/privacy',
   REFUND: '/refund',
   BUSINESS: '/business',
+  TARIFF: '/call-drivers-tariff',
   COMPARE: '/compare',
   DOWNLOAD: '/download',
   // Dynamic city routes

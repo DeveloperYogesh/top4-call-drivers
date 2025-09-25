@@ -7,7 +7,7 @@ export default function HeroSection(): JSX.Element {
     <section
       id="home-hero"
       aria-label="Hero"
-      className="bg-slate-100 -mt-[64px] pt-[64px] 2xl:-ml-1"
+      className="bg-slate-100 -mt-[64px] pt-[64px] xl:-ml-1"
       style={{
         backgroundImage: "url(/images/top4-call-drivers-hero-img.png)",
         backgroundSize: "cover",
@@ -16,7 +16,7 @@ export default function HeroSection(): JSX.Element {
       }}
     >
       <div className="custom-container">
-        <div className="lg:flex gap-8 items-end max-h-screen">
+        <div className="lg:flex gap-8 items-end">
           {/* Left Content */}
           <div className="">
             <p className="text-sm font-semibold tracking-wider mb-3 text-white">

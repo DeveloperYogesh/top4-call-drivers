@@ -166,3 +166,72 @@ html {
 .custom-container {
   @apply mx-auto py-8 md:py-10 lg:py-12 2xl:py-14 overflow-hidden px-3 md:px-10 lg:px-16 max-w-[1400px] m-0;
 }
+
+table.tariff-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+table.tariff-table,
+table.tariff-table th,
+table.tariff-table td {
+  border: 1px solid #ddd;
+}
+
+table.tariff-table th,
+table.tariff-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+table.tariff-table thead th {
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  font-weight: 600;
+}
+
+table.tariff-table tbody tr:nth-child(even) {
+  background-color: #e9ecef;
+}
+
+table.tariff-table .header-cell {
+  font-weight: 600;
+}
+
+.parah-content p {
+  @apply text-sm mb-4;
+}
+.parah-content br {
+  @apply mb-2;
+}
+
+.parah-content ul {
+  @apply mt-2 ml-4 list-disc list-outside;
+}
+
+.parah-content li {
+  @apply text-xs md:text-sm leading-relaxed ml-1;
+}
+
+.parah-content h1 {
+  @apply text-3xl xl:text-4xl mb-5 md:mb-7 lg:mb-10 leading-tight sm:leading-tight md:leading-tight lg:leading-tight xl:leading-tight 2xl:leading-tight font-semibold;
+}
+
+.parah-content h2 {
+  @apply text-xl mb-4 font-semibold;
+}
+
+.parah-content h3 {
+  @apply text-lg my-3 font-semibold;
+}
+
+.parah-content h4 {
+  @apply text-base my-3 font-semibold;
+}
+
+.parah-content h5,
+.parah-content h6 {
+  @apply text-sm my-2 font-semibold;
+}

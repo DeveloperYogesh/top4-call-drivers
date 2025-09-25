@@ -84,10 +84,10 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href={ROUTES.BUSINESS}
+                  href={ROUTES.TARIFF}
                   className="text-gray-300 hover:text-white"
                 >
-                  For Business
+                  Tariff
                 </a>
               </li>
               <li>
