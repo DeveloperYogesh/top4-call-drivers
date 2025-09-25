@@ -92,20 +92,20 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-3">BRANCHES</h4>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
-                <a href="/best-acting-drivers-in-chennai/" title="Best Acting Drivers in Chennai - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                <Link href="/best-acting-drivers-in-chennai/" title="Best Acting Drivers in Chennai - TOP4 Call Drivers" className="hover:text-white transition-colors">
                   Chennai 044-28287777
-                </a>
+                </Link>
               </li>
               <li>Trichy 0431-2791779</li>
               <li>
-                <a href="/best-acting-drivers-in-coimbatore/" title="Best Acting Drivers in Coimbatore - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                <Link href="/best-acting-drivers-in-coimbatore/" title="Best Acting Drivers in Coimbatore - TOP4 Call Drivers" className="hover:text-white transition-colors">
                   Coimbatore 7418922002
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/best-acting-drivers-in-madurai/" title="Best Acting Drivers in Madurai - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                <Link href="/best-acting-drivers-in-madurai/" title="Best Acting Drivers in Madurai - TOP4 Call Drivers" className="hover:text-white transition-colors">
                   Madurai 7338878427
-                </a>
+                </Link>
               </li>
               <li>Tirupur 7418922002</li>
               <li>Bangalore 044-28287777</li>
@@ -157,15 +157,15 @@ export default function Footer() {
             © {new Date().getFullYear()} {APP_CONFIG.name}. All rights reserved.
           </p>
           <div className="flex gap-4">
-            <a href={ROUTES.TERMS} className="text-gray-400 hover:text-white transition-colors">
+            <Link href={ROUTES.TERMS} className="text-gray-400 hover:text-white transition-colors">
               Terms & Conditions
-            </a>
-            <a href={ROUTES.PRIVACY} className="text-gray-400 hover:text-white transition-colors">
+            </Link>
+            <Link href={ROUTES.PRIVACY} className="text-gray-400 hover:text-white transition-colors">
               Privacy Policy
-            </a>
-            <a href={ROUTES.REFUND} className="text-gray-400 hover:text-white transition-colors">
+            </Link>
+            <Link href={ROUTES.REFUND} className="text-gray-400 hover:text-white transition-colors">
               Refund Policy
-            </a>
+            </Link>
           </div>
         </div>
       </div>
