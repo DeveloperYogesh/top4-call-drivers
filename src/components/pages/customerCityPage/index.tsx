@@ -69,7 +69,7 @@ export default function CustomerCityPage({ cityData }: CustomerCityPageProps) {
           <div className="text-center">
             <div className="mb-3">
               <div className="bg-white/20 text-white py-2 px-4 rounded-full w-fit mx-auto">
-                <p className="text-xs uppercase text-white">
+                <p className="text-xs! uppercase text-white">
                   Available in {cityData.name}
                 </p>
               </div>
@@ -214,9 +214,9 @@ export default function CustomerCityPage({ cityData }: CustomerCityPageProps) {
             <div className="mb-3">
               <p className="font-semibold mb-2">Popular vehicle types:</p>
               <div className="flex flex-wrap gap-2">
-                <Chip label="Hatchback - ₹299" variant="outlined" />
-                <Chip label="Sedan - ₹399" variant="outlined" />
-                <Chip label="SUV - ₹499" variant="outlined" />
+                <Chip label="Hatchback" variant="outlined" />
+                <Chip label="Sedan" variant="outlined" />
+                <Chip label="SUV" variant="outlined" />
               </div>
             </div>
 

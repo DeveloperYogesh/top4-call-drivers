@@ -28,7 +28,7 @@ export default function RootLayout({
         <AccessibilityProvider>
           <ThemeProvider>
             <div className="min-h-screen flex flex-col">
-              <SkipToContent />
+              {/* <SkipToContent /> */}
               <HeaderServer />
               <main id="main-content" className="flex-1 pt-[64px]" tabIndex={-1}>
                 {children}
