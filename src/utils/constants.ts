@@ -25,7 +25,7 @@ export const ROUTES = {
   COMPARE: '/compare',
   DOWNLOAD: '/download',
   // Dynamic city routes
-  CITY_DRIVERS: (city: string) => `/call-drivers-in-${city.toLowerCase()}`,
+  CITY_DRIVERS: (city: string) => `/best-acting-drivers-in-${city.toLowerCase()}`,
 };
 
 export const SERVICES = [

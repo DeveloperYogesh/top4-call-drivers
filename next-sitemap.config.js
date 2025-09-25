@@ -15,7 +15,7 @@ module.exports = {
     const cities = ['tirupur', 'chennai', 'trichy', 'madurai', 'coimbatore'];
     cities.forEach(city => {
       result.push({
-        loc: `/call-drivers-in-${city}`,
+        loc: `/best-acting-drivers-in-${city}`,
         changefreq: 'weekly',
         priority: 0.8,
         lastmod: new Date().toISOString(),

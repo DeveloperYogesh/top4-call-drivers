@@ -55,7 +55,7 @@ const benefits = [
  * @param {CityData} cityData - City data including name, areas, drivers count, base price, and more
  * @returns {JSX.Element} Customer city page component
  *
- * This page is rendered when a user navigates to a city-specific route e.g. /call-drivers-in-chennai
+ * This page is rendered when a user navigates to a city-specific route e.g. /best-acting-drivers-in-chennai
  * The page displays city-specific information, features, benefits, and a call-to-action to book a driver
  */
 

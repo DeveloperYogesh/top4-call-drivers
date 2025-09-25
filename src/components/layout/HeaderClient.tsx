@@ -81,11 +81,11 @@ export default function HeaderClient({ serverUser }: Props) {
   ];
 
   const CITIES = [
-    { label: "Tirupur", customerHref: "/call-drivers-in-tirupur", driverHref: "/car-driver-job-in-tirupur" },
-    { label: "Chennai", customerHref: "/call-drivers-in-chennai", driverHref: "/car-driver-job-in-chennai" },
-    { label: "Trichy", customerHref: "/call-drivers-in-trichy", driverHref: "/car-driver-job-in-trichy" },
-    { label: "Madurai", customerHref: "/call-drivers-in-madurai", driverHref: "/car-driver-job-in-madurai" },
-    { label: "Coimbatore", customerHref: "/call-drivers-in-coimbatore", driverHref: "/car-driver-job-in-coimbatore" },
+    { label: "Tirupur", customerHref: "/best-acting-drivers-in-tirupur", driverHref: "/car-driver-job-in-tirupur" },
+    { label: "Chennai", customerHref: "/best-acting-drivers-in-chennai", driverHref: "/car-driver-job-in-chennai" },
+    { label: "Trichy", customerHref: "/best-acting-drivers-in-trichy", driverHref: "/car-driver-job-in-trichy" },
+    { label: "Madurai", customerHref: "/best-acting-drivers-in-madurai", driverHref: "/car-driver-job-in-madurai" },
+    { label: "Coimbatore", customerHref: "/best-acting-drivers-in-coimbatore", driverHref: "/car-driver-job-in-coimbatore" },
   ];
 
   // State to track which dropdown is open: "services" | "cities" | "driverJobs" | null

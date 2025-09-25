@@ -7,7 +7,7 @@ export default function HeroSection(): JSX.Element {
     <section
       id="home-hero"
       aria-label="Hero"
-      className="bg-slate-100 -mt-[64px] pt-[64px] xl:-ml-1"
+      className="bg-slate-100 -mt-[64px] pt-[64px] xl:-ml-1 min-h-screen"
       style={{
         backgroundImage: "url(/images/top4-call-drivers-hero-img.png)",
         backgroundSize: "cover",
@@ -29,9 +29,9 @@ export default function HeroSection(): JSX.Element {
           </div>
 
           {/* Right Content - Booking Form */}
-          <div className="flex justify-center items-center">
+          {/* <div className="flex justify-center items-center">
             <BookingForm isEmbedded={true} />
-          </div>
+          </div> */}
         </div>
       </div>
 

@@ -10,7 +10,7 @@ export function getCityData(citySlug: string): CityData | null {
 export function generateCityMetadata(cityData: CityData): Metadata {
   const title = `Hire TOP4 Call Drivers in ${cityData.name}`;
   const description = cityData.description;
-  const url = `/call-drivers-in-${cityData.slug}`;
+  const url = `/best-acting-drivers-in-${cityData.slug}`;
 
   // Next.js metadata "type" must be 'website' | 'article' — use 'website' for service pages.
   return generateMetadata({
@@ -294,7 +294,7 @@ export function generateCityMetadataOld(city: string, state: string) {
     title: cityTitle,
     description: cityDescription,
     keywords: cityKeywords,
-    url: `/call-drivers-in-${city.toLowerCase()}`,
+    url: `/best-acting-drivers-in-${city.toLowerCase()}`,
     type: 'website',
   });
 }
