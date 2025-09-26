@@ -5,11 +5,11 @@ export const tariffTableContentData: Record<
     content: string;
   }
 > = {
-"/best-acting-drivers-in-chennai": {
-  head: "Best Call Drivers in Chennai | TOP4 Call Drivers",
-  content: `
+  "/best-acting-drivers-in-chennai": {
+    head: "Best Call Drivers in Chennai | TOP4 Call Drivers",
+    content: `
     <h2>Best Call Drivers in Chennai</h2>
-    <p>Finding reliable call drivers in Chennai can make a world of difference when it comes to convenience, safety, and comfort. Whether you’re looking for drivers in Chennai for personal purposes, long-distance journeys, or special occasions, choosing the right service is crucial.</p>
+    <p class='mb-4'>Finding reliable call drivers in Chennai can make a world of difference when it comes to convenience, safety, and comfort. Whether you’re looking for drivers in Chennai for personal purposes, long-distance journeys, or special occasions, choosing the right service is crucial.</p>
 
     <h2>TOP4 Call Drivers Charges Per Day</h2>
     <table class="tariff-table">
@@ -120,34 +120,66 @@ export const tariffTableContentData: Record<
 </table>
 
     <h3>Why Choose TOP4 Call Drivers in Chennai?</h3>
-    <ul>
-      <li><strong>Cost-Effective:</strong> Affordable and transparent pricing.</li>
-      <li><strong>Safety & Professionalism:</strong> Experienced, verified drivers with proper training.</li>
-      <li><strong>Convenience:</strong> On-demand service with easy booking.</li>
-      <li><strong>Flexibility:</strong> Short-term or long-term driver options available.</li>
-      <li><strong>Background Checks:</strong> Verified driver records for safety.</li>
-      <li><strong>Adherence to Traffic Laws:</strong> Drivers strictly follow road safety rules.</li>
-    </ul>
+<ul>
+  <li><strong>Cost-Effective:</strong> Affordable and transparent pricing.</li>
+  <li><strong>Safety & Professionalism:</strong> Experienced, verified drivers with proper training.</li>
+  <li><strong>Convenience:</strong> On-demand service with easy booking.</li>
+  <li><strong>Flexibility:</strong> Short-term or long-term driver options available.</li>
+  <li><strong>Background Checks:</strong> Verified driver records for safety.</li>
+  <li><strong>Adherence to Traffic Laws:</strong> Drivers strictly follow road safety rules.</li>
+</ul>
 
-    <h3>Types of Call Driver Services in Chennai</h3>
-    <ol>
-      <li><strong>Acting Driver:</strong> For temporary or urgent needs.</li>
-      <li><strong>Rental Drivers:</strong> Flexible for short and long-term needs.</li>
-      <li><strong>Location-Specific Drivers:</strong> Available across Anna Nagar, Porur, Velachery & more.</li>
-      <li><strong>Night Drivers:</strong> Safe and reliable late-night service.</li>
-    </ol>
+<p>Hiring drivers in Chennai is an excellent solution for individuals who require a trusted professional to handle their car in Chennai.</p>
 
-    <h3>Contact TOP4 Call Drivers Chennai</h3>
-    <p><strong>Address:</strong> TOP4 Call Drivers, 25 Jayalakshmipuram Main Rd, Jawaharlal Nehru Nagar, Ekkatuthangal, Chennai – 600032</p>
-    <p><strong>Email:</strong> top4calldrivers@gmail.com</p>
-    <p><strong>Phone:</strong> +91 89396 69996</p>
+<h4>1. Cost-Effective Call Driver in Chennai</h4>
+<p>One of the biggest advantages of hiring a call driver in Chennai is its affordability. Whether you need a driver for a few hours or a whole day, the transparent and budget-friendly pricing ensures excellent value for money. Compared to owning and maintaining a second vehicle or relying on expensive ride-hailing services, hiring a call driver allows you to use your own car while saving significantly on costs like fuel surcharges or service fees.</p>
+
+<h4>2. Safety and Professionalism</h4>
+<p>When you hire drivers for hire in Chennai, you can trust their experience and training. These professionals are thoroughly verified and have extensive driving experience, ensuring your safety at all times. Whether it’s late-night travel or a long-distance journey, their expertise guarantees you’re in safe hands.</p>
+
+<h4>3. Convenience – Rental Drivers in Chennai</h4>
+<p>Hiring rental drivers in Chennai provides unmatched convenience, especially for those who value comfort and flexibility. With service coverage across key areas like Anna Nagar, Porur, and Velachery, you can easily access professional drivers no matter where you are in the city.</p>
+
+<h4>4. Flexible – Driver Wanted in Chennai</h4>
+<p>Flexibility is another reason to opt for call drivers in Chennai. Whether you need a driver for a short trip, a daily commute, or an outstation journey, there are options to suit every requirement. Hiring a driver can be tailored to your schedule, allowing for last-minute bookings or planned services. This adaptability ensures that whenever a driver wants in Chennai, a solution is readily available to meet your specific needs.</p>
+
+<h4>5. Background Checks on Drivers</h4>
+<p>We perform thorough background checks on our call drivers to ensure they have clean records. This includes checking for criminal history, driving violations, and previous job references. This helps to ensure that you’re hiring a trustworthy and experienced driver who prioritizes your safety.</p>
+
+<h4>6. Adherence to Traffic Laws</h4>
+<p>Our Call drivers follow local traffic rules and regulations. This includes speed limits, traffic signals, and safe driving practices. By adhering to these laws, they not only ensure your safety but also prevent any legal issues that could arise from traffic violations.</p>
+
+<h3>Types of Call Driver Services in Chennai</h3>
+<ol>
+  <li><strong>Acting Driver:</strong> For temporary or urgent needs.</li>
+  <li><strong>Rental Drivers:</strong> Flexible for short and long-term needs.</li>
+  <li><strong>Location-Specific Drivers:</strong> Available across Anna Nagar, Porur, Velachery & more.</li>
+  <li><strong>Night Drivers:</strong> Safe and reliable late-night service.</li>
+</ol>
+
+<h4>1. TOP4 Acting Driver in Chennai</h4>
+<p>This service is perfect for those who need temporary driving assistance. Whether it’s a one-time requirement or regular use, acting car drivers in Chennai ensure you reach your destination safely.</p>
+
+<h4>2. TOP4 Rental Drivers in Chennai</h4>
+<p>If you’re looking for car driver rental in Chennai, these drivers offer flexibility for both short and long-term hires. Whether it’s for your daily commute or a family trip, their expertise ensures smooth travel.</p>
+
+<h4>3. Location-Specific Call Drivers in Chennai</h4>
+<p>Services are available across Chennai, including call drivers in Chennai Anna Nagar, call drivers in Chennai Porur, and call drivers in Chennai Velachery. Wherever you are, reliable drivers are just a call away.</p>
+
+<h3>Contact TOP4 Call Drivers Chennai</h3>
+<p><strong>Address:</strong> TOP4 Call Drivers, 25 Jayalakshmipuram Main Rd, Jawaharlal Nehru Nagar, Ekkatuthangal, Chennai – 600032</p>
+<p><strong>Email:</strong> top4calldrivers@gmail.com</p>
+<p><strong>Phone:</strong> +91 89396 69996</p>
+
   `,
-},
-"/best-acting-drivers-in-coimbatore": {
-  head: "Best Acting Driver in Coimbatore | TOP4 Call Drivers",
-  content: `
+  },
+  "/best-acting-drivers-in-coimbatore": {
+    head: "Best Acting Driver in Coimbatore | TOP4 Call Drivers",
+    content: `
     <h2>Best Acting Driver in Coimbatore</h2>
-    <p>Acting drivers are the backbone of seamless transportation in Coimbatore, providing reliable solutions for personal and professional travel needs. Whether you’re a resident needing a driver for your car or a visitor exploring the busy city streets, acting drivers ensure convenience and safety.</p>
+    <p>Hire Driver Now
+
+Acting drivers are the backbone of seamless transportation in cities like Coimbatore, providing flexible solutions for personal and professional travel needs. Whether you’re a resident needing a driver for your car or a visitor exploring the city’s busy streets, acting drivers ensure convenience and safety. In Coimbatore, acting drivers provide a vital service for those who need assistance with driving their vehicles for various purposes</p>
 
     <h2>TOP4 Call Drivers Charges Per Day</h2>
     <table class="tariff-table">
@@ -160,7 +192,6 @@ export const tariffTableContentData: Record<
         </tr>
       </thead>
       <tbody>
-        <!-- Row 1: In-City Normal -->
         <tr>
           <td>In-City Normal Car Driver Rates in Coimbatore</td>
           <td>
@@ -186,7 +217,6 @@ export const tariffTableContentData: Record<
           </td>
         </tr>
 
-        <!-- Row 2: In-City Luxury -->
         <tr>
           <td>In-City Luxury Car Driver Rates in Coimbatore</td>
           <td>
@@ -212,9 +242,8 @@ export const tariffTableContentData: Record<
           </td>
         </tr>
 
-        <!-- Row 3: Valet Parking -->
         <tr>
-          <td>Call Driver in Coimbatore for Valet Parking for Events</td>
+          <td>Call Driver in Coimbatore for Valet Parking (Events)</td>
           <td>
             Per Driver<br/>
             Extra Per Hour<br/>
@@ -232,14 +261,13 @@ export const tariffTableContentData: Record<
           </td>
         </tr>
 
-        <!-- Row 4: Monthly Plans -->
         <tr>
           <td>Monthly Call Driver Plans in Coimbatore</td>
           <td>
-            Normal Plan<br/>
-            Normal Plan<br/>
-            Luxury Plan<br/>
-            Luxury Plan
+            Normal Plan (10 hrs/day)<br/>
+            Normal Plan (12 hrs/day)<br/>
+            Luxury Plan (10 hrs/day)<br/>
+            Luxury Plan (12 hrs/day)
           </td>
           <td>
             ₹18,000<br/>
@@ -258,42 +286,49 @@ export const tariffTableContentData: Record<
     </table>
 
     <h3>What Are Acting Drivers?</h3>
-    <p>Acting drivers are professionally trained to temporarily drive your vehicle. Their responsibilities range from daily commutes to event-based driving, such as weddings or corporate events.</p>
+    <p>Acting drivers are professional drivers hired temporarily to drive your vehicle. Their responsibilities range from daily commutes to event-based driving such as weddings or corporate meetings. They offer flexible hire durations — from a few hours to full-day or long-term assignments.</p>
+
+    <h3>Benefits of Hiring Acting Drivers in Coimbatore</h3>
     <ul>
-      <li><strong>Cost-Effective Call Driver in Coimbatore:</strong> A budget-friendly option compared to maintaining a full-time driver. You only pay for the service when you need it, making it an affordable choice for occasional trips or emergencies. This flexibility allows you to save money while enjoying the convenience of having a professional driver on demand.</li>
-      <li><strong>Safety and Professionalism:</strong> Acting drivers in Coimbatore are trained to prioritize your safety and provide a professional experience. They are skilled at handling different types of vehicles, following traffic rules, and navigating city roads efficiently. Their professional demeanor ensures a smooth and stress-free ride, giving you peace of mind whether you’re traveling alone or with family.</li>
-      <li><strong>Night Call Drivers in Coimbatore:</strong> Safe and reliable solution for late-night travel needs in Coimbatore. Whether you're returning from an event, traveling for work, or simply too tired to drive, these drivers ensure a comfortable and secure journey. Available at odd hours to meet your immediate emergency or situation needs.</li>
-      <li><strong>Location-Specific Call Drivers in Coimbatore:</strong> In Coimbatore, location-specific call drivers are available to serve you in various areas, ensuring convenience and quick access. Areas like Gandhipuram, RS Puram, or the industrial hubs of Peelamedu can rely on drivers who know the best routes and traffic conditions, making your journey smooth and efficient.</li>
-      <li><strong>Background Checks on all Call Drivers:</strong> All drivers undergo thorough background checks to ensure they have clean records. This includes checking for criminal history, driving offenses, and job references. This process helps to guarantee that you’re hiring a trustworthy and experienced driver who prioritizes your safety.</li>
-      <li><strong>Adherence to Traffic Laws:</strong> Drivers follow local traffic rules and regulations. This includes speed limits, signal obedience, and safe driving practices. By adhering to these laws, they minimize the risk of accidents and ensure a smooth travel experience for you.</li>
+      <li><strong>Cost-Effective:</strong> A budget-friendly alternative to maintaining a full-time driver — pay only for the time and service you need.</li>
+      <li><strong>Safety & Professionalism:</strong> Trained drivers who prioritize safe driving, vehicle handling, and courteous service.</li>
+      <li><strong>Night Call Drivers:</strong> Reliable late-night/evening driving services for safe returns from events or late work schedules.</li>
+      <li><strong>Location-Specific Drivers:</strong> Drivers familiar with Coimbatore areas like Gandhipuram, RS Puram, Peelamedu, Saibaba Colony, and Race Course who know the best routes and local traffic patterns.</li>
+      <li><strong>Background Checks:</strong> All drivers undergo verification for criminal history, driving violations, and previous job references to ensure trustworthiness.</li>
+      <li><strong>Adherence to Traffic Laws:</strong> Drivers strictly follow traffic rules and safe driving practices to minimize risk and legal issues.</li>
     </ul>
 
     <h3>Types of Acting Call Driver Services in Coimbatore</h3>
     <ul>
-      <li><strong>Temporary Services:</strong> Ideal for short-term needs. These services are available on demand, allowing you to hire a driver for a few hours or even just a day. This option is perfect for those who need a driver for a specific task, such as attending a meeting or running errands.</li>
-      <li><strong>Full-Time Services:</strong> Designed for individuals or businesses that need a driver for longer durations, whether for a few weeks or months. These services are personalized, with a dedicated driver available at your convenience. Full-time drivers offer reliable transportation tailored to your schedule.</li>
+      <li><strong>Temporary Services:</strong> On-demand hires for a few hours or a single day — ideal for meetings, errands, or events.</li>
+      <li><strong>Full-Time Services:</strong> Longer-duration hires (weeks or months) where a dedicated driver is available according to your schedule.</li>
+      <li><strong>Night Driving Services:</strong> Safe, reliable transportation during late hours or emergencies.</li>
     </ul>
 
-    <h3>Acting Driver in Coimbatore Services for Tourists</h3>
-    <p>With the help of acting drivers in Coimbatore, you can visit some of Coimbatore’s most famous landmarks and other places, including:</p>
+    <h3>Acting Driver Services for Tourists</h3>
+    <p>Tourists benefit from hiring acting drivers to explore Coimbatore’s landmarks comfortably and efficiently. Drivers act as local guides and handle navigation so you can enjoy your visit stress-free.</p>
+
+    <h3>Popular Places Covered by Acting Drivers in Coimbatore</h3>
     <ul>
-      <li><strong>Marudhamalai Temple:</strong> A must-visit destination for tourists. Known for its beautiful architecture and peaceful ambiance, it’s a great spot for a spiritual journey.</li>
-      <li><strong>Dhyanalinga Temple:</strong> An architectural marvel that attracts visitors to Coimbatore. Its spiritual center offers a serene and hassle-free journey.</li>
-      <li><strong>Perur Patteeswarar Temple:</strong> With a rich family-friendly destination, VOC Park and Zoo is a great option. This park features a variety of animals and lush greenery, perfect for a relaxing day out.</li>
-      <li><strong>VOC Park and Zoo:</strong> A family-friendly destination with a variety of animals and lush greenery, perfect for a relaxing day out.</li>
-      <li><strong>Black Thunder Water Theme Park:</strong> With thrilling rides and water activities, this park offers a fun-filled day for families and friends.</li>
+      <li><strong>Marudhamalai Temple:</strong> Hilltop temple with panoramic views — great for spiritual visits and sightseeing.</li>
+      <li><strong>Dhyanalinga (Isha Foundation):</strong> Spiritual center and the Adiyogi statue — a major attraction for visitors.</li>
+      <li><strong>Perur Pateeswarar Temple:</strong> Historic Shiva temple known for its architecture and carvings.</li>
+      <li><strong>VOC Park and Zoo:</strong> Family-friendly park with greenery and animal exhibits.</li>
+      <li><strong>Black Thunder Water Theme Park:</strong> Popular destination for fun and water rides.</li>
+      <li><strong>Tidel Park / IT hubs:</strong> For visitors interested in Coimbatore’s tech and industrial areas.</li>
     </ul>
-    <p>Not to miss, the driving services are available across the Coimbatore city.</p>
+    <p>Driving services are available across the entire Coimbatore city to make your travel easy and convenient.</p>
 
     <h3>Contact TOP4 Call Drivers Coimbatore</h3>
     <p><strong>Address:</strong> TOP4 Call Drivers, 25 Jayalakshmipuram Main Rd, Jawaharlal Nehru Nagar, Nungambakkam, Chennai – 600034, Tamil Nadu</p>
     <p><strong>Email:</strong> top4calldrivers@gmail.com</p>
     <p><strong>Phone:</strong> +91 89396 69996</p>
   `,
-},
-"/best-acting-drivers-in-madurai": {
-  head: "Best Acting Driver in Madurai | TOP4 Call Drivers",
-  content: `
+  },
+
+  "/best-acting-drivers-in-madurai": {
+    head: "Best Acting Driver in Madurai | TOP4 Call Drivers",
+    content: `
     <h2>Best Acting Driver in Madurai</h2>
     <p>Madurai, known as the "Temple City," is a hub of culture, heritage, and commerce. Navigating its busy streets can sometimes be a challenge, which is where acting drivers come into play. Acting drivers are professional, reliable, and available on demand to meet your travel needs, whether for daily commutes, special occasions, or late-night drives.</p>
 
@@ -356,7 +391,7 @@ export const tariffTableContentData: Record<
             –<br/>
             10:15 PM to 5:30 AM<br/>
             Minimum (5KM)<br/>
-            Before 30 hours
+            Before 30 minutes
           </td>
         </tr>
 
@@ -384,10 +419,10 @@ export const tariffTableContentData: Record<
         <tr>
           <td>Monthly Call Driver Plans in Madurai</td>
           <td>
-            Normal Plan<br/>
-            Normal Plan<br/>
-            Luxury Plan<br/>
-            Luxury Plan
+            Normal Plan (10 hrs/day)<br/>
+            Normal Plan (12 hrs/day)<br/>
+            Luxury Plan (10 hrs/day)<br/>
+            Luxury Plan (12 hrs/day)
           </td>
           <td>
             ₹18,000<br/>
@@ -406,49 +441,48 @@ export const tariffTableContentData: Record<
     </table>
 
     <h3>Who Are Acting Drivers?</h3>
-    <p>Acting drivers are professionally trained individuals hired temporarily to drive your vehicle. Their services are flexible, ranging from a few hours a day or longer, depending on your need or event. Whether you’re attending an event or a business trip, or just don’t feel like driving, acting drivers provide a safe and convenient solution.</p>
+    <p>Acting drivers are professionally trained individuals hired temporarily to drive your vehicle. Their services are flexible, ranging from a few hours a day to longer periods, depending on your need or event. Whether you’re attending an event, on a business trip, or just don’t feel like driving, acting drivers provide a safe and convenient solution.</p>
 
     <h3>Why Choose TOP4 Call Drivers in Madurai?</h3>
     <ul>
-      <li><strong>Local Expertise:</strong> Acting drivers are well-versed in the city’s traffic routes, shortcuts, and landmarks, ensuring you get to your destination quickly and efficiently. They are familiar with famous streets like West Masi Street, Chokkikulam, Vallabha Nagar, and Periyar Bus Stand, so they can navigate the city with ease.</li>
-      <li><strong>Cost-Effectiveness:</strong> You only pay for the time and service you need, making it a cost-effective solution compared to hiring a full-time driver. This flexibility allows you to enjoy professional driving without the long-term commitment or expense.</li>
+      <li><strong>Local Expertise:</strong> Acting drivers are well-versed in the city’s traffic routes, shortcuts, and landmarks, ensuring you get to your destination quickly and efficiently. They are familiar with famous streets like West Masi Street, Chokkikulam, Vallabha Nagar, and Periyar Bus Stand.</li>
+      <li><strong>Cost-Effectiveness:</strong> You only pay for the time and service you need, making it a cost-effective solution compared to hiring a full-time driver. This flexibility allows you to enjoy professional driving without long-term commitment or expense.</li>
       <li><strong>Safety and Convenience:</strong> All drivers undergo background checks, ensuring that they are trustworthy and responsible. This gives you peace of mind while traveling, whether it’s a short trip or a longer journey.</li>
       <li><strong>Time-Saving:</strong> Acting drivers save you time by avoiding traffic jams and lengthy detours, allowing you to focus on your plans and events.</li>
-      <li><strong>Background Checks:</strong> We perform thorough background checks on all drivers to confirm their trustworthiness and professionalism. This process includes verifying their identity, previous work experience, and driving history.</li>
-      <li><strong>Adherence to Traffic Laws:</strong> Drivers strictly adhere to traffic rules and regulations, ensuring your journey is both safe and lawful. Their knowledge of road safety minimizes risks and provides a smooth travel experience.</li>
-      <li><strong>Insurance Verification:</strong> Reliable services guarantee that the vehicle used meets all legal insurance requirements, offering peace of mind in case of unforeseen incidents. This ensures that both passengers and the vehicle are protected.</li>
+      <li><strong>Background Checks:</strong> We perform thorough background checks on all drivers to confirm their trustworthiness and professionalism. This includes identity verification, previous work experience, and driving history.</li>
+      <li><strong>Adherence to Traffic Laws:</strong> Drivers strictly follow traffic rules and regulations, ensuring your journey is safe and lawful.</li>
+      <li><strong>Insurance Verification:</strong> Reliable services ensure that vehicles meet legal insurance requirements, offering protection for both passengers and the vehicle.</li>
     </ul>
 
     <h3>Services Offered by Acting Drivers in Madurai</h3>
     <ol>
-      <li><strong>Temporary Services:</strong> Acting drivers can be hired on a need basis for a few hours on a single day. This is ideal for situations like attending weddings, business meetings, or running errands.</li>
-      <li><strong>Full-Time Services:</strong> For long-term needs, full-time acting drivers are available. These drivers provide dedicated assistance for daily commutes or extended periods, offering consistency and reliability.</li>
+      <li><strong>Temporary Services:</strong> Acting drivers can be hired on an as-needed basis for a few hours or a single day. Ideal for weddings, business meetings, or errands.</li>
+      <li><strong>Full-Time Services:</strong> For long-term needs, full-time acting drivers are available. These drivers provide dedicated assistance for daily commutes or extended periods.</li>
       <li><strong>Night Driving Services:</strong> Acting drivers are available for late-night travel, ensuring safe and reliable transportation during emergencies or after events.</li>
     </ol>
 
     <h3>Acting Driver Services for Tourists in Madurai</h3>
-    <p>Exploring Madurai benefits greatly from hiring acting drivers. These professionals are the ideal companions for tourists, offering a perfect balance of safety, convenience, and local insight to enhance your travel experience.</p>
+    <p>Tourists exploring Madurai benefit greatly from hiring acting drivers. These professionals offer safety, convenience, and local insight to enhance the travel experience.</p>
 
     <h3>What are the Popular Locations Covered by Acting Drivers in Madurai?</h3>
     <ul>
-      <li><strong>Meenakshi Amman Temple:</strong> An iconic heart of Madurai and a must-visit destination for devotees and tourists alike. Known for its stunning architecture and rich history, this temple is a cultural landmark.</li>
-      <li><strong>Thirumalai Nayakkar Mahal:</strong> This historical palace showcases intricate South Indian architecture, attracting history enthusiasts with its grandeur and architectural beauty.</li>
-      <li><strong>Alagar Koi:</strong> Located in the outskirts of Madurai, this ancient temple dedicated to Lord Vishnu is surrounded by picturesque hills.</li>
-      <li><strong>Ana Nagar:</strong> A prominent residential and commercial hub known for accessibility and lively streets.</li>
-      <li><strong>K.K. Nagar:</strong> A vibrant neighborhood with shopping centers, eateries, and cultural attractions.</li>
-      <li><strong>Gandhi Memorial Museum:</strong> A tribute to India’s freedom struggle, rich with historical significance and interest.</li>
-      <li><strong>Samanar Hills:</strong> An ancient site with stunning views, ideal for nature lovers and those interested in Jain history.</li>
+      <li><strong>Meenakshi Amman Temple:</strong> The iconic heart of Madurai and a must-visit destination for devotees and tourists alike.</li>
+      <li><strong>Thirumalai Nayakkar Mahal:</strong> A historical palace showcasing magnificent South Indian architecture.</li>
+      <li><strong>Alagar Kovil:</strong> An ancient temple located on the outskirts of Madurai surrounded by scenic hills.</li>
+      <li><strong>Anna Nagar:</strong> A prominent residential and commercial hub known for accessibility and lively streets.</li>
+      <li><strong>K.K. Nagar:</strong> A vibrant neighborhood with shops, eateries, and cultural activities.</li>
+      <li><strong>Gandhi Memorial Museum:</strong> A tribute to India’s freedom struggle and a rich historical site.</li>
+      <li><strong>Samanar Hills:</strong> An ancient site with great views, ideal for nature lovers and history enthusiasts.</li>
     </ul>
-    <p>With their in-depth knowledge of Madurai roads, acting drivers explore the city’s landmarks, like East Masi Street and Periyar Market, stress-free, and ensure a hassle-free experience.</p>
+    <p>With their in-depth knowledge of Madurai's roads, acting drivers make exploring landmarks like East Masi Street and Periyar Market stress-free and enjoyable.</p>
 
     <h3>What are the Acting Call Drivers Tariff in Madurai?</h3>
-    <p>Get Set & Go with Your Call Driver in Madurai! Acting drivers in Madurai offer a reliable and efficient solution for all your driving needs. Whether you’re a local resident or a tourist, their service takes the stress out of navigating the city. From the comfort of your booking, acting drivers today ensure free transportation in the "Temple City."</p>
+    <p>Get set & go with your call driver in Madurai! Acting drivers offer a reliable and efficient solution for all your driving needs. Whether you’re a local resident or a tourist, their professionalism, safety, and cost-effectiveness make them a great choice. Book an acting driver today to experience stress-free transportation in the "Temple City."</p>
 
     <h3>Contact TOP4 Call Drivers Madurai</h3>
     <p><strong>Address:</strong> TOP4 Call Drivers, 25 Jayalakshmipuram Main Rd, Jawaharlal Nehru Nagar, Nungambakkam, Chennai – 600034, Tamil Nadu</p>
     <p><strong>Email:</strong> top4calldrivers@gmail.com</p>
     <p><strong>Phone:</strong> +91 89396 69996</p>
   `,
-}
-
+  },
 };
