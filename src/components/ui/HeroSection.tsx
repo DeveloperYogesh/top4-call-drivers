@@ -16,9 +16,9 @@ export default function HeroSection(): JSX.Element {
       }}
     >
       <div className="custom-container w-full ">
-        <div className="flex flex-col justify-end min-h-[500px]">
+        <div className="flex items-end">
           {/* Content aligned to bottom left */}
-          <div className="max-w-2xl">
+          <div>
             <p className="text-sm font-semibold tracking-wider mb-3 text-white">
               SIMPLIFY CAR OWNERSHIP
             </p>
@@ -29,9 +29,9 @@ export default function HeroSection(): JSX.Element {
           </div>
 
           {/* Right Content - Booking Form (commented out as in original) */}
-          {/* <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center">
             <BookingForm isEmbedded={true} />
-          </div> */}
+          </div>
         </div>
       </div>
 
