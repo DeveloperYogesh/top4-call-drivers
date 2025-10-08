@@ -8,6 +8,7 @@ export const APP_CONFIG = {
   url: 'https://www.top3.in',
   supportPhone: '+91 88807 12345',
   supportEmail: 'support@top3.in',
+  apiUrl:"http://top4mobileapp.vbsit.in/"
 };
 
 export const ROUTES = {

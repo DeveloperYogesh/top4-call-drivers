@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
+import {APP_CONFIG} from '@/utils/constants'
 type LoginMethod = 'otp' | 'password';
 
 interface LoginFormData {
@@ -43,10 +43,11 @@ export default function LoginForm() {
     setError('');
 
     try {
-      const response = await fetch('http://top4mobileapp.vbsit.in/api/V1/booking/sendOTP', {
+      const response = await fetch(APP_CONFIG.apiUrl+'api/V1/booking/sendOTP', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          "Authorization":"Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc="
         },
         body: JSON.stringify({ mobileno: formData.phone }),
       });
@@ -81,10 +82,11 @@ export default function LoginForm() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/verify-otp', {
+      const response = await fetch(APP_CONFIG.apiUrl+'api/V1/booking/verifyOTP', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          "Authorization":"Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc="
         },
         body: JSON.stringify({ 
           mobileno: formData.phone, 
@@ -97,6 +99,9 @@ export default function LoginForm() {
       if (response.ok) {
         setSuccess('Login successful! Redirecting...');
         setTimeout(() => {
+          if(window.localStorage){
+            window.localStorage.setItem("userData",JSON.stringify(data.Data))
+          }
           router.push('/');
           router.refresh();
         }, 1000);

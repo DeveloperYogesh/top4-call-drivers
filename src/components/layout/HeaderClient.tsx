@@ -7,17 +7,15 @@ import { ROUTES, APP_CONFIG, SERVICES } from "@/utils/constants";
 import type { AuthUser } from "@/lib/auth";
 import HeaderControls from "@/components/layout/HeaderControls";
 import PhoneIcon from "@mui/icons-material/Phone";
-import DownloadIcon from "@mui/icons-material/Download";
 import Image from "next/image";
+import { json } from "zod";
 
-type Props = {
-  serverUser: AuthUser | null;
-};
 
-export default function HeaderClient({ serverUser }: Props) {
+
+export default function HeaderClient() {
   const pathname = usePathname() ?? "/";
   const isHome = pathname === ROUTES.HOME || pathname === "/";
-
+  const [loggedUser, setLoggedUser] = useState<AuthUser | null>(null)
   const [heroVisible, setHeroVisible] = useState<boolean>(isHome);
 
   useEffect(() => {
@@ -47,7 +45,15 @@ export default function HeaderClient({ serverUser }: Props) {
     obs.observe(heroEl);
     return () => obs.disconnect();
   }, [isHome, pathname]);
-
+  useEffect(() => {
+    if (window.localStorage) {
+      const userData = window.localStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData);
+        setLoggedUser(user)
+      }
+    }
+  }, []);
   const isTransparent = isHome && heroVisible;
 
   const headerClass = `fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ${
@@ -312,18 +318,18 @@ export default function HeaderClient({ serverUser }: Props) {
 
           {/* Right Side */}
           <div className="flex items-center ml-auto gap-3">
-            {/* {serverUser ? (
+            {loggedUser ? (
               <div className={`hidden md:flex items-center gap-3 ${isTransparent ? "text-white" : ""}`}>
                 <span className={isTransparent ? "text-sm text-white" : "text-sm text-gray-700"}>
-                  Welcome, <span className="font-semibold text-[#354B9C]">{serverUser.firstname}</span>
+                  Welcome, <span className="font-semibold text-[#354B9C]">{loggedUser?.firstname}</span>
                 </span>
-                <HeaderControls user={serverUser} />
+                <HeaderControls user={loggedUser} />
               </div>
             ) : (
               <Link href="/login" className={signInBtn} aria-label="Sign In">
                 Sign In
               </Link>
-            )} */}
+            )}
 
             <Link href="tel:+9104428287777" className={callBtn} aria-label="Call Us">
               <PhoneIcon style={{ fontSize: 26 }} />
