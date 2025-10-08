@@ -1,4 +1,4 @@
-// src/components/ui/LocationAutocomplete.tsx
+
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -8,7 +8,6 @@ import {
   Box,
   Typography,
   CircularProgress,
-  InputAdornment,
 } from '@mui/material';
 import { LocationOn } from '@mui/icons-material';
 import { Location } from '@/types';
@@ -37,7 +36,7 @@ export default function LocationAutocomplete({
   fetchSuggestions,
   minLength = 3,
 }: Props) {
-  const googleApiKey = process.env.GOOGLE_API_KEY;
+  const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY || process.env.GOOGLE_API_KEY;
   const { loaded: googleLoaded, error: googleError } = useGoogleMapsLoader(googleApiKey);
   const { debounced: serverDebounced } = useLocationSearch();
 
@@ -50,60 +49,98 @@ export default function LocationAutocomplete({
 
   useEffect(() => {
     if (googleLoaded && (window as any).google && !autocompleteServiceRef.current) {
-      autocompleteServiceRef.current = new (window as any).google.maps.places.AutocompleteService();
-      placesServiceRef.current = new (window as any).google.maps.places.PlacesService(document.createElement('div'));
+      try {
+        autocompleteServiceRef.current = new (window as any).google.maps.places.AutocompleteService();
+        placesServiceRef.current = new (window as any).google.maps.places.PlacesService(document.createElement('div'));
+      } catch (e) {
+        console.warn('Google Places init failed', e);
+      }
     }
   }, [googleLoaded]);
 
   const fetchGooglePredictions = async (input: string): Promise<Location[]> => {
     if (!autocompleteServiceRef.current) return [];
     return new Promise((resolve) => {
-      autocompleteServiceRef.current.getPlacePredictions({ input, types: [] }, (predictions: any[], status: any) => {
-        if (!predictions || status !== (window as any).google.maps.places.PlacesServiceStatus.OK) {
-          resolve([]);
-          return;
-        }
-        const mapped = predictions.map((p: any) => ({
-          id: p.place_id,
-          name: p.description,
-        })) as Location[];
-        resolve(mapped);
-      });
+      try {
+        autocompleteServiceRef.current.getPlacePredictions({ input, types: [] }, (predictions: any[] | null, status: any) => {
+          if (!predictions || status !== (window as any).google.maps.places.PlacesServiceStatus.OK) {
+            resolve([]);
+            return;
+          }
+          const mapped = predictions.map((p: any) => ({
+            id: p.place_id,
+            name: p.description,
+          })) as Location[];
+          resolve(mapped);
+        });
+      } catch (e) {
+        console.error('Google predictions exception', e);
+        resolve([]);
+      }
     });
   };
 
   const fetchPlaceDetails = async (placeId: string): Promise<Location | null> => {
     if (!placesServiceRef.current) return null;
     return new Promise((resolve) => {
-      placesServiceRef.current.getDetails(
-        { placeId, fields: ['address_components', 'formatted_address', 'geometry', 'name'] },
-        (place: any, status: any) => {
-          if (!place || status !== (window as any).google.maps.places.PlacesServiceStatus.OK) {
-            resolve(null);
-            return;
-          }
-
-          const loc: Location = {
-            id: place.place_id,
-            name: place.formatted_address || place.name || place.place_id,
-            city: undefined,
-            state: undefined,
-            lat: place.geometry?.location?.lat?.(),
-            lng: place.geometry?.location?.lng?.(),
-          };
-
-          if (place.address_components) {
-            for (const c of place.address_components) {
-              if (c.types.includes('locality')) loc.city = c.long_name;
-              if (c.types.includes('administrative_area_level_1')) loc.state = c.long_name;
-              if (!loc.city && c.types.includes('sublocality')) loc.city = c.long_name;
+      try {
+        placesServiceRef.current.getDetails(
+          { placeId, fields: ['address_components', 'formatted_address', 'geometry', 'name'] },
+          (place: any, status: any) => {
+            if (!place || status !== (window as any).google.maps.places.PlacesServiceStatus.OK) {
+              resolve(null);
+              return;
             }
-          }
 
-          resolve(loc);
-        }
-      );
+            const loc: Location = {
+              id: place.place_id,
+              name: place.formatted_address || place.name || place.place_id,
+              city: undefined,
+              state: undefined,
+              lat: place.geometry?.location?.lat?.(),
+              lng: place.geometry?.location?.lng?.(),
+            };
+
+            if (place.address_components) {
+              for (const c of place.address_components) {
+                if (c.types.includes('locality')) loc.city = c.long_name;
+                if (c.types.includes('administrative_area_level_1')) loc.state = c.long_name;
+                if (!loc.city && c.types.includes('sublocality')) loc.city = c.long_name;
+              }
+            }
+
+            resolve(loc);
+          }
+        );
+      } catch (e) {
+        console.error('fetchPlaceDetails exception', e);
+        resolve(null);
+      }
     });
+  };
+
+  // Server-side details fetch (used when fetchSuggestions is provided)
+  const fetchPlaceDetailsServer = async (placeId: string): Promise<Location | null> => {
+    try {
+      const res = await fetch(`/api/locations/details?placeId=${encodeURIComponent(placeId)}`);
+      if (!res.ok) return null;
+      const payload = await res.json();
+      if (payload?.status === 'success' && payload.data) {
+        const d = payload.data;
+        return {
+          id: placeId,
+          name: d.address ?? d.name ?? placeId,
+          city: d.city,
+          state: d.state,
+          lat: d.lat,
+          lng: d.lng,
+        } as Location;
+      }
+      return null;
+    } catch (e) {
+      console.error('fetchPlaceDetailsServer error', e);
+      return null;
+    }
   };
 
   // central function to run search (either server or google)
@@ -130,7 +167,7 @@ export default function LocationAutocomplete({
     }
 
     // prefer server-side hook if present (e.g., /api endpoint)
-    serverDebounced(q, (res) => {
+    serverDebounced(q, (res: Location[] | null) => {
       if (res && res.length) {
         done(res);
       } else if (googleLoaded && autocompleteServiceRef.current) {
@@ -166,12 +203,32 @@ export default function LocationAutocomplete({
     }
 
     // if full lat/lng already present (server returned full object), just return it
-    if ((newValue as any).lat && (newValue as any).lng) {
+    if ((newValue as any).lat != null && (newValue as any).lng != null) {
       onChange(newValue);
       return;
     }
 
-    // If no server fetch and google available, fetch details for selected place id
+    // If fetchSuggestions is provided (server-mode), fetch details from server route using place id
+    if (fetchSuggestions && newValue.id) {
+      const detailed = await fetchPlaceDetailsServer(newValue.id);
+      if (detailed) {
+        onChange(detailed);
+        return;
+      }
+      // fallback: try client-side details (if available)
+      if (googleLoaded && placesServiceRef.current && newValue.id) {
+        const g = await fetchPlaceDetails(newValue.id);
+        if (g) {
+          onChange(g);
+          return;
+        }
+      }
+      // final fallback: return the selected textual suggestion (no lat/lng)
+      onChange(newValue);
+      return;
+    }
+
+    // If no server fetch and google available, fetch details for selected place id (existing behavior)
     if (!fetchSuggestions && googleLoaded && placesServiceRef.current && newValue.id) {
       const detailed = await fetchPlaceDetails(newValue.id);
       onChange(detailed || newValue);
@@ -188,12 +245,18 @@ export default function LocationAutocomplete({
     return option.name || '';
   };
 
-  const renderOption = (props: any, option: Location) => (
-    <Box component="li" {...props} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-      <LocationOn sx={{ color: 'text.secondary', mr: 1 }} />
-      <Typography variant="body1">{getOptionLabel(option)}</Typography>
-    </Box>
-  );
+  const renderOption = (props: any, option: Location) => {
+    // MUI Autocomplete passes a props object that may include `key`.
+    // React warns when `key` is spread into a JSX element — extract it first
+    // and pass it directly to the element.
+    const { key, ...rest } = props as any;
+    return (
+      <Box component="li" key={key} {...rest} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <LocationOn sx={{ color: 'text.secondary', mr: 1 }} />
+        <Typography variant="body1">{getOptionLabel(option)}</Typography>
+      </Box>
+    );
+  };
 
   const isOptionEqualToValue = (option: Location, val: Location | null) => option.id === val?.id;
 

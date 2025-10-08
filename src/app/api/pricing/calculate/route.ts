@@ -1,51 +1,65 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { calculateFare } from '@/lib/database';
+// app/api/pricing/calculate/route.ts
+import { NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+const REMOTE_URL = 'http://top4mobileapp.vbsit.in/api/V1/booking/GetFareAmount';
+// optionally set an API key in your .env: FARE_API_KEY=somekey
+const FARE_API_KEY = process.env.FARE_API_KEY ?? '';
+
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
-    const {
-      pickupPlace,
-      dropPlace,
-      vehicleType,
-      tripType,
-      distance,
-      duration,
-      travelDate,
-      travelTime
-    } = body;
+    const body = await req.json();
 
-    // Validate required fields
-    if (!pickupPlace || !dropPlace || !vehicleType || !tripType) {
+    // Prepare headers for remote call. Add Authorization if you need one.
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json, text/plain, */*',
+      // Add any other headers the remote API expects (User-Agent, Referer etc.)
+    };
+    if (FARE_API_KEY) {
+      // Example: remote expects a header called 'x-api-key' or 'Authorization'
+      headers['x-api-key'] = FARE_API_KEY;
+      // headers['Authorization'] = `Bearer ${FARE_API_KEY}`;
+    }
+
+    const apiRes = await fetch(REMOTE_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+      // no credentials
+    });
+
+    const text = await apiRes.text();
+
+    // log for debugging (server console)
+    console.log('[pricing/calculate] remote status:', apiRes.status);
+    // limit output size to avoid huge logs
+    console.log('[pricing/calculate] remote body preview:', text.slice(0, 2000));
+
+    // if remote returned non-200, return a helpful message to client
+    if (!apiRes.ok) {
+      // include remote body in the response for debugging; strip sensitive data if any
       return NextResponse.json(
-        { 
-          status: 'error', 
-          message: 'Missing required fields for fare calculation' 
+        {
+          error: 'remote_error',
+          status: apiRes.status,
+          bodyPreview: text,
         },
-        { status: 400 }
+        { status: 502 } // Bad Gateway — proxy error
       );
     }
 
-    // Calculate fare using database util signature: (tripType, vehicleType, distance, hours, cityId?)
-    const distanceKm = typeof distance === 'number' ? distance : 0;
-    const hours = typeof duration === 'number' ? duration : 0;
-    const fareDetails = await calculateFare(tripType, vehicleType, distanceKm, hours);
-
-    return NextResponse.json({
-      status: 'success',
-      message: 'Fare calculated successfully',
-      data: fareDetails
-    });
-
-  } catch (error) {
-    console.error('Calculate fare error:', error);
-    return NextResponse.json(
-      { 
-        status: 'error', 
-        message: 'Failed to calculate fare' 
-      },
-      { status: 500 }
-    );
+    // try parse JSON; if not JSON, return text
+    try {
+      const json = JSON.parse(text);
+      return NextResponse.json(json, { status: 200 });
+    } catch {
+      return new Response(text, {
+        status: 200,
+        headers: { 'Content-Type': apiRes.headers.get('content-type') ?? 'text/plain' },
+      });
+    }
+  } catch (err) {
+    console.error('[pricing/calculate] proxy error:', err);
+    return NextResponse.json({ error: 'proxy_failed', details: String(err) }, { status: 500 });
   }
 }
-
