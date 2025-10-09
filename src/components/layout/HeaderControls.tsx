@@ -1,6 +1,7 @@
 // src/components/layout/HeaderControls.tsx
 import Link from "next/link";
 import { AuthUser } from "@/lib/auth";
+import { useRouter } from 'next/navigation';
 
 type Props = {
   user: AuthUser;
@@ -8,6 +9,7 @@ type Props = {
 
 export default function HeaderControls({ user }: Props) {
   const initial = user?.firstname ? user.firstname.charAt(0).toUpperCase() : "U";
+  const router = useRouter();
 
   return (
     <div className="relative">
@@ -32,9 +34,15 @@ export default function HeaderControls({ user }: Props) {
 
             <div className="border-t border-gray-100" />
 
-            {/* This POST will hit app/api/auth/logout/route.ts which clears cookie and redirects */}
-            <form action="/api/auth/logout" method="post" className="m-0">
-              <button type="submit" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+
+            <form className="m-0">
+              <button onClick={()=>{
+                if(window.localStorage){
+                  window.localStorage.removeItem("userData")
+                     router.push('/');
+                    router.refresh();
+                }
+              }} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 Sign Out
               </button>
             </form>
