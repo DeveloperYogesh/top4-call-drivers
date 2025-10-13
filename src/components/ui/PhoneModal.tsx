@@ -78,8 +78,8 @@ export default function PhoneModal({
   };
 
   const handleOTPSubmit = async () => {
-    if (otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
+    if (otp.length !== 4) {
+      setError('Please enter a valid 4-digit OTP');
       return;
     }
 
@@ -191,7 +191,7 @@ export default function PhoneModal({
         ) : (
           <Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              We've sent a 6-digit OTP to {formatPhoneNumber(phoneNumber)}
+              We've sent a 4-digit OTP to {formatPhoneNumber(phoneNumber)}
             </Typography>
             
             {serverOTPForDev && (
@@ -203,7 +203,7 @@ export default function PhoneModal({
             <TextField
               fullWidth
               label="Enter OTP"
-              placeholder="6-digit OTP"
+              placeholder="4-digit OTP"
               value={otp}
               onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, '').slice(0, 6);
@@ -211,7 +211,7 @@ export default function PhoneModal({
                 setError('');
               }}
               error={!!error}
-              helperText={error || 'Enter the 6-digit OTP sent to your phone'}
+              helperText={error || 'Enter the 4-digit OTP sent to your phone'}
               inputProps={{
                 maxLength: 6,
                 pattern: '[0-9]*',

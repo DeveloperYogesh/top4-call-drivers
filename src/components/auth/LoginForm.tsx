@@ -73,8 +73,8 @@ export default function LoginForm() {
       return;
     }
 
-    if (formData.otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
+    if (formData.otp.length !== 4) {
+      setError('Please enter a valid 4-digit OTP');
       return;
     }
 
@@ -98,13 +98,13 @@ export default function LoginForm() {
 
       if (response.ok) {
         setSuccess('Login successful! Redirecting...');
-        setTimeout(() => {
-          if(window.localStorage){
-            window.localStorage.setItem("userData",JSON.stringify(data.Data))
-          }
+        if(window.localStorage){
+          window.localStorage.setItem("userData",JSON.stringify(data.Data))
           router.push('/');
-          router.refresh();
-        }, 1000);
+          setTimeout(() => {
+            window.location.reload()
+          }, 1000);
+        }
       } else {
         setError(data.message || 'Invalid OTP');
       }
@@ -245,8 +245,8 @@ export default function LoginForm() {
                     name="otp"
                     type="text"
                     required
-                    maxLength={6}
-                    placeholder="Enter 6-digit OTP"
+                    maxLength={4}
+                    placeholder="Enter 4-digit OTP"
                     value={formData.otp}
                     onChange={handleInputChange}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"

@@ -39,8 +39,8 @@ export default function HeaderControls({ user }: Props) {
               <button onClick={()=>{
                 if(window.localStorage){
                   window.localStorage.removeItem("userData")
-                     router.push('/');
-                    router.refresh();
+                  router.push('/');
+                  router.refresh();
                 }
               }} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 Sign Out
