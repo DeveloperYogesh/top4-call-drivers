@@ -23,7 +23,7 @@ export const metadata = generateSEOMetadata({
 
 // Generate structured data for the homepage
 const organizationData = generateStructuredData('localbusiness', {
-  city: 'Tirupur',
+  city: 'Chennai',
   state: 'Tamil Nadu',
   coordinates: {
     lat: 11.1085,

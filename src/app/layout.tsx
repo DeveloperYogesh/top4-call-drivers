@@ -1,3 +1,6 @@
+"use client";
+
+import React from "react";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -14,7 +17,13 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
-export const metadata: Metadata = generateSEOMetadata();
+// ✅ Combine your SEO metadata and add Google verification
+export const metadata: Metadata = {
+  ...generateSEOMetadata(),
+  verification: {
+    google: "9W1_ISWbLi5d_DxXc6Y0quUMCoXYRHgxqp2NlrhHQk4",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -24,6 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
+        {/* ✅ Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-B5GWQYKD87"
           strategy="afterInteractive"
@@ -36,10 +46,10 @@ export default function RootLayout({
             gtag('config', 'G-B5GWQYKD87');
           `}
         </Script>
+
         <AccessibilityProvider>
           <ThemeProvider>
             <div className="min-h-screen flex flex-col">
-              {/* <SkipToContent /> */}
               <HeaderServer />
               <main
                 id="main-content"
