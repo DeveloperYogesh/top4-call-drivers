@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import {APP_CONFIG} from '@/utils/constants'
-type LoginMethod = 'otp' | 'password';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { APP_CONFIG } from "@/utils/constants";
+import { POST } from "@/utils/apiHelpres";
+type LoginMethod = "otp" | "password";
 
 interface LoginFormData {
   phone: string;
@@ -15,53 +16,46 @@ interface LoginFormData {
 
 export default function LoginForm() {
   const router = useRouter();
-  const [loginMethod, setLoginMethod] = useState<LoginMethod>('otp');
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>("otp");
   const [formData, setFormData] = useState<LoginFormData>({
-    phone: '',
-    email: '',
-    password: '',
-    otp: '',
+    phone: "",
+    email: "",
+    password: "",
+    otp: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
   };
 
   const handleSendOTP = async () => {
     if (!formData.phone || formData.phone.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
+      setError("Please enter a valid 10-digit mobile number");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch(APP_CONFIG.apiUrl+'api/V1/booking/sendOTP', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization":"Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc="
-        },
-        body: JSON.stringify({ mobileno: formData.phone }),
+      const data = await POST("api/V1/booking/sendOTP", {
+        mobileno: formData.phone,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (data?.Success) {
         setOtpSent(true);
-        setSuccess('OTP sent successfully! Please check your mobile.');
+        setSuccess("OTP sent successfully! Please check your mobile.");
       } else {
-        setError(data.message || 'Failed to send OTP');
+        setError(data.message || "Failed to send OTP");
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -69,47 +63,36 @@ export default function LoginForm() {
 
   const handleOTPLogin = async () => {
     if (!formData.phone || !formData.otp) {
-      setError('Please enter both phone number and OTP');
+      setError("Please enter both phone number and OTP");
       return;
     }
 
     if (formData.otp.length !== 4) {
-      setError('Please enter a valid 4-digit OTP');
+      setError("Please enter a valid 4-digit OTP");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch(APP_CONFIG.apiUrl+'api/V1/booking/verifyOTP', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization":"Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc="
-        },
-        body: JSON.stringify({ 
-          mobileno: formData.phone, 
-          otp: formData.otp 
-        }),
+      const data = await POST("api/V1/booking/sendOTP", {
+        mobileno: formData.phone,
+        otp: formData.otp,
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Login successful! Redirecting...');
-        if(window.localStorage){
-          window.localStorage.setItem("userData",JSON.stringify(data.Data))
-          router.push('/');
-          setTimeout(() => {
-            window.location.reload()
-          }, 1000);
+      console.log(data,"this is data");
+      
+      if (data?.Success) {
+        setSuccess("Login successful! Redirecting...");
+        if (window.localStorage) {
+          window.localStorage.setItem("userData", JSON.stringify(data.Data));
+          router.push("/");
         }
       } else {
-        setError(data.message || 'Invalid OTP');
+        setError(data.message || "Invalid OTP");
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -117,38 +100,38 @@ export default function LoginForm() {
 
   const handlePasswordLogin = async () => {
     if (!formData.email || !formData.password) {
-      setError('Please enter both email and password');
+      setError("Please enter both email and password");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          email: formData.email, 
-          password: formData.password 
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess('Login successful! Redirecting...');
+        setSuccess("Login successful! Redirecting...");
         setTimeout(() => {
-          router.push('/');
+          router.push("/");
           router.refresh();
         }, 1000);
       } else {
-        setError(data.message || 'Invalid credentials');
+        setError(data.message || "Invalid credentials");
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -156,8 +139,8 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (loginMethod === 'otp') {
+
+    if (loginMethod === "otp") {
       if (!otpSent) {
         await handleSendOTP();
       } else {
@@ -175,16 +158,21 @@ export default function LoginForm() {
         <button
           type="button"
           onClick={() => {
-            setLoginMethod('otp');
+            setLoginMethod("otp");
             setOtpSent(false);
-            setFormData(prev => ({ ...prev, otp: '', email: '', password: '' }));
-            setError('');
-            setSuccess('');
+            setFormData((prev) => ({
+              ...prev,
+              otp: "",
+              email: "",
+              password: "",
+            }));
+            setError("");
+            setSuccess("");
           }}
           className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-            loginMethod === 'otp'
-              ? 'bg-white text-[#354B9C] shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+            loginMethod === "otp"
+              ? "bg-white text-[#354B9C] shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           Login with OTP
@@ -192,16 +180,16 @@ export default function LoginForm() {
         <button
           type="button"
           onClick={() => {
-            setLoginMethod('password');
+            setLoginMethod("password");
             setOtpSent(false);
-            setFormData(prev => ({ ...prev, phone: '', otp: '' }));
-            setError('');
-            setSuccess('');
+            setFormData((prev) => ({ ...prev, phone: "", otp: "" }));
+            setError("");
+            setSuccess("");
           }}
           className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-            loginMethod === 'password'
-              ? 'bg-white text-[#354B9C] shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+            loginMethod === "password"
+              ? "bg-white text-[#354B9C] shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           Login with Password
@@ -209,11 +197,14 @@ export default function LoginForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {loginMethod === 'otp' ? (
+        {loginMethod === "otp" ? (
           <>
             {/* Phone Number Input */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Mobile Number
               </label>
               <div className="mt-1">
@@ -236,7 +227,10 @@ export default function LoginForm() {
             {/* OTP Input (shown after OTP is sent) */}
             {otpSent && (
               <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Enter OTP
                 </label>
                 <div className="mt-1">
@@ -253,12 +247,12 @@ export default function LoginForm() {
                   />
                 </div>
                 <div className="mt-2 text-sm text-gray-600">
-                  Didn't receive OTP?{' '}
+                  Didn't receive OTP?{" "}
                   <button
                     type="button"
                     onClick={() => {
                       setOtpSent(false);
-                      setFormData(prev => ({ ...prev, otp: '' }));
+                      setFormData((prev) => ({ ...prev, otp: "" }));
                       handleSendOTP();
                     }}
                     className="font-medium text-[#354B9C] hover:text-[#2a3a7a]"
@@ -274,7 +268,10 @@ export default function LoginForm() {
           <>
             {/* Email Input */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email Address
               </label>
               <div className="mt-1">
@@ -294,7 +291,10 @@ export default function LoginForm() {
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <div className="mt-1">
@@ -347,18 +347,35 @@ export default function LoginForm() {
           >
             {isLoading ? (
               <div className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Processing...
               </div>
             ) : (
               <>
-                {loginMethod === 'otp' 
-                  ? (otpSent ? 'Verify OTP' : 'Send OTP')
-                  : 'Sign In'
-                }
+                {loginMethod === "otp"
+                  ? otpSent
+                    ? "Verify OTP"
+                    : "Send OTP"
+                  : "Sign In"}
               </>
             )}
           </button>
@@ -367,4 +384,3 @@ export default function LoginForm() {
     </div>
   );
 }
-
