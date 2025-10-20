@@ -281,13 +281,9 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     setBookingLoading(true);
     const pickupPlace = placeName(pickupLocation).toUpperCase();
     const dropPlace = placeName(dropLocation).toUpperCase();
-      const pickDate = scheduledTime
-        ? dayjs(scheduledTime).format("DD/MM/YYYY")
-        : dayjs().format("DD/MM/YYYY");
-
       const pickuptime = scheduledTime
-        ? dayjs(scheduledTime).format("HH:mm")
-        : dayjs().format("HH:mm");
+        ? dayjs(scheduledTime).format("YYYY-MM-DD hh:mm:ss")
+        : dayjs().format("YYYY-MM-DD hh:mm:ss");
     try {
       const pickupLatLongStr = formatPickupLatLong(pickupLocation);
       const dropLatLongStr = formatPickupLatLong(dropLocation);
@@ -325,31 +321,23 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       //   fareResponse: fareData ?? null,
       // };
       const payload: any = {
-        PhoneNo: phoneNumber || userData.MOBILE_NO,
-        CustomerName: userData.FIRST_NAME,
-        TravelDate: pickDate,
-        TravelTime: pickuptime,
-        pickuplatlon: pickupLatLongStr,
-        droplatlon: dropLatLongStr,
-        PickupPlace: pickupPlace,
-        DropPlace: dropPlace,
+        mobileNumber: phoneNumber || userData.MOBILE_NO,
+        pickupTime: pickuptime,
+        returnTime: pickuptime,
+        pickupLatLong: pickupLatLongStr,
+        dropLatLong: dropLatLongStr,
+        pickupLocation: pickupPlace,
+        dropLocation: dropPlace,
         pickUpKMS: "0",
-        VehicleCategory: vehicleSize,
+        carType: vehicleSize,
         VehicleType: String(classid),
-        triptype: "InCity",
-        NOD: "",
-        NOH: "1",
-        favdriverid: "2013",
-        mailid: userData.E_MAIL,
-        OutStCity: "0",
-        OutStState: "0",
-        TravelType: "Round Trip",
-        paymenttype: "Cash",
-        tripamt: fareAmount,
-        Couponcode: "",
+        tripType: "InCity",
+        reqType: "Round Trip",
+        price: fareAmount,
+        packageHours:fareAmount
       };
 
-      const json = await await POST("api/V1/booking/InsertBooking", 
+      const json = await await POST("api/V1/booking/insertbookingnew", 
         payload,
       );
       if (json && (json.Success || json.success)) {
