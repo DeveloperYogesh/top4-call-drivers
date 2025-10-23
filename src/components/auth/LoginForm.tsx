@@ -1,10 +1,11 @@
+// File: components/auth/LoginForm.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { APP_CONFIG } from "@/utils/constants";
-import { POST } from "@/utils/apiHelpres";
+import { useAuth } from "@/hooks/useAuth";
+
 type LoginMethod = "otp" | "password";
 
 interface LoginFormData {
@@ -14,8 +15,17 @@ interface LoginFormData {
   otp: string;
 }
 
-export default function LoginForm() {
+interface LoginFormProps {
+  onLogin?: (userData: any) => void;
+  resendSeconds?: number;
+}
+
+export default function LoginForm({
+  onLogin,
+  resendSeconds = 60,
+}: LoginFormProps) {
   const router = useRouter();
+  const { sendOTP, verifyOTP, persistUser } = useAuth();
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("otp");
   const [formData, setFormData] = useState<LoginFormData>({
     phone: "",
@@ -27,11 +37,76 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [success, setSuccess] = useState("");
+  const [secondsLeft, setSecondsLeft] = useState<number>(0);
+
+  const timerRef = useRef<number | null>(null);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
+  const startResendTimer = (secs: number) => {
+    setSecondsLeft(secs);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = window.setInterval(() => {
+      setSecondsLeft((s) => {
+        if (s <= 1) {
+          clearInterval(timerRef.current!);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "phone") {
+      const cleaned = value.replace(/\D/g, "").slice(0, 10);
+      setFormData((p) => ({ ...p, phone: cleaned }));
+    } else if (name === "email" || name === "password") {
+      setFormData((p) => ({ ...p, [name]: value }));
+    }
     setError("");
+    setSuccess("");
+  };
+
+  const handleOTPChange = (index: number, value: string) => {
+    if (!/^\d?$/.test(value)) return; // allow only digits or empty
+    const otpArray = (formData.otp || "").padEnd(4, " ").split("");
+    otpArray[index] = value || " ";
+    const newOtp = otpArray.join("").trim();
+    setFormData((p) => ({ ...p, otp: newOtp }));
+
+    if (value && index < 3) {
+      otpRefs.current[index + 1]?.focus();
+    }
+    if (!value && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+
+    // Auto verify when 4 digits filled
+    if (newOtp.length === 4) {
+      handleOTPLogin(newOtp);
+    }
+  };
+
+  const normalizeAndStoreUserData = (data: any) => {
+    const mobileFromResponse =
+      data?.MOBILE_NO ?? data?.mobileno ?? data?.mobile ?? formData.phone ?? "";
+    const normalized = { ...data, MOBILE_NO: mobileFromResponse };
+    if (typeof window !== "undefined") {
+      localStorage.setItem("userData", JSON.stringify(normalized));
+      // notify same-tab listeners
+      window.dispatchEvent(new Event("userChanged"));
+    }
+    if (onLogin) onLogin(normalized);
+    return normalized;
   };
 
   const handleSendOTP = async () => {
@@ -39,59 +114,68 @@ export default function LoginForm() {
       setError("Please enter a valid 10-digit mobile number");
       return;
     }
-
     setIsLoading(true);
     setError("");
+    setSuccess("");
 
     try {
-      const data = await POST("api/V1/booking/sendOTP", {
-        mobileno: formData.phone,
-      });
-
-      if (data?.Success) {
+      // Use useAuth.sendOTP if available
+      const data = await sendOTP(formData.phone);
+      console.log("sendOTP response:", data);
+      if (data?.Success || data?.success) {
         setOtpSent(true);
-        setSuccess("OTP sent successfully! Please check your mobile.");
+        setSuccess("");
+        startResendTimer(resendSeconds);
       } else {
-        setError(data.message || "Failed to send OTP");
+        setError(data?.message || data?.Message || "Failed to send OTP");
       }
-    } catch (error) {
+    } catch (e) {
+      console.error("sendOTP error", e);
       setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleOTPLogin = async () => {
-    if (!formData.phone || !formData.otp) {
-      setError("Please enter both phone number and OTP");
+  const handleOTPLogin = async (otpValue?: string) => {
+    const otpToUse = otpValue ?? formData.otp;
+    if (!formData.phone || formData.phone.length !== 10) {
+      setError("Please enter a valid 10-digit mobile number");
       return;
     }
-
-    if (formData.otp.length !== 4) {
+    if (!otpToUse || otpToUse.length !== 4) {
       setError("Please enter a valid 4-digit OTP");
       return;
     }
-
     setIsLoading(true);
     setError("");
+    setSuccess("");
 
     try {
-      const data = await POST("api/V1/booking/sendOTP", {
-        mobileno: formData.phone,
-        otp: formData.otp,
-      });
-      console.log(data,"this is data");
-      
-      if (data?.Success) {
-        setSuccess("Login successful! Redirecting...");
-        if (window.localStorage) {
-          window.localStorage.setItem("userData", JSON.stringify(data.Data));
+      // call verifyOTP from hook which includes stricter checks
+      const res = await verifyOTP(formData.phone, otpToUse);
+      console.log("verifyOTP result:", res);
+
+      if (res?.success) {
+        // persistUser already called inside verifyOTP, but normalize again for local use
+        const user = res.user ?? (res.raw?.Data ?? res.raw ?? null);
+        const normalized = normalizeAndStoreUserData(user);
+        setSuccess("Login successful!");
+        setTimeout(() => {
+          // route where you want
           router.push("/");
-        }
+        }, 600);
       } else {
-        setError(data.message || "Invalid OTP");
+        // Show server message if present, else a default message
+        const msg =
+          res?.message ||
+          res?.raw?.message ||
+          res?.raw?.Message ||
+          "Invalid OTP. Please try again.";
+        setError(msg);
       }
-    } catch (error) {
+    } catch (e) {
+      console.error("verify error", e);
       setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
@@ -103,34 +187,30 @@ export default function LoginForm() {
       setError("Please enter both email and password");
       return;
     }
-
     setIsLoading(true);
     setError("");
-
     try {
-      const response = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
         }),
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess("Login successful! Redirecting...");
-        setTimeout(() => {
-          router.push("/");
-          router.refresh();
-        }, 1000);
+      const data = await res.json();
+      if (res.ok) {
+        // If backend returned user info, store it
+        if (data?.user || data?.Data) {
+          const normalized = normalizeAndStoreUserData(data.user ?? data.Data);
+          persistUser(normalized);
+        }
+        setSuccess("Login successful!");
+        setTimeout(() => router.push("/"), 800);
       } else {
-        setError(data.message || "Invalid credentials");
+        setError(data?.message || "Invalid credentials");
       }
-    } catch (error) {
+    } catch {
       setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
@@ -139,13 +219,9 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (loginMethod === "otp") {
-      if (!otpSent) {
-        await handleSendOTP();
-      } else {
-        await handleOTPLogin();
-      }
+      if (!otpSent) await handleSendOTP();
+      else await handleOTPLogin();
     } else {
       await handlePasswordLogin();
     }
@@ -153,112 +229,105 @@ export default function LoginForm() {
 
   return (
     <div className="space-y-6">
-      {/* Login Method Toggle */}
+      {/* Login Toggle */}
       <div className="flex rounded-lg bg-gray-100 p-1">
-        <button
-          type="button"
-          onClick={() => {
-            setLoginMethod("otp");
-            setOtpSent(false);
-            setFormData((prev) => ({
-              ...prev,
-              otp: "",
-              email: "",
-              password: "",
-            }));
-            setError("");
-            setSuccess("");
-          }}
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-            loginMethod === "otp"
-              ? "bg-white text-[#354B9C] shadow-sm"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Login with OTP
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setLoginMethod("password");
-            setOtpSent(false);
-            setFormData((prev) => ({ ...prev, phone: "", otp: "" }));
-            setError("");
-            setSuccess("");
-          }}
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-            loginMethod === "password"
-              ? "bg-white text-[#354B9C] shadow-sm"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Login with Password
-        </button>
+        {["otp", "password"].map((method) => (
+          <button
+            key={method}
+            type="button"
+            onClick={() => {
+              setLoginMethod(method as LoginMethod);
+              setOtpSent(false);
+              setFormData({ phone: "", email: "", password: "", otp: "" });
+              setError("");
+              setSuccess("");
+            }}
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+              loginMethod === method ? "bg-white text-[#354B9C] shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {method === "otp" ? "Login with OTP" : "Login with Password"}
+          </button>
+        ))}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {loginMethod === "otp" ? (
           <>
-            {/* Phone Number Input */}
+            {/* Phone Number with Flag */}
             <div>
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Mobile Number
-              </label>
-              <div className="mt-1">
+              <label className="block text-sm font-medium text-gray-700">Mobile Number</label>
+              <div className="mt-1 flex items-center gap-2 border border-gray-300 rounded-md pl-3">
+                <div className="flex items-center gap-1">
+                  <img src="https://flagcdn.com/w20/in.png" alt="India" className="w-5 h-4 rounded-sm" />
+                  <span className="text-gray-700 font-medium">+91</span>
+                </div>
                 <input
-                  id="phone"
                   name="phone"
                   type="tel"
-                  autoComplete="tel"
-                  required
+                  inputMode="numeric"
                   maxLength={10}
                   placeholder="Enter your 10-digit mobile number"
                   value={formData.phone}
                   onChange={handleInputChange}
                   disabled={otpSent}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm disabled:bg-gray-100"
+                  className="flex-1 outline-none !border-none text-gray-900 placeholder-gray-400 py-2 pl-2 text-base"
                 />
               </div>
+
+              {otpSent && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpSent(false);
+                    setFormData((p) => ({ ...p, otp: "" }));
+                  }}
+                  className="text-xs text-[#354B9C] hover:text-[#2a3a7a] mt-2"
+                >
+                  Change phone number
+                </button>
+              )}
             </div>
 
-            {/* OTP Input (shown after OTP is sent) */}
+            {/* OTP Input */}
             {otpSent && (
-              <div>
-                <label
-                  htmlFor="otp"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Enter OTP
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="otp"
-                    name="otp"
-                    type="text"
-                    required
-                    maxLength={4}
-                    placeholder="Enter 4-digit OTP"
-                    value={formData.otp}
-                    onChange={handleInputChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
-                  />
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Enter OTP</label>
+                <div className="flex gap-3 justify-center">
+                  {Array(4)
+                    .fill(0)
+                    .map((_, i) => (
+                      <input
+                        key={i}
+                        ref={(el) => (otpRefs.current[i] = el)}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={formData.otp[i] || ""}
+                        onChange={(e) => handleOTPChange(i, e.target.value)}
+                        onPaste={(e) => {
+                          e.preventDefault();
+                          const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
+                          if (!paste) return;
+                          setFormData((p) => ({ ...p, otp: paste }));
+                          const lastIndex = Math.min(paste.length - 1, 3);
+                          otpRefs.current[lastIndex]?.focus();
+                          if (paste.length === 4) handleOTPLogin(paste);
+                        }}
+                        className="w-12 h-12 text-center text-lg border border-gray-300 rounded-md focus:ring-2 focus:ring-[#354B9C] focus:border-[#354B9C]"
+                      />
+                    ))}
                 </div>
-                <div className="mt-2 text-sm text-gray-600">
-                  Didn't receive OTP?{" "}
+
+                <div className="mt-2 text-sm text-center text-gray-600">
+                  <span>Didn't receive OTP? </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      setOtpSent(false);
-                      setFormData((prev) => ({ ...prev, otp: "" }));
-                      handleSendOTP();
-                    }}
+                    onClick={() => secondsLeft === 0 && handleSendOTP()}
+                    disabled={isLoading || secondsLeft > 0}
                     className="font-medium text-[#354B9C] hover:text-[#2a3a7a]"
-                    disabled={isLoading}
                   >
-                    Resend
+                    {secondsLeft > 0 ? `Resend in ${secondsLeft}s` : "Resend"}
                   </button>
                 </div>
               </div>
@@ -266,120 +335,52 @@ export default function LoginForm() {
           </>
         ) : (
           <>
-            {/* Email Input */}
+            {/* Email + Password */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="Enter your email address"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
-                />
-              </div>
+              <label className="block text-sm font-medium text-gray-700">Email Address</label>
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
+              />
             </div>
 
-            {/* Password Input */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
-                />
-              </div>
+              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                name="password"
+                type="password"
+                required
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
+              />
             </div>
 
-            {/* Forgot Password Link */}
             <div className="text-right">
-              <Link
-                href="/forgot-password"
-                className="text-sm font-medium text-[#354B9C] hover:text-[#2a3a7a]"
-              >
-                Forgot your password?
+              <Link href="/forgot-password" className="text-sm text-[#354B9C] hover:text-[#2a3a7a]">
+                Forgot password?
               </Link>
             </div>
           </>
         )}
 
-        {/* Error Message */}
-        {error && (
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="text-sm text-red-700">{error}</div>
-          </div>
-        )}
+        {/* Error / Success */}
+        {error && <p className="text-center text-red-600 bg-red-50 p-2 rounded">{error}</p>}
+        {success && <p className="text-center text-green-600 bg-green-50 p-2 rounded">{success}</p>}
 
-        {/* Success Message */}
-        {success && (
-          <div className="rounded-md bg-green-50 p-4">
-            <div className="text-sm text-green-700">{success}</div>
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#354B9C] hover:bg-[#2a3a7a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#354B9C] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isLoading ? (
-              <div className="flex items-center">
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Processing...
-              </div>
-            ) : (
-              <>
-                {loginMethod === "otp"
-                  ? otpSent
-                    ? "Verify OTP"
-                    : "Send OTP"
-                  : "Sign In"}
-              </>
-            )}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full py-2 px-4 rounded-md text-white bg-[#354B9C] hover:bg-[#2a3a7a] transition disabled:opacity-50"
+        >
+          {isLoading ? "Processing..." : loginMethod === "otp" ? (otpSent ? "Verify OTP" : "Send OTP") : "Sign In"}
+        </button>
       </form>
     </div>
   );

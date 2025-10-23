@@ -16,7 +16,7 @@ export default function HeroSection(): JSX.Element {
       }}
     >
       <div className="custom-container w-full ">
-        <div className="flex items-end">
+        <div className="lg:flex items-end lg:gap-5">
           {/* Content aligned to bottom left */}
           <div>
             <p className="text-sm font-semibold tracking-wider mb-3 text-white">

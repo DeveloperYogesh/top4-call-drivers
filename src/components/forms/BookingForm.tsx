@@ -1,4 +1,3 @@
-// File: src/components/forms/BookingForm.tsx
 "use client";
 
 import LocationAutocomplete from "@/components/ui/LocationAutocomplete";
@@ -23,6 +22,8 @@ import {
   Tab,
   Tabs,
   Typography,
+  TextField,
+  IconButton,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
@@ -102,6 +103,14 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     canProceed,
   } = useBooking();
 
+  // Initialize scheduledTime with default value (1 hour from now)
+  useEffect(() => {
+    if (!scheduledTime) {
+      const defaultTime = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+      updateField("scheduledTime", defaultTime);
+    }
+  }, []); // Empty dependency array - run once on mount
+
   // Keep packageHours in central booking state so backend receives it
   useEffect(() => {
     updateField("packageHours", estimatedUsage);
@@ -130,8 +139,200 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     );
   }
 
+  // ----------------- OTP Login Dialog (nested) -----------------
+  function OTPLoginDialog({
+    open,
+    onClose,
+    onSuccess,
+    initialPhone,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onSuccess: (normalizedUserData: any) => void;
+    initialPhone?: string;
+  }) {
+    const [phone, setPhone] = useState<string>(initialPhone ?? "");
+    const [otp, setOtp] = useState<string>("");
+    const [isLoadingLocal, setIsLoadingLocal] = useState(false);
+    const [otpSentLocal, setOtpSentLocal] = useState(false);
+    const [errorLocal, setErrorLocal] = useState("");
+    const [successLocal, setSuccessLocal] = useState("");
+    const [secondsLeft, setSecondsLeft] = useState<number>(0);
+    const timerRef = useRef<number | null>(null);
+
+    useEffect(() => {
+      if (open) {
+        setPhone(initialPhone ?? "");
+        setOtp("");
+        setOtpSentLocal(false);
+        setErrorLocal("");
+        setSuccessLocal("");
+        setSecondsLeft(0);
+      }
+      return () => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      };
+    }, [open, initialPhone]);
+
+    const startTimer = (s: number) => {
+      setSecondsLeft(s);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      timerRef.current = window.setInterval(() => {
+        setSecondsLeft((prev) => {
+          if (prev <= 1) {
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    };
+
+    const sendOTPLocal = async () => {
+      setErrorLocal("");
+      if (!phone || phone.replace(/\D/g, "").length !== 10) {
+        setErrorLocal("Enter a valid 10-digit mobile number");
+        return;
+      }
+      setIsLoadingLocal(true);
+      try {
+        const data = await POST("api/V1/booking/sendOTP", { mobileno: phone });
+        if (data?.Success || data?.success) {
+          setOtpSentLocal(true);
+          setSuccessLocal("OTP sent. Please check your phone.");
+          startTimer(60);
+        } else {
+          setErrorLocal(data?.message || data?.Message || "Failed to send OTP");
+        }
+      } catch (err) {
+        console.error("sendOTP error", err);
+        setErrorLocal("Network error. Please try again.");
+      } finally {
+        setIsLoadingLocal(false);
+      }
+    };
+
+    const verifyOTPLocal = async () => {
+      setErrorLocal("");
+      if (!otp || otp.length !== 4) {
+        setErrorLocal("Enter the 4-digit OTP");
+        return;
+      }
+      setIsLoadingLocal(true);
+      try {
+        const data = await POST("api/V1/booking/sendOTP", {
+          mobileno: phone,
+          otp,
+        });
+        if (data?.Success || data?.success) {
+          // normalize & persist user data
+          const raw = data?.Data ?? data;
+          const mobileFromResponse =
+            raw?.MOBILE_NO ?? raw?.mobileno ?? raw?.mobile ?? phone;
+          const normalized = { ...(raw || {}), MOBILE_NO: mobileFromResponse };
+          try {
+            localStorage.setItem("userData", JSON.stringify(normalized));
+          } catch (e) {
+            console.warn("localStorage write failed", e);
+          }
+          // inform parent
+          onSuccess(normalized);
+          setSuccessLocal("Verified!");
+        } else {
+          setErrorLocal(data?.message || data?.Message || "Invalid OTP");
+        }
+      } catch (err) {
+        console.error("verify OTP error", err);
+        setErrorLocal("Network error. Please try again.");
+      } finally {
+        setIsLoadingLocal(false);
+      }
+    };
+
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogTitle>Login with OTP</DialogTitle>
+        <DialogContent>
+          <div className="space-y-3" style={{ minWidth: 320 }}>
+            <TextField
+              label="Mobile Number"
+              value={phone}
+              onChange={(e) =>
+                setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+              }
+              inputProps={{ maxLength: 10 }}
+              fullWidth
+              disabled={otpSentLocal && secondsLeft > 0}
+            />
+            {otpSentLocal && (
+              <TextField
+                label="Enter OTP"
+                value={otp}
+                onChange={(e) =>
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 4))
+                }
+                inputProps={{ maxLength: 4 }}
+                fullWidth
+              />
+            )}
+
+            {errorLocal && <Typography color="error">{errorLocal}</Typography>}
+            {successLocal && (
+              <Typography color="success">{successLocal}</Typography>
+            )}
+
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              {!otpSentLocal ? (
+                <Button onClick={sendOTPLocal} disabled={isLoadingLocal}>
+                  {isLoadingLocal ? <CircularProgress size={18} /> : "Send OTP"}
+                </Button>
+              ) : (
+                <>
+                  <Button onClick={verifyOTPLocal} disabled={isLoadingLocal}>
+                    {isLoadingLocal ? (
+                      <CircularProgress size={18} />
+                    ) : (
+                      "Verify OTP"
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (secondsLeft === 0) {
+                        sendOTPLocal();
+                        setOtp("");
+                      }
+                    }}
+                    disabled={secondsLeft > 0 || isLoadingLocal}
+                  >
+                    {secondsLeft > 0 ? `Resend in ${secondsLeft}s` : "Resend"}
+                  </Button>
+                </>
+              )}
+
+              <Button onClick={onClose} variant="text">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  // ----------------- End OTP Login Dialog -----------------
+
   // ----- Fare fetching (uses the real endpoint) -----
-  // replace the existing fetchFareAmount() with this function
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastPayloadRef = useRef<string | null>(null);
+
   async function fetchFareAmount() {
     setFareLoading(true);
     setFareError(null);
@@ -169,9 +370,36 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         tripkms: "0",
       };
 
-      let json: any = await POST("api/V1/booking/GetFareAmount", payload);
+      const payloadKey = JSON.stringify(payload);
+      if (payloadKey === lastPayloadRef.current && fareAmount != null) {
+        setFareLoading(false);
+        return { cached: true, fare: fareAmount, data: fareData };
+      }
 
-      // Extract total fare robustly
+      // cancel previous
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      // use POST helper if it supports passing signal, else call fetch directly
+      // Here we use fetch so AbortController works reliably.
+      const res = await fetch("/api/V1/booking/GetFareAmount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Fare API error: ${res.status} ${txt}`);
+      }
+
+      const json: any = await res.json();
+
       const total =
         json?.TOTALFARE ??
         json?.TOTAL_FARE ??
@@ -187,30 +415,43 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
       setFareAmount(Number(total));
       setFareData(json);
+      lastPayloadRef.current = payloadKey;
       return json;
     } catch (err: any) {
+      if (err?.name === "AbortError") {
+        console.info("Fare fetch aborted");
+        return Promise.reject({ aborted: true });
+      }
       console.error("Fare fetch error (client):", err);
       setFareError(err?.message ?? "Failed to calculate fare");
-      throw err;
+
+      // fallback optimistic estimate
+      const vehicleBasePrice = vehicleSizes.find(
+        (v) => v.value === vehicleSize
+      )?.price;
+      if (vehicleBasePrice && estimatedUsage) {
+        const fallback = vehicleBasePrice * estimatedUsage;
+        setFareAmount(fallback);
+      } else {
+        setFareAmount(null);
+      }
+      return Promise.reject(err);
     } finally {
       setFareLoading(false);
+      abortControllerRef.current = null;
     }
   }
 
-  // Debounced auto-fetch: whenever the important inputs change, calculate fare automatically.
+  // Debounced auto-fetch
   const debounceRef = useRef<number | null>(null);
   useEffect(() => {
-    // Conditions: we need pickupLocation, vehicleSize and estimatedUsage.
-    // If trip type requires drop location (non-daily), ensure dropLocation exists.
     const needsDrop = selectedTripType !== "daily";
     const havePickup = !!placeName(pickupLocation);
     const haveVehicle = !!vehicleSize;
     const haveHours = !!estimatedUsage && estimatedUsage > 0;
     const haveDrop = needsDrop ? !!placeName(dropLocation) : true;
 
-    // Only auto fetch when required inputs are present
     if (!havePickup || !haveVehicle || !haveHours || !haveDrop) {
-      // Clear fare if fields are incomplete
       setFareAmount(null);
       setFareData(null);
       setFareError(null);
@@ -218,27 +459,26 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         window.clearTimeout(debounceRef.current);
         debounceRef.current = null;
       }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      lastPayloadRef.current = null;
       return;
     }
 
-    // Debounce to avoid excessive calls while user types/selects
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => {
-      // call fetch (no need to await here)
-      fetchFareAmount().catch(() => {
-        /* errors are handled inside fetchFareAmount */
-      });
+      fetchFareAmount().catch(() => {});
       debounceRef.current = null;
-    }, 4000); // 700ms debounce
+    }, 700);
 
-    // cleanup on unmount
     return () => {
       if (debounceRef.current) {
         window.clearTimeout(debounceRef.current);
         debounceRef.current = null;
       }
     };
-    // watch these inputs
   }, [
     pickupLocation,
     dropLocation,
@@ -248,32 +488,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     selectedTripType,
   ]);
 
-  const handleRequestDriver = async () => {
-    // run existing validation first
-    const ok = validateBooking();
-
-    // ensure hours selected
-    if (!estimatedUsage || estimatedUsage <= 0) {
-      setEstimatedUsageError("Please select package hours / estimated usage.");
-      return;
-    } else {
-      setEstimatedUsageError("");
-    }
-
-    if (!ok) return console.log(ok);
-
-
-    try {
-      // If fare hasn't been calculated yet (race or first-time), fetch it now.
-      if (fareAmount == null) {
-        await fetchFareAmount();
-      }
-      // open confirmation dialog showing fare
-      setConfirmOpen(true);
-    } catch (err) {
-      alert("Unable to calculate fare: " + ((err as any)?.message ?? ""));
-    }
-  };
+  // ---------- New: Modal state for OTP login from BookingForm ----------
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
 
   // Called after user confirms fare and wants to create booking
   const confirmAndCreateBooking = async () => {
@@ -281,47 +497,22 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     setBookingLoading(true);
     const pickupPlace = placeName(pickupLocation).toUpperCase();
     const dropPlace = placeName(dropLocation).toUpperCase();
-      const pickuptime = scheduledTime
-        ? dayjs(scheduledTime).format("YYYY-MM-DD hh:mm:ss")
-        : dayjs().format("YYYY-MM-DD hh:mm:ss");
+    const pickuptime = scheduledTime
+      ? dayjs(scheduledTime).format("YYYY-MM-DD HH:mm:ss")
+      : dayjs().format("YYYY-MM-DD HH:mm:ss");
     try {
       const pickupLatLongStr = formatPickupLatLong(pickupLocation);
       const dropLatLongStr = formatPickupLatLong(dropLocation);
       const userDataStr = localStorage.getItem("userData");
       const userData = userDataStr ? JSON.parse(userDataStr) : null;
-       const classIdMap: Record<string, string> = {
+      const classIdMap: Record<string, string> = {
         hatchback: "1",
         sedan: "2",
         suv: "3",
       };
       const classid = classIdMap[vehicleSize as string] ?? vehicleSize ?? "1";
-      // const payload: any = {
-      //   tripType: getTripTypeLabel(selectedTripType),
-      //   reqType: getTripTypeLabel(selectedTripType),
-      //   pickupLocation:
-      //     (pickupLocation as any)?.name ?? (pickupLocation as any)?.label ?? "",
-      //   pickupLatLong: pickupLatLongStr,
-      //   dropLocation:
-      //     (dropLocation as any)?.name ?? (dropLocation as any)?.label ?? "",
-      //   dropLatLong: dropLatLongStr,
-      //   pickupTime: scheduledTime
-      //     ? dayjs(scheduledTime).format("YYYY-MM-DD HH:mm:00")
-      //     : null,
-      //   returnTime:
-      //     selectedTripType === "round-trip" && scheduledTime
-      //       ? dayjs(scheduledTime)
-      //           .add(estimatedUsage, "hour")
-      //           .format("YYYY-MM-DD HH:mm:00")
-      //       : null,
-      //   // include the total fare we just fetched (server should re-validate)
-      //   totalFare: fareAmount,
-      //   carType: vehicleSize ?? carType,
-      //   packageHours: String(estimatedUsage),
-      //   PhoneNo: phoneNumber ?? "",
-      //   fareResponse: fareData ?? null,
-      // };
       const payload: any = {
-        mobileNumber: phoneNumber || userData.MOBILE_NO,
+        mobileNumber: phoneNumber || userData?.MOBILE_NO,
         pickupTime: pickuptime,
         returnTime: pickuptime,
         pickupLatLong: pickupLatLongStr,
@@ -334,12 +525,16 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         tripType: "InCity",
         reqType: "Round Trip",
         price: fareAmount,
-        packageHours:fareAmount
+        packageHours: estimatedUsage, // send hours, not fare
       };
 
-      const json = await await POST("api/V1/booking/insertbookingnew", 
-        payload,
-      );
+      const res = await fetch("/api/V1/booking/insertbookingnew", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+
       if (json && (json.Success || json.success)) {
         setSuccessMessage(json.Message ?? "Booking successful");
         setBookingSuccess(true);
@@ -352,6 +547,83 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     } finally {
       setBookingLoading(false);
     }
+  };
+
+  // ---------- Updated flow: when user clicks Request Driver, ensure logged in ----------
+  const handleRequestDriver = async () => {
+    // Override time validation - allow 1 hour minimum
+    const currentTime = new Date();
+    const minAllowedTime = new Date(currentTime.getTime() + 60 * 60 * 1000); // 1 hour from now
+    
+    if (scheduledTime && new Date(scheduledTime) < minAllowedTime) {
+      // Clear the time validation error
+      updateField("errors", {
+        ...errors,
+        scheduledTime: ""
+      });
+    }
+
+    // run existing validation first
+    const ok = validateBooking();
+
+    // ensure hours selected
+    if (!estimatedUsage || estimatedUsage <= 0) {
+      setEstimatedUsageError("Please select package hours / estimated usage.");
+      return;
+    } else {
+      setEstimatedUsageError("");
+    }
+
+    if (!ok) {
+      console.log("Validation failed:", errors);
+      return;
+    }
+
+    // check login: booking state phoneNumber or localStorage userData
+    const userDataStr =
+      typeof window !== "undefined" ? localStorage.getItem("userData") : null;
+    const userData = userDataStr ? JSON.parse(userDataStr) : null;
+    const mobileAvailable = !!(phoneNumber || userData?.MOBILE_NO);
+
+    if (!mobileAvailable) {
+      // open login dialog in-place
+      setLoginDialogOpen(true);
+      return;
+    }
+
+    // If fare hasn't been calculated yet (race or first-time), fetch it now.
+    try {
+      if (fareAmount == null) {
+        await fetchFareAmount();
+      }
+      setConfirmOpen(true);
+    } catch (err) {
+      alert("Unable to calculate fare: " + ((err as any)?.message ?? ""));
+    }
+  };
+
+  // callback when OTP login success from dialog
+  const onOTPLoginSuccess = (normalizedUserData: any) => {
+    // update booking state immediately
+    if (normalizedUserData?.MOBILE_NO) {
+      updateField("phoneNumber", String(normalizedUserData.MOBILE_NO));
+    }
+    setLoginDialogOpen(false);
+
+    // proceed: if fare not present, trigger fetch, else open confirm
+    (async () => {
+      try {
+        if (fareAmount == null) {
+          await fetchFareAmount();
+        }
+        setConfirmOpen(true);
+      } catch (err) {
+        alert(
+          "Unable to calculate fare after login: " +
+            ((err as any)?.message ?? "")
+        );
+      }
+    })();
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -483,7 +755,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
               <DateTimePicker
                 label="Select date and time"
-                value={scheduledTime ? dayjs(scheduledTime) : null}
+                value={scheduledTime ? dayjs(scheduledTime) : dayjs().add(1, "hour")}
                 onChange={(newValue: Dayjs | null) =>
                   updateField("scheduledTime", newValue?.toDate() || null)
                 }
@@ -578,14 +850,15 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                 <Typography variant="body2">Calculating fare...</Typography>
               </div>
             ) : fareAmount != null ? (
-              <div>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                  Estimated Fare: ₹{fareAmount.toFixed(2)}
-                </Typography>
+              <div className="text-center">
+                <h4 className="text-lg !mb-1">
+                  Estimated Fare:{" "}
+                  <span className="text-blue-800">
+                    ₹{fareAmount.toFixed(2)}
+                  </span>
+                </h4>
                 {fareData?.NIGHTCHARGES ? (
-                  <Typography variant="caption" color="text.secondary">
-                    (Includes night charges)
-                  </Typography>
+                  <p className="!text-xs">(Includes night charges)</p>
                 ) : null}
               </div>
             ) : fareError ? (
@@ -645,6 +918,14 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
           onClose={() => setPhoneModalOpen(false)}
           phoneNumber={phoneNumber}
           onPhoneNumberChange={(phone) => updateField("phoneNumber", phone)}
+        />
+
+        {/* OTP login modal from booking form */}
+        <OTPLoginDialog
+          open={loginDialogOpen}
+          onClose={() => setLoginDialogOpen(false)}
+          onSuccess={onOTPLoginSuccess}
+          initialPhone={phoneNumber ?? ""}
         />
 
         {/* Fare confirmation dialog */}

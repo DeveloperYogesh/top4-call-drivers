@@ -299,7 +299,7 @@ export default function SignupForm() {
               />
             </div>
             <div className="mt-2 text-sm text-gray-600 text-center">
-              Didn't receive OTP?{' '}
+              Didn't receive ?
               <button
                 type="button"
                 onClick={() => {
@@ -310,7 +310,7 @@ export default function SignupForm() {
                 className="font-medium text-[#354B9C] hover:text-[#2a3a7a]"
                 disabled={isLoading}
               >
-                Resend
+                {` Resend`}
               </button>
             </div>
           </div>
