@@ -1,8 +1,7 @@
-// File: hooks/useAuth.ts
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import { POST } from "@/utils/apiHelpres";
+import { useEffect, useState, useCallback } from "react";
 
 export function normalizeUser(raw: any, fallbackPhone?: string) {
   const mobile = raw?.MOBILE_NO ?? raw?.mobileno ?? raw?.mobile ?? fallbackPhone ?? null;
@@ -65,55 +64,42 @@ export function useAuth() {
 
   const sendOTP = useCallback(async (mobileno: string) => {
     try {
+      console.log("Sending OTP to:", mobileno);
       const res = await POST("api/V1/booking/sendOTP", { mobileno });
-      // return raw response for the caller to inspect
+      console.log("Send OTP response:", res);
       return res ?? { Success: false, success: false, message: "No response" };
     } catch (e) {
-      console.error("sendOTP", e);
+      console.error("sendOTP error:", e);
       return { Success: false, success: false, error: e };
     }
   }, []);
 
-async function verifyOTP(phone: string, otp: string) {
-  try {
-    const response = await fetch(`http://top4mobileapp.vbsit.in/api/V1/booking/verifyOTP`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mobile: phone, otp }),
-    });
+  const verifyOTP = useCallback(
+    async (phone: string, otp: string) => {
+      try {
+        console.log("Verifying OTP for phone:", phone, "with OTP:", otp);
+        const res = await POST("api/V1/booking/verifyOTP", { mobileno: phone, OTP: otp, devicetoken: "" });
+        console.log("Verify OTP response:", res);
+        const successFlag =
+          res?.success === true || res?.Success === true || res?.Message === "OTP Verified Successfully";
 
-    const data = await response.json();
+        if (!successFlag) {
+          return { success: false, message: res?.message || res?.Message || "Invalid OTP", raw: res };
+        }
 
-    // check real success flags
-    const successFlag =
-      data?.success === true ||
-      data?.Success === true ||
-      data?.status === "success" ||
-      (data?.Data && data?.Data?.verified === true);
-
-    if (!successFlag) {
-      return {
-        success: false,
-        message: data?.message || data?.Message || "Invalid OTP",
-        raw: data,
-      };
-    }
-
-    // success case
-    const user =
-      data?.user ||
-      data?.Data ||
-      data?.data ||
-      { MOBILE_NO: phone };
-
-    persistUser(user);
-    return { success: true, user, raw: data };
-  } catch (err) {
-    console.error("verifyOTP error", err);
-    return { success: false, message: "Network error. Please try again." };
-  }
-}
-
+        const user = res?.Data || { MOBILE_NO: phone };
+        persistUser(user);
+        return { success: true, user, raw: res };
+      } catch (err: any) {
+        console.error("verifyOTP error:", err);
+        return {
+          success: false,
+          message: err.name === "TypeError" ? "Network error: Unable to connect to server." : err.message || "Verification failed.",
+        };
+      }
+    },
+    [persistUser]
+  );
 
   const logout = useCallback(() => {
     try {

@@ -4,8 +4,6 @@ import LocationAutocomplete from "@/components/ui/LocationAutocomplete";
 import PhoneModal from "@/components/ui/PhoneModal";
 import { useBooking } from "@/hooks/useBooking";
 import { Location } from "@/types";
-import { POST } from "@/utils/apiHelpres";
-import { APP_CONFIG } from "@/utils/constants";
 import { LocationOn, Schedule } from "@mui/icons-material";
 import {
   Button,
@@ -30,6 +28,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useRef, useState } from "react";
+import LoginForm from "../auth/LoginForm";
 
 interface TripTypeOption {
   value: string;
@@ -140,193 +139,17 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
   }
 
   // ----------------- OTP Login Dialog (nested) -----------------
-  function OTPLoginDialog({
-    open,
-    onClose,
-    onSuccess,
-    initialPhone,
-  }: {
-    open: boolean;
-    onClose: () => void;
-    onSuccess: (normalizedUserData: any) => void;
-    initialPhone?: string;
-  }) {
-    const [phone, setPhone] = useState<string>(initialPhone ?? "");
-    const [otp, setOtp] = useState<string>("");
-    const [isLoadingLocal, setIsLoadingLocal] = useState(false);
-    const [otpSentLocal, setOtpSentLocal] = useState(false);
-    const [errorLocal, setErrorLocal] = useState("");
-    const [successLocal, setSuccessLocal] = useState("");
-    const [secondsLeft, setSecondsLeft] = useState<number>(0);
-    const timerRef = useRef<number | null>(null);
-
-    useEffect(() => {
-      if (open) {
-        setPhone(initialPhone ?? "");
-        setOtp("");
-        setOtpSentLocal(false);
-        setErrorLocal("");
-        setSuccessLocal("");
-        setSecondsLeft(0);
-      }
-      return () => {
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
-      };
-    }, [open, initialPhone]);
-
-    const startTimer = (s: number) => {
-      setSecondsLeft(s);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      timerRef.current = window.setInterval(() => {
-        setSecondsLeft((prev) => {
-          if (prev <= 1) {
-            if (timerRef.current) {
-              clearInterval(timerRef.current);
-              timerRef.current = null;
-            }
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    };
-
-    const sendOTPLocal = async () => {
-      setErrorLocal("");
-      if (!phone || phone.replace(/\D/g, "").length !== 10) {
-        setErrorLocal("Enter a valid 10-digit mobile number");
-        return;
-      }
-      setIsLoadingLocal(true);
-      try {
-        const data = await POST("api/V1/booking/sendOTP", { mobileno: phone });
-        if (data?.Success || data?.success) {
-          setOtpSentLocal(true);
-          setSuccessLocal("OTP sent. Please check your phone.");
-          startTimer(60);
-        } else {
-          setErrorLocal(data?.message || data?.Message || "Failed to send OTP");
-        }
-      } catch (err) {
-        console.error("sendOTP error", err);
-        setErrorLocal("Network error. Please try again.");
-      } finally {
-        setIsLoadingLocal(false);
-      }
-    };
-
-    const verifyOTPLocal = async () => {
-      setErrorLocal("");
-      if (!otp || otp.length !== 4) {
-        setErrorLocal("Enter the 4-digit OTP");
-        return;
-      }
-      setIsLoadingLocal(true);
-      try {
-        const data = await POST("api/V1/booking/sendOTP", {
-          mobileno: phone,
-          otp,
-        });
-        if (data?.Success || data?.success) {
-          // normalize & persist user data
-          const raw = data?.Data ?? data;
-          const mobileFromResponse =
-            raw?.MOBILE_NO ?? raw?.mobileno ?? raw?.mobile ?? phone;
-          const normalized = { ...(raw || {}), MOBILE_NO: mobileFromResponse };
-          try {
-            localStorage.setItem("userData", JSON.stringify(normalized));
-          } catch (e) {
-            console.warn("localStorage write failed", e);
-          }
-          // inform parent
-          onSuccess(normalized);
-          setSuccessLocal("Verified!");
-        } else {
-          setErrorLocal(data?.message || data?.Message || "Invalid OTP");
-        }
-      } catch (err) {
-        console.error("verify OTP error", err);
-        setErrorLocal("Network error. Please try again.");
-      } finally {
-        setIsLoadingLocal(false);
-      }
-    };
-
-    return (
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Login with OTP</DialogTitle>
-        <DialogContent>
-          <div className="space-y-3" style={{ minWidth: 320 }}>
-            <TextField
-              label="Mobile Number"
-              value={phone}
-              onChange={(e) =>
-                setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
-              }
-              inputProps={{ maxLength: 10 }}
-              fullWidth
-              disabled={otpSentLocal && secondsLeft > 0}
-            />
-            {otpSentLocal && (
-              <TextField
-                label="Enter OTP"
-                value={otp}
-                onChange={(e) =>
-                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 4))
-                }
-                inputProps={{ maxLength: 4 }}
-                fullWidth
-              />
-            )}
-
-            {errorLocal && <Typography color="error">{errorLocal}</Typography>}
-            {successLocal && (
-              <Typography color="success">{successLocal}</Typography>
-            )}
-
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              {!otpSentLocal ? (
-                <Button onClick={sendOTPLocal} disabled={isLoadingLocal}>
-                  {isLoadingLocal ? <CircularProgress size={18} /> : "Send OTP"}
-                </Button>
-              ) : (
-                <>
-                  <Button onClick={verifyOTPLocal} disabled={isLoadingLocal}>
-                    {isLoadingLocal ? (
-                      <CircularProgress size={18} />
-                    ) : (
-                      "Verify OTP"
-                    )}
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      if (secondsLeft === 0) {
-                        sendOTPLocal();
-                        setOtp("");
-                      }
-                    }}
-                    disabled={secondsLeft > 0 || isLoadingLocal}
-                  >
-                    {secondsLeft > 0 ? `Resend in ${secondsLeft}s` : "Resend"}
-                  </Button>
-                </>
-              )}
-
-              <Button onClick={onClose} variant="text">
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+// Inside BookingForm.tsx (partial update for OTPLoginDialog)
+function OTPLoginDialog({ open, onClose, onSuccess, initialPhone }: { open: boolean; onClose: () => void; onSuccess: (userData: any) => void; initialPhone?: string }) {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Login with OTP</DialogTitle>
+      <DialogContent>
+        <LoginForm onSuccess={onSuccess} initialPhone={initialPhone} />
+      </DialogContent>
+    </Dialog>
+  );
+}
   // ----------------- End OTP Login Dialog -----------------
 
   // ----- Fare fetching (uses the real endpoint) -----
@@ -637,7 +460,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div
-        className={`max-w-[500px] min-w-[400px] md:min-w-[450px] w-full mx-auto ${
+        className={`max-w-[450px] min-w-[400px] md:min-w-[450px] w-full mx-auto ${
           isEmbedded ? "" : "px-4"
         } bg-white rounded-2xl`}
       >
@@ -869,12 +692,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
               >
                 {fareError}
               </Typography>
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Fare will be calculated automatically when required fields are
-                filled.
-              </Typography>
-            )}
+            ) : null}
           </div>
 
           {/* Submit Button */}

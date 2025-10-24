@@ -19,17 +19,14 @@ export default function HeroSection(): JSX.Element {
         <div className="lg:flex items-end lg:gap-5">
           {/* Content aligned to bottom left */}
           <div>
-            <p className="text-sm font-semibold tracking-wider mb-3 text-white">
-              SIMPLIFY CAR OWNERSHIP
-            </p>
-
             <h1 className="font-extrabold leading-tight mb-4 text-white text-4xl lg:text-5xl">
-              Hire TOP4 Call Drivers, and all car services at your fingertips.
+              <span className="text-sm font-semibold tracking-wider mb-3 text-white">TOP4 CALL DRIVERS</span><br/>
+              Your Ride, Our <span className="font-semibold tracking-wider mb-3 text-white">Responsibility</span>
             </h1>
           </div>
 
           {/* Right Content - Booking Form (commented out as in original) */}
-          <div className="flex justify-center items-center">
+          <div className="flex place-items-end justify-end">
             <BookingForm isEmbedded={true} />
           </div>
         </div>
