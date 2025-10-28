@@ -1,6 +1,6 @@
 // components/HeroSection.tsx
-import BookingForm from "@/components/forms/BookingForm";
 import { JSX } from "@emotion/react/jsx-runtime";
+import BookingForm from "../forms/bookingForm";
 
 export default function HeroSection(): JSX.Element {
   return (
