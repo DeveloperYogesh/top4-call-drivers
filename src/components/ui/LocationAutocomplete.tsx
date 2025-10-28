@@ -26,8 +26,8 @@ import { useLocationSearch } from "@/hooks/useLocationSearch";
 interface Props {
   label: string;
   placeholder?: string;
-  value: Location | null;
-  onChange: (location: Location | null) => void;
+  value: any;
+  onChange: any;
   error?: boolean;
   helperText?: string;
   fetchSuggestions?: (q: string) => Promise<Location[]>;

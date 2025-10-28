@@ -53,7 +53,7 @@ export default function ConfirmView({
         </Box>
       )}
       <Grid container spacing={2}>
-        <Grid item xs={12} md={7}>
+        <div>
           <Card variant="outlined" sx={{ mb: 2, minWidth: "100%" }}>
             <CardContent>
               <div className="w-full">
@@ -115,7 +115,7 @@ export default function ConfirmView({
               )}
             </Button>
           </Box>
-        </Grid>
+        </div>
       </Grid>
     </>
   );

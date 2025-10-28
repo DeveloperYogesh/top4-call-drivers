@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.SITE_URL || 'https://driveu-clone.replit.dev',
+  siteUrl: process.env.SITE_URL || 'https://top4calldrivers.com',
   generateRobotsTxt: true,
   exclude: ['/api/*', '/admin/*', '/login', '/signup', '/profile'],
   changefreq: 'daily',
@@ -54,7 +54,7 @@ module.exports = {
       },
     ],
     additionalSitemaps: [
-      `${process.env.SITE_URL || 'https://driveu-clone.replit.dev'}/sitemap.xml`,
+      `${process.env.SITE_URL || 'https://top4calldrivers.com'}/sitemap.xml`,
     ],
   },
 };

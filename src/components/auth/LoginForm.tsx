@@ -1,7 +1,13 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -15,14 +21,14 @@ interface LoginFormProps {
   className?: string;
 }
 
-export default function LoginForm({ 
-  onSuccess, 
+export default function LoginForm({
+  onSuccess,
   onCancel,
-  initialPhone = "", 
+  initialPhone = "",
   autoFocus = true,
   compact = false,
   showChangeNumber = true,
-  className = ""
+  className = "",
 }: LoginFormProps) {
   const { sendOTP, verifyOTP } = useAuth();
   const router = useRouter();
@@ -39,6 +45,7 @@ export default function LoginForm({
   const phoneRef = useRef<HTMLInputElement | null>(null);
   const digitRefs = useRef<Array<HTMLInputElement | null>>([]);
   const verifyingRef = useRef(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null); // ✅ fixed timer ref
 
   useEffect(() => {
     if (initialPhone) setPhone(initialPhone);
@@ -46,18 +53,14 @@ export default function LoginForm({
       setTimeout(() => phoneRef.current?.focus(), 50);
     }
     return () => {
-      try {
-        if ((window as any).timerRef) clearInterval((window as any).timerRef);
-      } catch {}
+      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [initialPhone, autoFocus, otpSent]);
 
   const startTimer = (secs: number) => {
     setSecondsLeft(secs);
-    try {
-      if ((window as any).timerRef) clearInterval((window as any).timerRef);
-    } catch {}
-    (window as any).timerRef = setInterval(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
       setSecondsLeft((prev) => (prev <= 1 ? 0 : prev - 1));
     }, 1000);
   };
@@ -80,7 +83,7 @@ export default function LoginForm({
         setOtpSent(true);
         setDigits(["", "", "", ""]);
         setSuccess("OTP sent. Please check your phone.");
-        startTimer(60);
+        startTimer(60); // ✅ starts the countdown
         setTimeout(() => digitRefs.current[0]?.focus(), 80);
       } else {
         setError(res?.message || res?.Message || "Failed to send OTP");
@@ -116,14 +119,7 @@ export default function LoginForm({
       if (res?.success) {
         setSuccess("Login successful!");
         onSuccess?.(res.user);
-        // redirect if on /login
-        try {
-          if (pathname === "/login") {
-            router.push("/");
-          }
-        } catch (err) {
-          // ignore routing errors
-        }
+        if (pathname === "/login") router.push("/");
       } else {
         setError(res?.message || "Invalid OTP");
       }
@@ -156,7 +152,10 @@ export default function LoginForm({
     }
   };
 
-  const handleDigitKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleDigitKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     const key = e.key;
     if (key === "Backspace") {
       if (digits[index]) {
@@ -187,9 +186,7 @@ export default function LoginForm({
     const firstFour = onlyDigits.slice(0, 4).split("");
     setDigits((prev) => {
       const next = [...prev];
-      for (let i = 0; i < 4; i++) {
-        next[i] = firstFour[i] ?? "";
-      }
+      for (let i = 0; i < 4; i++) next[i] = firstFour[i] ?? "";
       return next;
     });
     const lastFilled = Math.min(onlyDigits.length, 4) - 1;
@@ -203,16 +200,16 @@ export default function LoginForm({
     setDigits(["", "", "", ""]);
     setError("");
     setSuccess("");
-    try {
-      if ((window as any).timerRef) clearInterval((window as any).timerRef);
-    } catch {}
+    if (timerRef.current) clearInterval(timerRef.current);
     setSecondsLeft(0);
     setTimeout(() => phoneRef.current?.focus(), 50);
   };
 
   const handleResend = async () => {
     if (secondsLeft > 0) return;
-    await handleSendOTP();
+    setError("");
+    setSuccess("");
+    await handleSendOTP(); // ✅ this restarts timer properly
   };
 
   return (
@@ -235,8 +232,13 @@ export default function LoginForm({
             helperText={error}
             sx={{ mb: 2 }}
           />
-          
-          <Box display="flex" justifyContent="center" gap={2} mt={compact ? 1 : 3}>
+
+          <Box
+            display="flex"
+            justifyContent="center"
+            gap={2}
+            mt={compact ? 1 : 3}
+          >
             <Button
               type="button"
               variant="contained"
@@ -263,10 +265,15 @@ export default function LoginForm({
             {digits.map((d, i) => (
               <input
                 key={i}
-                ref={(el) => (digitRefs.current[i] = el)}
+                ref={(el) => {
+                  digitRefs.current[i] = el; // ✅ fixed ref
+                }}
                 value={d}
                 onChange={(ev) =>
-                  handleDigitChange(i, ev.target.value.replace(/\D/g, "").slice(0, 1))
+                  handleDigitChange(
+                    i,
+                    ev.target.value.replace(/\D/g, "").slice(0, 1)
+                  )
                 }
                 onKeyDown={(ev) => handleDigitKeyDown(i, ev)}
                 onPaste={handlePaste}
@@ -285,30 +292,44 @@ export default function LoginForm({
             ))}
           </Box>
 
-          <Box display="flex" justifyContent="center" alignItems="center" gap={2} mb={2}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            gap={2}
+            mb={2}
+          >
             {showChangeNumber && (
-              <Button size="small" onClick={handleChangeNumber} variant="outlined">
+              <Button
+                size="small"
+                onClick={handleChangeNumber}
+                variant="outlined"
+              >
                 Change Number
               </Button>
             )}
 
-            <Button 
-              size="small" 
-              onClick={handleResend} 
+            <Button
+              size="small"
+              onClick={handleResend}
               disabled={secondsLeft > 0}
               variant="text"
             >
-              Resend {secondsLeft > 0 ? `(${secondsLeft}s)` : ''}
+              Resend {secondsLeft > 0 ? `(${secondsLeft}s)` : ""}
             </Button>
           </Box>
         </>
       )}
 
       {success && (
-        <Typography sx={{ color: "green", mt: 1, textAlign: "center" }}>{success}</Typography>
+        <Typography sx={{ color: "green", mt: 1, textAlign: "center" }}>
+          {success}
+        </Typography>
       )}
       {error && otpSent && (
-        <Typography color="error" sx={{ textAlign: "center" }}>{error}</Typography>
+        <Typography color="error" sx={{ textAlign: "center" }}>
+          {error}
+        </Typography>
       )}
     </div>
   );

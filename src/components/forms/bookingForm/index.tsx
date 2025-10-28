@@ -38,28 +38,8 @@ const tripTypes = [
   { value: "one-way", label: "One Way" },
   { value: "round-trip", label: "Round Trip" },
   { value: "outstation", label: "Outstation" },
-  { value: "daily", label: "Daily" },
+  // { value: "daily", label: "Daily" },
 ];
-
-const defaultPickupLocation: Location = {
-  id: "1",
-  name: "Pune International Airport",
-  address:
-    "New Airport Rd, Pune International Airport Area, Lohegaon, Pune, Maharashtra 411032",
-  latitude: 18.57951079971662,
-  longitude: 73.90912064786271,
-  type: "airport",
-};
-
-const defaultDropLocation: Location = {
-  id: "2",
-  name: "Kolkata International Airport",
-  address:
-    "Airport Service Rd, International Airport, Dum Dum, Kolkata, West Bengal 700052",
-  latitude: 22.653890715749615,
-  longitude: 88.44535291711665,
-  type: "neighborhood",
-};
 
 interface BookingFormProps {
   isEmbedded?: boolean;
@@ -99,10 +79,22 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     validateBooking,
   } = useBooking();
 
+  // tolerant lat/long extractor to avoid TypeScript errors when Location shape varies
+  const getLatLong = (loc?: Location | null) => {
+    const lat =
+      (loc as any)?.latitude ?? (loc as any)?.lat ?? (loc as any)?.LAT ?? 0;
+    const lng =
+      (loc as any)?.longitude ??
+      (loc as any)?.lng ??
+      (loc as any)?.lon ??
+      (loc as any)?.LON ??
+      0;
+    return `${lat}, ${lng}`;
+  };
+
   // set defaults on mount
+  // initialize some defaults (without preset locations)
   useEffect(() => {
-    updateField("pickupLocation", defaultPickupLocation);
-    updateField("dropLocation", defaultDropLocation);
     const defaultTime = dayjs().add(1, "hour").add(5, "second").toDate();
     updateField("scheduledTime", defaultTime);
     updateField("vehicleSize", "sedan");
@@ -131,7 +123,11 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
   };
 
   // full callFareApi implementation (uses your live API)
-  const calculateFareBreakdown = (): { baseFare: number; nightCharge: number; total: number } => {
+  const calculateFareBreakdown = (): {
+    baseFare: number;
+    nightCharge: number;
+    total: number;
+  } => {
     const baseFare = 450;
     const nightCharge = 100;
     const subtotal = baseFare + nightCharge;
@@ -180,7 +176,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
       if (
         data &&
-        (typeof data.TOTALFARE !== "undefined" || typeof data.BASEFARE !== "undefined")
+        (typeof data.TOTALFARE !== "undefined" ||
+          typeof data.BASEFARE !== "undefined")
       ) {
         const baseFare = Number(data.BASEFARE ?? 0);
         const nightCharge = Number(data.NIGHTCHARGES ?? 0);
@@ -191,10 +188,18 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
           const roundedNight = Math.round(nightCharge);
           const roundedTotal = Math.round(totalFromApi);
 
-          setFareBreakdown({ baseFare: roundedBase, nightCharge: roundedNight, total: roundedTotal });
+          setFareBreakdown({
+            baseFare: roundedBase,
+            nightCharge: roundedNight,
+            total: roundedTotal,
+          });
         } else {
           const breakdown = calculateFareBreakdown();
-          setFareBreakdown({ baseFare: Math.round(breakdown.baseFare), nightCharge: Math.round(breakdown.nightCharge), total: Math.round(breakdown.total) });
+          setFareBreakdown({
+            baseFare: Math.round(breakdown.baseFare),
+            nightCharge: Math.round(breakdown.nightCharge),
+            total: Math.round(breakdown.total),
+          });
         }
       } else {
         const breakdown = calculateFareBreakdown();
@@ -246,6 +251,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         fetchControllerRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     pickupLocation,
     dropLocation,
@@ -264,13 +270,14 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     if (!dropLocation || !dropLocation.name)
       newErrors.dropLocation = "Drop location is required.";
     if (!scheduledTime) newErrors.scheduledTime = "Schedule time is required.";
-    updateField("errors", newErrors);
+    // cast updateField to any temporarily so TS accepts "errors" key
+    (updateField as any)("errors", newErrors);
     if (Object.keys(newErrors).length === 0) setPage(2);
   };
 
   const handleNextToPage3 = () => {
     if (!phoneNumber) {
-      updateField("errors", {
+      (updateField as any)("errors", {
         ...errors,
         phoneNumber: "Phone number is required.",
       });
@@ -287,8 +294,9 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     setBookingResponse(null);
     setBookingError(null);
     setPage(1);
-    updateField("pickupLocation", defaultPickupLocation);
-    updateField("dropLocation", defaultDropLocation);
+
+    updateField("pickupLocation", null);
+    updateField("dropLocation", null);
     updateField(
       "scheduledTime",
       dayjs().add(1, "hour").add(5, "second").toDate()
@@ -296,6 +304,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     updateField("vehicleSize", "sedan");
     updateField("carType", "manual");
     updateField("phoneNumber", user?.phone || "");
+
     setFareBreakdown(null);
     setBookingLoading(false);
     setSelectedTripType(tripTypes[0].value);
@@ -349,7 +358,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       .trim();
 
     if (!effectivePhone) {
-      updateField("errors", {
+      (updateField as any)("errors", {
         ...errors,
         phoneNumber: "Phone number is required.",
       });
@@ -377,17 +386,23 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       tripTypes.find((t) => t.value === selectedTripType)?.label ||
       selectedTripType;
     const carLabel =
-      [{ value: "hatchback", label: "Hatchback" }, { value: "sedan", label: "Sedan" }, { value: "suv", label: "SUV" }].find((v) => v.value === vehicleSize)?.label ||
-      vehicleSize;
+      [
+        { value: "hatchback", label: "Hatchback" },
+        { value: "sedan", label: "Sedan" },
+        { value: "suv", label: "SUV" },
+      ].find((v) => v.value === vehicleSize)?.label || vehicleSize;
 
     const payload = {
       tripType: tripLabel,
       reqType: tripLabel,
       pickupLocation: pickupLocation?.name || "",
-      pickupLatLong: `${pickupLocation?.latitude || 0}, ${pickupLocation?.longitude || 0}`,
+      // use tolerant extractor to avoid TS errors if Location shape differs
+      pickupLatLong: getLatLong(pickupLocation),
       dropLocation: dropLocation?.name || "",
-      dropLatLong: `${dropLocation?.latitude || 0}, ${dropLocation?.longitude || 0}`,
-      pickupTime: scheduledTime ? dayjs(scheduledTime).format("YYYY-MM-DD HH:mm:ss") : "",
+      dropLatLong: getLatLong(dropLocation),
+      pickupTime: scheduledTime
+        ? dayjs(scheduledTime).format("YYYY-MM-DD HH:mm:ss")
+        : "",
       returnTime: "",
       price: String(fareBreakdown.total),
       carType: carLabel,
@@ -422,7 +437,9 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       setBookingSuccess(true);
     } catch (error: any) {
       console.error("Booking error:", error);
-      setBookingError(error?.message || "An unknown error occurred. Please try again.");
+      setBookingError(
+        error?.message || "An unknown error occurred. Please try again."
+      );
     } finally {
       setBookingLoading(false);
     }
@@ -455,7 +472,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                   Booking ID: {bookingResponse.bookingNo}
                 </Typography>
                 <Typography variant="body1" sx={{ mt: 2 }}>
-                  Driver details will be sent via SMS to {phoneNumber || "your phone"}.
+                  Driver details will be sent via SMS to{" "}
+                  {phoneNumber || "your phone"}.
                 </Typography>
                 <Typography
                   variant="body2"
@@ -481,7 +499,11 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                   centered
                 >
                   {tripTypes.map((type) => (
-                    <Tab key={type.value} value={type.value} label={type.label} />
+                    <Tab
+                      key={type.value}
+                      value={type.value}
+                      label={type.label}
+                    />
                   ))}
                 </Tabs>
 
@@ -497,14 +519,41 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                       onDropChange={onDropChange}
                       errors={errors}
                     />
-                    <UsageField value={estimatedUsage} onChange={setEstimatedUsage} error={estimatedUsageError} />
-                    <CarFields carType={carType} vehicleSize={vehicleSize} onCarTypeChange={onCarTypeChange} onVehicleSizeChange={onVehicleSizeChange} />
+                    <UsageField
+                      value={estimatedUsage}
+                      onChange={setEstimatedUsage}
+                      error={estimatedUsageError}
+                    />
+                    <CarFields
+                      carType={carType}
+                      vehicleSize={vehicleSize}
+                      onCarTypeChange={onCarTypeChange}
+                      onVehicleSizeChange={onVehicleSizeChange}
+                    />
                     {user ? (
-                      <FareDisplay fareLoading={fareLoading} fareError={fareError} fareBreakdown={fareBreakdown} />
+                      <FareDisplay
+                        fareLoading={fareLoading}
+                        fareError={fareError}
+                        fareBreakdown={fareBreakdown}
+                      />
                     ) : (
                       <>
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Login to Continue</Typography>
-                        <LoginForm onSuccess={(userData: any) => { updateField("phoneNumber", userData.phone || userData.mobile); }} initialPhone={phoneNumber} compact={true} />
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 600, mb: 2 }}
+                        >
+                          Login to Continue
+                        </Typography>
+                        <LoginForm
+                          onSuccess={(userData: any) => {
+                            updateField(
+                              "phoneNumber",
+                              userData.phone || userData.mobile
+                            );
+                          }}
+                          initialPhone={phoneNumber}
+                          compact={true}
+                        />
                       </>
                     )}
 
@@ -514,7 +563,13 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                       </Box>
                     )}
 
-                    <Button variant="contained" fullWidth sx={{ mt: 2, backgroundColor: "#000" }} onClick={user ? handleBookNow : handleNextToPage3} disabled={bookingLoading}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{ mt: 2, backgroundColor: "#000" }}
+                      onClick={user ? handleBookNow : handleNextToPage3}
+                      disabled={bookingLoading}
+                    >
                       {bookingLoading ? (
                         <CircularProgress size={24} />
                       ) : user ? (
@@ -528,27 +583,89 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                   <Box sx={{ position: "relative" }}>
                     {page === 1 && (
                       <>
-                        <LocationFields includeDrop pickupLocation={pickupLocation} dropLocation={dropLocation} onPickupChange={onPickupChange} onDropChange={onDropChange} errors={errors} />
-                        <ScheduleField value={scheduledDayjs} onChange={onDateChange} errors={errors} />
-                        <CarFields carType={carType} vehicleSize={vehicleSize} onCarTypeChange={onCarTypeChange} onVehicleSizeChange={onVehicleSizeChange} />
-                        <Button variant="contained" fullWidth onClick={handleNextToPage2} sx={{ mt: 2 }}>Next</Button>
+                        <LocationFields
+                          includeDrop
+                          pickupLocation={pickupLocation}
+                          dropLocation={dropLocation}
+                          onPickupChange={onPickupChange}
+                          onDropChange={onDropChange}
+                          errors={errors}
+                        />
+                        <ScheduleField
+                          value={scheduledDayjs}
+                          onChange={onDateChange}
+                          errors={errors}
+                        />
+                        <CarFields
+                          carType={carType}
+                          vehicleSize={vehicleSize}
+                          onCarTypeChange={onCarTypeChange}
+                          onVehicleSizeChange={onVehicleSizeChange}
+                        />
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={handleNextToPage2}
+                          sx={{ mt: 2 }}
+                        >
+                          Next
+                        </Button>
                       </>
                     )}
 
                     {page === 2 && !user && (
                       <>
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Login to Continue</Typography>
-                        <LoginForm onSuccess={(userData: any) => { setPage(3); updateField("phoneNumber", userData.phone || userData.mobile); }} onCancel={handleBackToPage1} initialPhone={phoneNumber} compact={true} className="mb-4" />
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 600, mb: 2 }}
+                        >
+                          Login to Continue
+                        </Typography>
+                        <LoginForm
+                          onSuccess={(userData: any) => {
+                            setPage(3);
+                            updateField(
+                              "phoneNumber",
+                              userData.phone || userData.mobile
+                            );
+                          }}
+                          onCancel={handleBackToPage1}
+                          initialPhone={phoneNumber}
+                          compact={true}
+                          className="mb-4"
+                        />
                         <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-                          <Button variant="outlined" fullWidth onClick={handleBackToPage1}>Back</Button>
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            onClick={handleBackToPage1}
+                          >
+                            Back
+                          </Button>
                         </Box>
                       </>
                     )}
 
                     {showReview ? (
                       <>
-                        <UsageField value={estimatedUsage} onChange={setEstimatedUsage} error={estimatedUsageError} />
-                        <ConfirmView pickupLocation={pickupLocation} dropLocation={dropLocation} scheduledTime={scheduledTime} vehicleSize={vehicleSize} carType={carType} estimatedUsage={estimatedUsage} fareBreakdown={fareBreakdown} bookingError={bookingError} bookingLoading={bookingLoading} onBack={user ? handleBackToPage1 : handleBackToPage2} onConfirm={handleBookNow} />
+                        <UsageField
+                          value={estimatedUsage}
+                          onChange={setEstimatedUsage}
+                          error={estimatedUsageError}
+                        />
+                        <ConfirmView
+                          pickupLocation={pickupLocation}
+                          dropLocation={dropLocation}
+                          scheduledTime={scheduledTime}
+                          vehicleSize={vehicleSize}
+                          carType={carType}
+                          estimatedUsage={estimatedUsage}
+                          fareBreakdown={fareBreakdown}
+                          bookingError={bookingError}
+                          bookingLoading={bookingLoading}
+                          onBack={user ? handleBackToPage1 : handleBackToPage2}
+                          onConfirm={handleBookNow}
+                        />
                       </>
                     ) : null}
                   </Box>
@@ -559,7 +676,11 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
           {isWizardFlow && !bookingSuccess && (
             <Box sx={{ pt: 1 }}>
-              <LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 4 }} />
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                sx={{ height: 6, borderRadius: 4 }}
+              />
             </Box>
           )}
         </div>
@@ -567,5 +688,3 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     </LocalizationProvider>
   );
 }
-
-
