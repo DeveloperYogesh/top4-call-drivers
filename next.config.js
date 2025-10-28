@@ -1,47 +1,17 @@
+// next.config.js
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable experimental features for better performance
-  experimental: {
-    // Optimize CSS loading
-    optimizeCss: true,
+  async rewrites() {
+    return [
+      { source: "/best-acting-drivers-in-:city", destination: "/best-acting-drivers-in/:city" },
+      { source: "/car-driver-job-in-:city", destination: "/car-driver-job-in/:city" },
+    ];
   },
 
-  // Configure external packages for server runtime (moved from experimental)
-  serverExternalPackages: [],
-
-  // Turbopack configuration (replacing deprecated experimental.turbo)
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
-  },
-
-  // Compiler optimizations
-  compiler: {
-    // Remove console.log in production
-    removeConsole: process.env.NODE_ENV === 'production',
-    // Enable SWC minification
-    styledComponents: true,
-  },
-
-  // Image optimization
-  images: {
-    formats: ['image/webp', 'image/avif'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60,
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-  },
-
-  // Performance optimizations
-  poweredByHeader: false,
-  compress: true,
-  
-  // Headers for security and performance
   async headers() {
     return [
       {
@@ -63,73 +33,35 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
+          // No CSP header here now.
         ],
       },
       {
         source: '/api/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=300',
-          },
-        ],
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=300, s-maxage=300' }],
       },
       {
         source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
     ];
   },
 
-  // Redirects for SEO
-  async redirects() {
-    return [
-      {
-        source: '/home',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/book',
-        destination: '/book-driver',
-        permanent: true,
-      },
-    ];
-  },
-
-  // Bundle analyzer (enable when needed)
-  ...(process.env.ANALYZE === 'true' && {
-    webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-      if (!dev && !isServer) {
-        const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-        config.plugins.push(
-          new BundleAnalyzerPlugin({
-            analyzerMode: 'static',
-            openAnalyzer: false,
-            reportFilename: './analyze/client.html',
-          })
-        );
-      }
-      return config;
-    },
-  }),
-
-  // Output configuration for deployment
   output: 'standalone',
-  
-  // Enable static optimization
+  images: {
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+  },
+
+  poweredByHeader: false,
+  compress: true,
   trailingSlash: false,
-  
-  // Environment variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
 };
 
-module.exports = nextConfig;
-
+module.exports = withBundleAnalyzer(nextConfig);

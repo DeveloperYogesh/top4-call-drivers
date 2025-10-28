@@ -102,12 +102,13 @@ export function useBooking() {
       newErrors.scheduledTime = 'Scheduled time must be in the future';
     }
 
-    if (!state.phoneNumber) {
-      newErrors.phoneNumber = 'Please enter your phone number';
-    } else if (!/^[6-9]\d{9}$/.test(state.phoneNumber)) {
-      newErrors.phoneNumber = 'Please enter a valid phone number';
-    }
-
+    // if (!state.phoneNumber) {
+    //   newErrors.phoneNumber = 'Please enter your phone number';
+    // } else if (!/^[6-9]\d{9}$/.test(state.phoneNumber)) {
+    //   newErrors.phoneNumber = 'Please enter a valid phone number';
+    // }
+    console.log(newErrors,"this is error");
+    
     setState(prev => ({
       ...prev,
       errors: newErrors,

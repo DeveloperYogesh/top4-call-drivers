@@ -1,51 +1,48 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { calculateFare } from '@/lib/database';
+// app/api/pricing/calculate/route.ts
+import { NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+const REMOTE_URL = 'http://top4mobileapp.vbsit.in/api/V1/booking/GetFareAmount';
+
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
-    const {
-      pickupPlace,
-      dropPlace,
-      vehicleType,
-      tripType,
-      distance,
-      duration,
-      travelDate,
-      travelTime
-    } = body;
+    const body = await req.json();
 
-    // Validate required fields
-    if (!pickupPlace || !dropPlace || !vehicleType || !tripType) {
+    // 💡 Match your Postman request exactly — raw JSON, no auth headers
+    const apiRes = await fetch(REMOTE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json, text/plain, */*',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const text = await apiRes.text();
+    console.log('[pricing/calculate] remote status:', apiRes.status);
+    console.log('[pricing/calculate] remote body preview:', text.slice(0, 1000));
+
+    if (!apiRes.ok) {
       return NextResponse.json(
-        { 
-          status: 'error', 
-          message: 'Missing required fields for fare calculation' 
-        },
-        { status: 400 }
+        { error: 'remote_error', status: apiRes.status, bodyPreview: text },
+        { status: 502 }
       );
     }
 
-    // Calculate fare using database util signature: (tripType, vehicleType, distance, hours, cityId?)
-    const distanceKm = typeof distance === 'number' ? distance : 0;
-    const hours = typeof duration === 'number' ? duration : 0;
-    const fareDetails = await calculateFare(tripType, vehicleType, distanceKm, hours);
-
-    return NextResponse.json({
-      status: 'success',
-      message: 'Fare calculated successfully',
-      data: fareDetails
-    });
-
-  } catch (error) {
-    console.error('Calculate fare error:', error);
+    // Parse JSON if possible
+    try {
+      const json = JSON.parse(text);
+      return NextResponse.json(json, { status: 200 });
+    } catch {
+      return new Response(text, {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  } catch (err) {
+    console.error('[pricing/calculate] proxy error:', err);
     return NextResponse.json(
-      { 
-        status: 'error', 
-        message: 'Failed to calculate fare' 
-      },
+      { error: 'proxy_failed', details: String(err) },
       { status: 500 }
     );
   }
 }
-

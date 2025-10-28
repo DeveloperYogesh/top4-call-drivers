@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { Box } from '@mui/material';
-import BookingForm from '@/components/forms/BookingForm';
 import { generateMetadata as generateSEOMetadata, generateStructuredData } from '@/lib/seo';
+import BookingForm from '@/components/forms/bookingForm';
 
 export const metadata = generateSEOMetadata({
   title: 'Book Professional Driver - Hire Verified Drivers Online',

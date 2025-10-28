@@ -1,365 +1,336 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
 
-type LoginMethod = 'otp' | 'password';
-
-interface LoginFormData {
-  phone: string;
-  email: string;
-  password: string;
-  otp: string;
+interface LoginFormProps {
+  onSuccess?: (userData: any) => void;
+  onCancel?: () => void;
+  initialPhone?: string;
+  autoFocus?: boolean;
+  compact?: boolean;
+  showChangeNumber?: boolean;
+  className?: string;
 }
 
-export default function LoginForm() {
+export default function LoginForm({
+  onSuccess,
+  onCancel,
+  initialPhone = "",
+  autoFocus = true,
+  compact = false,
+  showChangeNumber = true,
+  className = "",
+}: LoginFormProps) {
+  const { sendOTP, verifyOTP } = useAuth();
   const router = useRouter();
-  const [loginMethod, setLoginMethod] = useState<LoginMethod>('otp');
-  const [formData, setFormData] = useState<LoginFormData>({
-    phone: '',
-    email: '',
-    password: '',
-    otp: '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const pathname = usePathname();
+
+  const [phone, setPhone] = useState(initialPhone);
   const [otpSent, setOtpSent] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [digits, setDigits] = useState<string[]>(["", "", "", ""]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [secondsLeft, setSecondsLeft] = useState(0);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
+  const phoneRef = useRef<HTMLInputElement | null>(null);
+  const digitRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const verifyingRef = useRef(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null); // ✅ fixed timer ref
+
+  useEffect(() => {
+    if (initialPhone) setPhone(initialPhone);
+    if (autoFocus && !otpSent) {
+      setTimeout(() => phoneRef.current?.focus(), 50);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [initialPhone, autoFocus, otpSent]);
+
+  const startTimer = (secs: number) => {
+    setSecondsLeft(secs);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setSecondsLeft((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
   };
 
-  const handleSendOTP = async () => {
-    if (!formData.phone || formData.phone.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
+  const cleanedPhone = (p: string) => p.replace(/\D/g, "").slice(0, 10);
+
+  const handleSendOTP = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+    e?.preventDefault();
+    setError("");
+    setSuccess("");
+    const cp = cleanedPhone(phone);
+    if (cp.length !== 10) {
+      setError("Please enter a valid 10-digit mobile number");
       return;
     }
-
-    setIsLoading(true);
-    setError('');
-
+    setLoading(true);
     try {
-      const response = await fetch('http://top4mobileapp.vbsit.in/api/V1/booking/sendOTP', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mobileno: formData.phone }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      const res = await sendOTP(cp);
+      if (res?.success || res?.Success) {
         setOtpSent(true);
-        setSuccess('OTP sent successfully! Please check your mobile.');
+        setDigits(["", "", "", ""]);
+        setSuccess("OTP sent. Please check your phone.");
+        startTimer(60); // ✅ starts the countdown
+        setTimeout(() => digitRefs.current[0]?.focus(), 80);
       } else {
-        setError(data.message || 'Failed to send OTP');
+        setError(res?.message || res?.Message || "Failed to send OTP");
       }
-    } catch (error) {
-      setError('Network error. Please try again.');
+    } catch (e) {
+      console.error("handleSendOTP error:", e);
+      setError("Network error. Please try again.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleOTPLogin = async () => {
-    if (!formData.phone || !formData.otp) {
-      setError('Please enter both phone number and OTP');
+  const doVerify = async (otpToVerify: string) => {
+    if (verifyingRef.current) return;
+    verifyingRef.current = true;
+    setError("");
+    setSuccess("");
+    const cp = cleanedPhone(phone);
+    if (cp.length !== 10) {
+      setError("Please enter a valid 10-digit mobile number");
+      verifyingRef.current = false;
+      return;
+    }
+    if (otpToVerify.length !== 4) {
+      setError("Please enter a valid 4-digit OTP");
+      verifyingRef.current = false;
       return;
     }
 
-    if (formData.otp.length !== 6) {
-      setError('Please enter a valid 6-digit OTP');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-
+    setLoading(true);
     try {
-      const response = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          mobileno: formData.phone, 
-          otp: formData.otp 
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Login successful! Redirecting...');
-        setTimeout(() => {
-          router.push('/');
-          router.refresh();
-        }, 1000);
+      const res = await verifyOTP(cp, otpToVerify);
+      if (res?.success) {
+        setSuccess("Login successful!");
+        onSuccess?.(res.user);
+        if (pathname === "/login") router.push("/");
       } else {
-        setError(data.message || 'Invalid OTP');
+        setError(res?.message || "Invalid OTP");
       }
-    } catch (error) {
-      setError('Network error. Please try again.');
+    } catch (err) {
+      console.error("doVerify error:", err);
+      setError("Network error. Please try again.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+      verifyingRef.current = false;
     }
   };
 
-  const handlePasswordLogin = async () => {
-    if (!formData.email || !formData.password) {
-      setError('Please enter both email and password');
-      return;
+  useEffect(() => {
+    const otpValue = digits.join("");
+    if (otpValue.length === 4) {
+      const t = setTimeout(() => doVerify(otpValue), 80);
+      return () => clearTimeout(t);
     }
+  }, [digits]);
 
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email: formData.email, 
-          password: formData.password 
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Login successful! Redirecting...');
-        setTimeout(() => {
-          router.push('/');
-          router.refresh();
-        }, 1000);
-      } else {
-        setError(data.message || 'Invalid credentials');
-      }
-    } catch (error) {
-      setError('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
+  const handleDigitChange = (index: number, value: string) => {
+    if (!/^\d?$/.test(value)) return;
+    setDigits((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+    if (value && index < 3) {
+      digitRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleDigitKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    const key = e.key;
+    if (key === "Backspace") {
+      if (digits[index]) {
+        setDigits((prev) => {
+          const next = [...prev];
+          next[index] = "";
+          return next;
+        });
+      } else if (index > 0) {
+        digitRefs.current[index - 1]?.focus();
+        setDigits((prev) => {
+          const next = [...prev];
+          next[index - 1] = "";
+          return next;
+        });
+      }
+    } else if (key === "ArrowLeft" && index > 0) {
+      digitRefs.current[index - 1]?.focus();
+    } else if (key === "ArrowRight" && index < 3) {
+      digitRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData("Text");
+    const onlyDigits = text.replace(/\D/g, "");
+    if (onlyDigits.length === 0) return;
+    const firstFour = onlyDigits.slice(0, 4).split("");
+    setDigits((prev) => {
+      const next = [...prev];
+      for (let i = 0; i < 4; i++) next[i] = firstFour[i] ?? "";
+      return next;
+    });
+    const lastFilled = Math.min(onlyDigits.length, 4) - 1;
+    const focusIndex = lastFilled >= 0 ? lastFilled : 0;
+    setTimeout(() => digitRefs.current[focusIndex]?.focus(), 50);
     e.preventDefault();
-    
-    if (loginMethod === 'otp') {
-      if (!otpSent) {
-        await handleSendOTP();
-      } else {
-        await handleOTPLogin();
-      }
-    } else {
-      await handlePasswordLogin();
-    }
+  };
+
+  const handleChangeNumber = () => {
+    setOtpSent(false);
+    setDigits(["", "", "", ""]);
+    setError("");
+    setSuccess("");
+    if (timerRef.current) clearInterval(timerRef.current);
+    setSecondsLeft(0);
+    setTimeout(() => phoneRef.current?.focus(), 50);
+  };
+
+  const handleResend = async () => {
+    if (secondsLeft > 0) return;
+    setError("");
+    setSuccess("");
+    await handleSendOTP(); // ✅ this restarts timer properly
   };
 
   return (
-    <div className="space-y-6">
-      {/* Login Method Toggle */}
-      <div className="flex rounded-lg bg-gray-100 p-1">
-        <button
-          type="button"
-          onClick={() => {
-            setLoginMethod('otp');
-            setOtpSent(false);
-            setFormData(prev => ({ ...prev, otp: '', email: '', password: '' }));
-            setError('');
-            setSuccess('');
-          }}
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-            loginMethod === 'otp'
-              ? 'bg-white text-[#354B9C] shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Login with OTP
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setLoginMethod('password');
-            setOtpSent(false);
-            setFormData(prev => ({ ...prev, phone: '', otp: '' }));
-            setError('');
-            setSuccess('');
-          }}
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-            loginMethod === 'password'
-              ? 'bg-white text-[#354B9C] shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Login with Password
-        </button>
-      </div>
+    <div className={className}>
+      {!otpSent ? (
+        <>
+          <TextField
+            label="Mobile Number"
+            value={phone}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+              setPhone(val);
+              setError("");
+              setSuccess("");
+            }}
+            inputRef={phoneRef}
+            inputProps={{ maxLength: 10 }}
+            fullWidth
+            error={!!error}
+            helperText={error}
+            sx={{ mb: 2 }}
+          />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {loginMethod === 'otp' ? (
-          <>
-            {/* Phone Number Input */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Mobile Number
-              </label>
-              <div className="mt-1">
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  required
-                  maxLength={10}
-                  placeholder="Enter your 10-digit mobile number"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  disabled={otpSent}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm disabled:bg-gray-100"
-                />
-              </div>
-            </div>
-
-            {/* OTP Input (shown after OTP is sent) */}
-            {otpSent && (
-              <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-                  Enter OTP
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="otp"
-                    name="otp"
-                    type="text"
-                    required
-                    maxLength={6}
-                    placeholder="Enter 6-digit OTP"
-                    value={formData.otp}
-                    onChange={handleInputChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
-                  />
-                </div>
-                <div className="mt-2 text-sm text-gray-600">
-                  Didn't receive OTP?{' '}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpSent(false);
-                      setFormData(prev => ({ ...prev, otp: '' }));
-                      handleSendOTP();
-                    }}
-                    className="font-medium text-[#354B9C] hover:text-[#2a3a7a]"
-                    disabled={isLoading}
-                  >
-                    Resend
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Email Input */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="Enter your email address"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Password Input */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Forgot Password Link */}
-            <div className="text-right">
-              <Link
-                href="/forgot-password"
-                className="text-sm font-medium text-[#354B9C] hover:text-[#2a3a7a]"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-          </>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="text-sm text-red-700">{error}</div>
-          </div>
-        )}
-
-        {/* Success Message */}
-        {success && (
-          <div className="rounded-md bg-green-50 p-4">
-            <div className="text-sm text-green-700">{success}</div>
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#354B9C] hover:bg-[#2a3a7a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#354B9C] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          <Box
+            display="flex"
+            justifyContent="center"
+            gap={2}
+            mt={compact ? 1 : 3}
           >
-            {isLoading ? (
-              <div className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </div>
-            ) : (
-              <>
-                {loginMethod === 'otp' 
-                  ? (otpSent ? 'Verify OTP' : 'Send OTP')
-                  : 'Sign In'
+            <Button
+              type="button"
+              variant="contained"
+              onClick={handleSendOTP}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={18} /> : "Send OTP"}
+            </Button>
+          </Box>
+        </>
+      ) : (
+        <>
+          <Typography variant="body1" sx={{ mb: 2, textAlign: "center" }}>
+            Enter OTP sent to <strong>{phone}</strong>
+          </Typography>
+
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            gap={1}
+            mb={2}
+          >
+            {digits.map((d, i) => (
+              <input
+                key={i}
+                ref={(el) => {
+                  digitRefs.current[i] = el; // ✅ fixed ref
+                }}
+                value={d}
+                onChange={(ev) =>
+                  handleDigitChange(
+                    i,
+                    ev.target.value.replace(/\D/g, "").slice(0, 1)
+                  )
                 }
-              </>
+                onKeyDown={(ev) => handleDigitKeyDown(i, ev)}
+                onPaste={handlePaste}
+                maxLength={1}
+                inputMode="numeric"
+                style={{
+                  width: 50,
+                  height: 56,
+                  textAlign: "center",
+                  fontSize: 20,
+                  borderRadius: 8,
+                  border: "1px solid rgba(0,0,0,0.23)",
+                  outline: "none",
+                }}
+              />
+            ))}
+          </Box>
+
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            gap={2}
+            mb={2}
+          >
+            {showChangeNumber && (
+              <Button
+                size="small"
+                onClick={handleChangeNumber}
+                variant="outlined"
+              >
+                Change Number
+              </Button>
             )}
-          </button>
-        </div>
-      </form>
+
+            <Button
+              size="small"
+              onClick={handleResend}
+              disabled={secondsLeft > 0}
+              variant="text"
+            >
+              Resend {secondsLeft > 0 ? `(${secondsLeft}s)` : ""}
+            </Button>
+          </Box>
+        </>
+      )}
+
+      {success && (
+        <Typography sx={{ color: "green", mt: 1, textAlign: "center" }}>
+          {success}
+        </Typography>
+      )}
+      {error && otpSent && (
+        <Typography color="error" sx={{ textAlign: "center" }}>
+          {error}
+        </Typography>
+      )}
     </div>
   );
 }
-

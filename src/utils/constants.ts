@@ -8,6 +8,7 @@ export const APP_CONFIG = {
   url: 'https://www.top3.in',
   supportPhone: '+91 88807 12345',
   supportEmail: 'support@top3.in',
+  apiUrl:"http://top4mobileapp.vbsit.in/"
 };
 
 export const ROUTES = {
@@ -231,11 +232,11 @@ export const TRIP_TYPES = [
 ];
 
 export const SOCIAL_LINKS = {
-  facebook: 'https://www.facebook.com/top4calldrivers',
-  instagram: 'https://www.instagram.com/top4calldrivers',
-  twitter: 'https://twitter.com/top4calldrivers',
-  linkedin: 'https://www.linkedin.com/company/top4calldrivers',
-  youtube: 'https://www.youtube.com/top4calldrivers',
+  facebook: 'https://www.facebook.com/top4drivers/',
+  instagram: 'https://www.instagram.com/top4drivers/',
+  twitter: 'https://x.com/calltop4',
+  linkedin: 'https://www.linkedin.com/company/top4-call-driver-services-pvt-ltd/',
+  youtube: 'https://www.youtube.com/@top4driverstv312',
 };
 
 export const APP_STORE_LINKS = {

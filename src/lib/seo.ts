@@ -1,6 +1,6 @@
 // seo.ts
 import { Metadata } from 'next';
-import { APP_CONFIG, SUPPORTED_CITIES } from '@/utils/constants';
+import { APP_CONFIG, SOCIAL_LINKS, SUPPORTED_CITIES } from '@/utils/constants';
 import { CityData } from '@/types';
 
 export function getCityData(citySlug: string): CityData | null {
@@ -134,7 +134,7 @@ export function generateMetadata({
     },
     verification: {
       // replace these with your real verification codes
-      google: 'your-google-verification-code',
+      google: '9W1_ISWbLi5d_DxXc6Y0quUMCoXYRHgxqp2NlrhHQk4',
       yandex: 'your-yandex-verification-code',
       yahoo: 'your-yahoo-verification-code',
     },
@@ -180,10 +180,11 @@ export function generateStructuredData(type: string, data: any = {}) {
       availableLanguage: ['English', 'Tamil'],
     },
     sameAs: [
-      'https://www.facebook.com/top4calldrivers',
-      'https://www.instagram.com/top4calldrivers',
-      'https://twitter.com/top4calldrivers',
-      'https://www.linkedin.com/company/top4calldrivers',
+      SOCIAL_LINKS.facebook,
+      SOCIAL_LINKS.instagram,
+      SOCIAL_LINKS.twitter,
+      SOCIAL_LINKS.linkedin,
+      SOCIAL_LINKS.youtube,
     ],
   };
 

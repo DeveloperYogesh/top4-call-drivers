@@ -1,6 +1,6 @@
 // components/HeroSection.tsx
-import BookingForm from "@/components/forms/BookingForm";
 import { JSX } from "@emotion/react/jsx-runtime";
+import BookingForm from "../forms/bookingForm";
 
 export default function HeroSection(): JSX.Element {
   return (
@@ -16,22 +16,19 @@ export default function HeroSection(): JSX.Element {
       }}
     >
       <div className="custom-container w-full ">
-        <div className="flex flex-col justify-end min-h-[500px]">
+        <div className="lg:flex items-end lg:gap-5">
           {/* Content aligned to bottom left */}
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold tracking-wider mb-3 text-white">
-              SIMPLIFY CAR OWNERSHIP
-            </p>
-
+          <div>
             <h1 className="font-extrabold leading-tight mb-4 text-white text-4xl lg:text-5xl">
-              Hire TOP4 Call Drivers, and all car services at your fingertips.
+              <span className="text-sm font-semibold tracking-wider mb-3 text-white">TOP4 CALL DRIVERS</span><br/>
+              Your Ride, Our <span className="font-semibold tracking-wider mb-3 text-white">Responsibility</span>
             </h1>
           </div>
 
           {/* Right Content - Booking Form (commented out as in original) */}
-          {/* <div className="flex justify-center items-center">
+          <div className="flex items-center justify-end min-h-[550px] w-full">
             <BookingForm isEmbedded={true} />
-          </div> */}
+          </div>
         </div>
       </div>
 
