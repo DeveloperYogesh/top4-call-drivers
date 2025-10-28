@@ -183,7 +183,7 @@ export default function HeaderClientUpdated() {
           </div>
 
           <nav
-            className="hidden md:flex md:flex-1 md:items-center md:justify-start gap-6"
+            className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-start gap-6"
             aria-label="Primary navigation"
           >
             {NAV_ITEMS.map((item) => (
@@ -351,7 +351,7 @@ export default function HeaderClientUpdated() {
               <span>Download App</span>
             </Link>
 
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <input
                 id="nav-toggle"
                 type="checkbox"

@@ -26,7 +26,7 @@ export default function HeroSection(): JSX.Element {
           </div>
 
           {/* Right Content - Booking Form (commented out as in original) */}
-          <div className="flex place-items-end justify-end">
+          <div className="flex items-center justify-end min-h-[550px] w-full">
             <BookingForm isEmbedded={true} />
           </div>
         </div>

@@ -1,33 +1,39 @@
 "use client";
 
 import LocationAutocomplete from "@/components/ui/LocationAutocomplete";
-import PhoneModal from "@/components/ui/PhoneModal";
+import { useAuth } from "@/hooks/useAuth";
 import { useBooking } from "@/hooks/useBooking";
 import { Location } from "@/types";
 import { LocationOn, Schedule } from "@mui/icons-material";
+import dynamic from "next/dynamic";
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+import doneAnimation from "../../../public/animations/Done.json";
 import {
+  Alert,
+  Box,
   Button,
+  Card,
+  CardContent,
+  Chip,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   FormControl,
   FormLabel,
+  Grid,
+  LinearProgress,
   MenuItem,
   Select,
+  Stack,
   Tab,
   Tabs,
-  Typography,
   TextField,
-  IconButton,
+  Typography,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import LoginForm from "../auth/LoginForm";
 
 interface TripTypeOption {
@@ -38,7 +44,19 @@ interface TripTypeOption {
 interface VehicleSizeOption {
   value: string;
   label: string;
-  price: number;
+  seats: number;
+  luggage: number;
+}
+
+interface FareBreakdown {
+  baseFare: number;
+  nightCharge: number;
+  total: number;
+}
+
+interface BookingResponse {
+  bookingNo: string;
+  paymentType: string;
 }
 
 const tripTypes: TripTypeOption[] = [
@@ -54,39 +72,105 @@ const carTypes: TripTypeOption[] = [
 ];
 
 const vehicleSizes: VehicleSizeOption[] = [
-  { value: "hatchback", label: "Hatchback", price: 299 },
-  { value: "sedan", label: "Sedan", price: 399 },
-  { value: "suv", label: "SUV", price: 499 },
+  { value: "hatchback", label: "Hatchback", seats: 4, luggage: 2 },
+  { value: "sedan", label: "Sedan", seats: 4, luggage: 3 },
+  { value: "suv", label: "SUV", seats: 6, luggage: 4 },
 ];
 
-const usageOptions: number[] = [4, 6, 8, 10, 12];
+const usageOptions: number[] = [3, 4, 6, 8, 10, 12];
+
+const defaultPickupLocation: Location = {
+  id: "1",
+  name: "Pune International Airport",
+  address:
+    "New Airport Rd, Pune International Airport Area, Lohegaon, Pune, Maharashtra 411032",
+  latitude: 18.57951079971662,
+  longitude: 73.90912064786271,
+  type: "airport",
+};
+
+const defaultDropLocation: Location = {
+  id: "2",
+  name: "Kolkata International Airport",
+  address:
+    "Airport Service Rd, International Airport, Dum Dum, Kolkata, West Bengal 700052",
+  latitude: 22.653890715749615,
+  longitude: 88.44535291711665,
+  type: "neighborhood",
+};
 
 interface BookingFormProps {
   isEmbedded?: boolean;
 }
 
+function FareBreakdownComponent({ breakdown }: { breakdown: FareBreakdown }) {
+  return (
+    <>
+      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+        Fare Breakdown
+      </Typography>
+      <Stack spacing={1}>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography variant="body2">Base Fare</Typography>
+          <Typography variant="body2">
+            ₹{Math.round(breakdown.total)}
+          </Typography>
+        </Box>
+        {breakdown.nightCharge > 0 && (
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="body2">Night Charge</Typography>
+            <Typography variant="body2">
+              ₹{Math.round(breakdown.total)}
+            </Typography>
+          </Box>
+        )}
+        <Divider sx={{ my: 1 }} />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            Total
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 800, color: "primary.main" }}
+          >
+            ₹{Math.round(breakdown.total)}
+          </Typography>
+        </Box>
+      </Stack>
+    </>
+  );
+}
+
 export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
-  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
-
-  // Keep local state for estimated usage (always required)
-  const [estimatedUsage, setEstimatedUsage] = useState<number>(4);
+  const { user } = useAuth();
+  const [estimatedUsage, setEstimatedUsage] = useState<number>(3);
   const [estimatedUsageError, setEstimatedUsageError] = useState<string>("");
-
-  // booking states
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string>("");
+
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [bookingResponse, setBookingResponse] =
+    useState<BookingResponse | null>(null);
 
   const [selectedTripType, setSelectedTripType] = useState<string>(
-    tripTypes[0].value
+    tripTypes[1].value
+  );
+  const [fareLoading, setFareLoading] = useState(false);
+  const [fareError, setFareError] = useState<string | null>(null);
+  const [fareBreakdown, setFareBreakdown] = useState<FareBreakdown | null>(
+    null
   );
 
-  // Fare states
-  const [fareLoading, setFareLoading] = useState(false);
-  const [fareAmount, setFareAmount] = useState<number | null>(null);
-  const [fareData, setFareData] = useState<any>(null);
-  const [fareError, setFareError] = useState<string | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const totalPages = user ? 2 : 3;
+  const isWizardFlow = selectedTripType !== "daily";
+  const progress = (page / totalPages) * 100;
 
   const {
     pickupLocation,
@@ -99,782 +183,886 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     errors,
     updateField,
     validateBooking,
-    canProceed,
   } = useBooking();
 
-  // Initialize scheduledTime with default value (1 hour from now)
+  // set defaults on mount
   useEffect(() => {
-    if (!scheduledTime) {
-      const defaultTime = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-      updateField("scheduledTime", defaultTime);
+    updateField("pickupLocation", defaultPickupLocation);
+    updateField("dropLocation", defaultDropLocation);
+
+    const defaultTime = dayjs().add(1, "hour").add(5, "second").toDate();
+    updateField("scheduledTime", defaultTime);
+
+    updateField("vehicleSize", "sedan");
+    updateField("carType", "manual");
+
+    if (user?.phone) {
+      updateField("phoneNumber", user.phone);
     }
-  }, []); // Empty dependency array - run once on mount
+  }, [updateField, user]);
 
-  // Keep packageHours in central booking state so backend receives it
+  // ensure phone is in booking state if user logs in/out
   useEffect(() => {
-    updateField("packageHours", estimatedUsage);
-  }, [estimatedUsage, updateField]);
+    const candidate =
+      (user &&
+        (user.phone ||
+          user.mobile ||
+          user.phoneNumber ||
+          user.mobileNumber ||
+          (user as any).MOBILE_NO ||
+          user.contact)) ||
+      "";
 
-  const getTripTypeLabel = (value: string) =>
-    tripTypes.find((t) => t.value === value)?.label ?? value;
+    if (candidate) {
+      updateField("phoneNumber", String(candidate));
+    }
+  }, [user, updateField]);
 
-  // helper to format lat/lng strings
-  function formatPickupLatLong(loc?: Location | null) {
-    if (!loc) return "";
-    const lat = (loc as any).latitude ?? (loc as any).lat ?? null;
-    const lng = (loc as any).longitude ?? (loc as any).lng ?? null;
-    if (lat != null && lng != null) return `${lat}, ${lng}`;
-    return "";
-  }
+  // If user logs in while `page === 3`, normalize to page 2
+  useEffect(() => {
+    if (user && page === 3) {
+      setPage(2);
+    }
+  }, [user, page]);
 
-  // Convert location object to a printable place name
-  function placeName(loc?: Location | null) {
-    if (!loc) return "";
-    return (
-      (loc as any)?.name ??
-      (loc as any)?.label ??
-      (loc as any)?.formatted_address ??
-      ""
-    );
-  }
+  const calculateFareBreakdown = (): FareBreakdown => {
+    const baseFare = 450;
+    const nightCharge = 100;
+    const subtotal = baseFare + nightCharge;
+    const total = subtotal;
 
-  // ----------------- OTP Login Dialog (nested) -----------------
-// Inside BookingForm.tsx (partial update for OTPLoginDialog)
-function OTPLoginDialog({ open, onClose, onSuccess, initialPhone }: { open: boolean; onClose: () => void; onSuccess: (userData: any) => void; initialPhone?: string }) {
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Login with OTP</DialogTitle>
-      <DialogContent>
-        <LoginForm onSuccess={onSuccess} initialPhone={initialPhone} />
-      </DialogContent>
-    </Dialog>
-  );
-}
-  // ----------------- End OTP Login Dialog -----------------
+    return {
+      baseFare,
+      nightCharge,
+      total,
+    };
+  };
 
-  // ----- Fare fetching (uses the real endpoint) -----
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const lastPayloadRef = useRef<string | null>(null);
+  const fetchControllerRef = useRef<AbortController | null>(null);
+  const fetchTimerRef = useRef<number | null>(null);
 
-  async function fetchFareAmount() {
+  const canCalculateFare = () => {
+    if (!vehicleSize) return false;
+    if (isWizardFlow) {
+      if (!pickupLocation || !dropLocation || !scheduledTime) return false;
+    } else {
+      if (!pickupLocation) return false;
+    }
+    return true;
+  };
+
+  const callFareApi = async (signal?: AbortSignal) => {
     setFareLoading(true);
     setFareError(null);
-    setFareAmount(null);
-    setFareData(null);
 
     try {
-      const classIdMap: Record<string, string> = {
-        hatchback: "1",
-        sedan: "2",
-        suv: "3",
-      };
-      const classid = classIdMap[vehicleSize as string] ?? vehicleSize ?? "1";
-
-      const pickupPlace = placeName(pickupLocation).toUpperCase();
-      const dropPlace = placeName(dropLocation).toUpperCase();
-
-      const requestdt = scheduledTime
-        ? dayjs(scheduledTime).format("DD/MM/YYYY")
-        : dayjs().format("DD/MM/YYYY");
-
-      const pickuptime = scheduledTime
-        ? dayjs(scheduledTime).format("HH:mm")
-        : dayjs().format("HH:mm");
-
       const payload = {
-        classid: String(classid),
+        classid: "1",
         Hours: String(estimatedUsage),
-        triptype: getTripTypeLabel(selectedTripType),
-        pickuptype: "InCity",
-        pickupplace: pickupPlace || "",
-        dropplace: dropPlace || "",
-        requestdt,
-        pickuptime,
+        triptype: selectedTripType === "one-way" ? "One Way" : selectedTripType,
+        pickuptype: isWizardFlow ? "InCity" : "InCity",
+        pickupplace: pickupLocation?.name || "",
+        dropplace: dropLocation?.name || "",
+        requestdt: scheduledTime
+          ? dayjs(scheduledTime).format("DD/MM/YYYY")
+          : "",
+        pickuptime: scheduledTime ? dayjs(scheduledTime).format("HH:mm") : "",
         tripkms: "0",
       };
 
-      const payloadKey = JSON.stringify(payload);
-      if (payloadKey === lastPayloadRef.current && fareAmount != null) {
-        setFareLoading(false);
-        return { cached: true, fare: fareAmount, data: fareData };
-      }
-
-      // cancel previous
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-
-      // use POST helper if it supports passing signal, else call fetch directly
-      // Here we use fetch so AbortController works reliably.
-      const res = await fetch("/api/V1/booking/GetFareAmount", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
+      const res = await fetch(
+        "http://top4mobileapp.vbsit.in/api/V1/booking/GetFareAmount",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc=",
+          },
+          body: JSON.stringify(payload),
+          signal,
+        }
+      );
 
       if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(`Fare API error: ${res.status} ${txt}`);
+        throw new Error(`Fare API returned ${res.status}`);
       }
 
-      const json: any = await res.json();
+      const data = await res.json();
+      console.log("Fare API response:", data);
 
-      const total =
-        json?.TOTALFARE ??
-        json?.TOTAL_FARE ??
-        json?.totalFare ??
-        json?.total ??
-        json?.data?.TOTALFARE ??
-        json?.result?.TOTALFARE;
+      if (
+        data &&
+        (typeof data.TOTALFARE !== "undefined" ||
+          typeof data.BASEFARE !== "undefined")
+      ) {
+        const baseFare = Number(data.BASEFARE ?? 0);
+        const nightCharge = Number(data.NIGHTCHARGES ?? 0);
+        const totalFromApi = Number(data.TOTALFARE ?? NaN);
 
-      if (total == null) {
-        console.warn("fetchFareAmount - unexpected response shape:", json);
-        throw new Error("Fare API returned unexpected response shape");
+        if (!Number.isNaN(totalFromApi)) {
+          const roundedBase = Math.round(baseFare);
+          const roundedNight = Math.round(nightCharge);
+          const roundedTotal = Math.round(totalFromApi);
+
+          setFareBreakdown({
+            baseFare: roundedBase,
+            nightCharge: roundedNight,
+            total: roundedTotal,
+          });
+        } else {
+          const breakdown = calculateFareBreakdown();
+          setFareBreakdown({
+            baseFare: Math.round(breakdown.baseFare),
+            nightCharge: Math.round(breakdown.nightCharge),
+            total: Math.round(breakdown.total),
+          });
+        }
+      } else {
+        const breakdown = calculateFareBreakdown();
+        setFareBreakdown(breakdown);
       }
-
-      setFareAmount(Number(total));
-      setFareData(json);
-      lastPayloadRef.current = payloadKey;
-      return json;
     } catch (err: any) {
       if (err?.name === "AbortError") {
-        console.info("Fare fetch aborted");
-        return Promise.reject({ aborted: true });
+        return;
       }
-      console.error("Fare fetch error (client):", err);
-      setFareError(err?.message ?? "Failed to calculate fare");
-
-      // fallback optimistic estimate
-      const vehicleBasePrice = vehicleSizes.find(
-        (v) => v.value === vehicleSize
-      )?.price;
-      if (vehicleBasePrice && estimatedUsage) {
-        const fallback = vehicleBasePrice * estimatedUsage;
-        setFareAmount(fallback);
-      } else {
-        setFareAmount(null);
-      }
-      return Promise.reject(err);
+      console.error("Fare calculation error (API):", err);
+      const breakdown = calculateFareBreakdown();
+      setFareBreakdown(breakdown);
+      setFareError("Couldn't fetch live fare — showing estimated fare.");
     } finally {
       setFareLoading(false);
-      abortControllerRef.current = null;
     }
-  }
+  };
 
-  // Debounced auto-fetch
-  const debounceRef = useRef<number | null>(null);
   useEffect(() => {
-    const needsDrop = selectedTripType !== "daily";
-    const havePickup = !!placeName(pickupLocation);
-    const haveVehicle = !!vehicleSize;
-    const haveHours = !!estimatedUsage && estimatedUsage > 0;
-    const haveDrop = needsDrop ? !!placeName(dropLocation) : true;
+    if (fetchTimerRef.current) {
+      window.clearTimeout(fetchTimerRef.current);
+      fetchTimerRef.current = null;
+    }
+    if (fetchControllerRef.current) {
+      fetchControllerRef.current.abort();
+      fetchControllerRef.current = null;
+    }
 
-    if (!havePickup || !haveVehicle || !haveHours || !haveDrop) {
-      setFareAmount(null);
-      setFareData(null);
+    if (!canCalculateFare()) {
+      setFareBreakdown(null);
       setFareError(null);
-      if (debounceRef.current) {
-        window.clearTimeout(debounceRef.current);
-        debounceRef.current = null;
-      }
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
-      lastPayloadRef.current = null;
+      setFareLoading(false);
       return;
     }
 
-    if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    debounceRef.current = window.setTimeout(() => {
-      fetchFareAmount().catch(() => {});
-      debounceRef.current = null;
+    fetchTimerRef.current = window.setTimeout(() => {
+      const controller = new AbortController();
+      fetchControllerRef.current = controller;
+      callFareApi(controller.signal);
     }, 700);
 
     return () => {
-      if (debounceRef.current) {
-        window.clearTimeout(debounceRef.current);
-        debounceRef.current = null;
+      if (fetchTimerRef.current) {
+        window.clearTimeout(fetchTimerRef.current);
+        fetchTimerRef.current = null;
+      }
+      if (fetchControllerRef.current) {
+        fetchControllerRef.current.abort();
+        fetchControllerRef.current = null;
       }
     };
   }, [
     pickupLocation,
     dropLocation,
-    scheduledTime,
     vehicleSize,
+    carType,
     estimatedUsage,
+    scheduledTime,
     selectedTripType,
+    isWizardFlow,
   ]);
 
-  // ---------- New: Modal state for OTP login from BookingForm ----------
-  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+  const handleNextToPage2 = () => {
+    const newErrors: Record<string, string> = {};
 
-  // Called after user confirms fare and wants to create booking
-  const confirmAndCreateBooking = async () => {
-    setConfirmOpen(false);
-    setBookingLoading(true);
-    const pickupPlace = placeName(pickupLocation).toUpperCase();
-    const dropPlace = placeName(dropLocation).toUpperCase();
-    const pickuptime = scheduledTime
-      ? dayjs(scheduledTime).format("YYYY-MM-DD HH:mm:ss")
-      : dayjs().format("YYYY-MM-DD HH:mm:ss");
-    try {
-      const pickupLatLongStr = formatPickupLatLong(pickupLocation);
-      const dropLatLongStr = formatPickupLatLong(dropLocation);
-      const userDataStr = localStorage.getItem("userData");
-      const userData = userDataStr ? JSON.parse(userDataStr) : null;
-      const classIdMap: Record<string, string> = {
-        hatchback: "1",
-        sedan: "2",
-        suv: "3",
-      };
-      const classid = classIdMap[vehicleSize as string] ?? vehicleSize ?? "1";
-      const payload: any = {
-        mobileNumber: phoneNumber || userData?.MOBILE_NO,
-        pickupTime: pickuptime,
-        returnTime: pickuptime,
-        pickupLatLong: pickupLatLongStr,
-        dropLatLong: dropLatLongStr,
-        pickupLocation: pickupPlace,
-        dropLocation: dropPlace,
-        pickUpKMS: "0",
-        carType: vehicleSize,
-        VehicleType: String(classid),
-        tripType: "InCity",
-        reqType: "Round Trip",
-        price: fareAmount,
-        packageHours: estimatedUsage, // send hours, not fare
-      };
+    if (!pickupLocation || !pickupLocation.name) {
+      newErrors.pickupLocation = "Pickup location is required.";
+    }
 
-      const res = await fetch("/api/V1/booking/insertbookingnew", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+    if (!dropLocation || !dropLocation.name) {
+      newErrors.dropLocation = "Drop location is required.";
+    }
+
+    if (!scheduledTime) {
+      newErrors.scheduledTime = "Schedule time is required.";
+    }
+
+    updateField("errors", newErrors);
+
+    const isValid = Object.keys(newErrors).length === 0;
+
+    if (!isValid) {
+      console.log("Validation failed:", newErrors);
+    } else {
+      setPage(2);
+    }
+  };
+
+  const handleNextToPage3 = () => {
+    if (!phoneNumber) {
+      updateField("errors", {
+        ...errors,
+        phoneNumber: "Phone number is required.",
       });
-      const json = await res.json();
+      return;
+    }
+    setPage(3);
+  };
 
-      if (json && (json.Success || json.success)) {
-        setSuccessMessage(json.Message ?? "Booking successful");
-        setBookingSuccess(true);
-      } else {
-        throw new Error(json.Message ?? "Booking failed");
+  const handleBackToPage1 = () => setPage(1);
+  const handleBackToPage2 = () => setPage(2);
+
+  const resetForm = () => {
+    setBookingSuccess(false);
+    setBookingResponse(null);
+    setBookingError(null);
+    setPage(1);
+    updateField("pickupLocation", defaultPickupLocation);
+    updateField("dropLocation", defaultDropLocation);
+    updateField(
+      "scheduledTime",
+      dayjs().add(1, "hour").add(5, "second").toDate()
+    );
+    updateField("vehicleSize", "sedan");
+    updateField("carType", "manual");
+    updateField("phoneNumber", user?.phone || "");
+    setFareBreakdown(null);
+    setBookingLoading(false);
+    setSelectedTripType(tripTypes[0].value);
+    setEstimatedUsage(3);
+  };
+
+  // handlers memoized to avoid re-creating child callbacks repeatedly
+  const onPickupChange = useCallback(
+    (location: Location | null) => updateField("pickupLocation", location),
+    [updateField]
+  );
+  const onDropChange = useCallback(
+    (location: Location | null) => updateField("dropLocation", location),
+    [updateField]
+  );
+  const onCarTypeChange = useCallback(
+    (val: string) => updateField("carType", val as any),
+    [updateField]
+  );
+  const onVehicleSizeChange = useCallback(
+    (val: string) => updateField("vehicleSize", val as any),
+    [updateField]
+  );
+  const onDateChange = useCallback(
+    (newValue: Dayjs | null) =>
+      updateField("scheduledTime", newValue?.toDate() || null),
+    [updateField]
+  );
+
+  const onPhoneChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      updateField("phoneNumber", e.target.value),
+    [updateField]
+  );
+
+  // memoized Dayjs value for DateTimePicker
+  const scheduledDayjs = useMemo(
+    () => (scheduledTime ? dayjs(scheduledTime) : null),
+    [scheduledTime]
+  );
+
+  // unified booking function
+  const handleBookNow = async () => {
+    setBookingError(null);
+
+    if (!estimatedUsage || estimatedUsage <= 0) {
+      setEstimatedUsageError("Please select package hours.");
+      return;
+    }
+    setEstimatedUsageError("");
+
+    const effectivePhone = (
+      (phoneNumber && String(phoneNumber)) ||
+      (user &&
+        (user.phone ||
+          user.mobile ||
+          user.phoneNumber ||
+          user.mobileNumber ||
+          (user as any).MOBILE_NO ||
+          user.contact)) ||
+      ""
+    )
+      .toString()
+      .trim();
+
+    console.log(
+      "Attempting booking — phoneNumber (booking state):",
+      phoneNumber,
+      "effectivePhone:",
+      effectivePhone,
+      "user:",
+      user
+    );
+
+    if (!effectivePhone) {
+      updateField("errors", {
+        ...errors,
+        phoneNumber: "Phone number is required.",
+      });
+      setBookingError("Phone number is required to confirm booking.");
+      return;
+    }
+
+    updateField("phoneNumber", effectivePhone);
+
+    if (!fareBreakdown?.total) {
+      setBookingError(
+        "Could not determine fare. Please check details and try again."
+      );
+      return;
+    }
+
+    if (!vehicleSize) {
+      setBookingError("Please select a vehicle type.");
+      return;
+    }
+
+    setBookingLoading(true);
+
+    const tripLabel =
+      tripTypes.find((t) => t.value === selectedTripType)?.label ||
+      selectedTripType;
+    const carLabel =
+      vehicleSizes.find((v) => v.value === vehicleSize)?.label || vehicleSize;
+
+    const payload = {
+      tripType: tripLabel,
+      reqType: tripLabel,
+      pickupLocation: pickupLocation?.name || "",
+      pickupLatLong: `${pickupLocation?.latitude || 0}, ${
+        pickupLocation?.longitude || 0
+      }`,
+      dropLocation: dropLocation?.name || "",
+      dropLatLong: `${dropLocation?.latitude || 0}, ${
+        dropLocation?.longitude || 0
+      }`,
+      pickupTime: scheduledTime
+        ? dayjs(scheduledTime).format("YYYY-MM-DD HH:mm:ss")
+        : "",
+      returnTime: "",
+      price: String(fareBreakdown.total),
+      carType: carLabel,
+      packageHours: String(estimatedUsage),
+      mobileNumber: effectivePhone,
+    };
+
+    console.log("Booking Payload (sending):", payload);
+
+    try {
+      const res = await fetch(
+        "http://top4mobileapp.vbsit.in/api/V1/booking/insertbookingnew",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc=",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await res.json();
+      console.log("Booking Response:", data);
+
+      if (!res.ok || data.Success !== true) {
+        throw new Error(data.Message || "Booking failed. Please try again.");
       }
-    } catch (err: any) {
-      console.error("Booking error:", err);
-      alert("Booking failed: " + (err?.message ?? "Unknown error"));
+
+      const bookingNo = data.Data?.BookingNo?.split(":").pop()?.trim() || "N/A";
+      const paymentType = data.Data?.PaymentType || "Cash/UPI";
+
+      setBookingResponse({ bookingNo, paymentType });
+      setBookingSuccess(true);
+    } catch (error: any) {
+      console.error("Booking error:", error);
+      setBookingError(
+        error?.message || "An unknown error occurred. Please try again."
+      );
     } finally {
       setBookingLoading(false);
     }
   };
 
-  // ---------- Updated flow: when user clicks Request Driver, ensure logged in ----------
-  const handleRequestDriver = async () => {
-    // Override time validation - allow 1 hour minimum
-    const currentTime = new Date();
-    const minAllowedTime = new Date(currentTime.getTime() + 60 * 60 * 1000); // 1 hour from now
-    
-    if (scheduledTime && new Date(scheduledTime) < minAllowedTime) {
-      // Clear the time validation error
-      updateField("errors", {
-        ...errors,
-        scheduledTime: ""
-      });
-    }
+  // Subcomponents
+  const LocationFields = ({
+    includeDrop = true,
+  }: {
+    includeDrop?: boolean;
+  }) => (
+    <div className="mb-4">
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 600,
+          mb: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
+        <LocationOn color="primary" /> Locations
+      </Typography>
+      <LocationAutocomplete
+        key="pickup-autocomplete"
+        label="Pickup Location"
+        placeholder="Enter pickup location"
+        value={pickupLocation}
+        onChange={onPickupChange}
+        error={!!errors.pickupLocation}
+        helperText={errors.pickupLocation}
+      />
+      {includeDrop && (
+        <div className="mt-4">
+          <LocationAutocomplete
+            key="drop-autocomplete"
+            label="Drop Location"
+            placeholder="Enter drop location"
+            value={dropLocation}
+            onChange={onDropChange}
+            error={!!errors.dropLocation}
+            helperText={errors.dropLocation}
+          />
+        </div>
+      )}
+    </div>
+  );
 
-    // run existing validation first
-    const ok = validateBooking();
+  const ScheduleField = () => (
+    <div className="mb-4">
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 600,
+          mb: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
+        <Schedule color="primary" /> When is driver needed?
+      </Typography>
+      <DateTimePicker
+        label="Select date and time"
+        value={scheduledDayjs}
+        onChange={onDateChange}
+        minDateTime={dayjs().add(1, "hour")}
+        slotProps={{
+          textField: {
+            fullWidth: true,
+            error: !!errors.scheduledTime,
+            helperText:
+              errors.scheduledTime || "Select time at least 1 hour from now",
+          },
+        }}
+      />
+    </div>
+  );
 
-    // ensure hours selected
-    if (!estimatedUsage || estimatedUsage <= 0) {
-      setEstimatedUsageError("Please select package hours / estimated usage.");
-      return;
-    } else {
-      setEstimatedUsageError("");
-    }
+  const UsageField = () => (
+    <div className="mb-4">
+      <FormControl fullWidth>
+        <FormLabel sx={{ fontWeight: 600, mb: 1 }}>Package Hours</FormLabel>
+        <Select
+          value={estimatedUsage}
+          onChange={(e) => setEstimatedUsage(Number(e.target.value))}
+        >
+          {usageOptions.map((hours) => (
+            <MenuItem key={hours} value={hours}>
+              {hours} Hrs
+            </MenuItem>
+          ))}
+        </Select>
+        {estimatedUsageError && (
+          <Typography color="error" variant="caption">
+            {estimatedUsageError}
+          </Typography>
+        )}
+      </FormControl>
+    </div>
+  );
 
-    if (!ok) {
-      console.log("Validation failed:", errors);
-      return;
-    }
+  const CarFields = () => (
+    <div className="mb-4 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <FormControl fullWidth>
+          <FormLabel sx={{ fontWeight: 600, mb: 1 }}>Car Type</FormLabel>
+          <Select
+            value={carType}
+            onChange={(e) => onCarTypeChange(e.target.value as string)}
+          >
+            {carTypes.map((type) => (
+              <MenuItem key={type.value} value={type.value}>
+                {type.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth>
+          <FormLabel sx={{ fontWeight: 600, mb: 1 }}>Vehicle Type</FormLabel>
+          <Select
+            value={vehicleSize}
+            onChange={(e) => onVehicleSizeChange(e.target.value as string)}
+          >
+            {vehicleSizes.map((size) => (
+              <MenuItem key={size.value} value={size.value}>
+                {size.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
+    </div>
+  );
 
-    // check login: booking state phoneNumber or localStorage userData
-    const userDataStr =
-      typeof window !== "undefined" ? localStorage.getItem("userData") : null;
-    const userData = userDataStr ? JSON.parse(userDataStr) : null;
-    const mobileAvailable = !!(phoneNumber || userData?.MOBILE_NO);
+  const FareDisplay = () => (
+    <div className="mb-4">
+      {fareLoading ? (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <CircularProgress size={20} />
+          <Typography>Calculating fare...</Typography>
+        </Box>
+      ) : fareError ? (
+        <>
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {fareError}
+          </Alert>
+          {fareBreakdown && (
+            <FareBreakdownComponent breakdown={fareBreakdown} />
+          )}
+        </>
+      ) : fareBreakdown ? (
+        <FareBreakdownComponent breakdown={fareBreakdown} />
+      ) : null}
+    </div>
+  );
 
-    if (!mobileAvailable) {
-      // open login dialog in-place
-      setLoginDialogOpen(true);
-      return;
-    }
-
-    // If fare hasn't been calculated yet (race or first-time), fetch it now.
-    try {
-      if (fareAmount == null) {
-        await fetchFareAmount();
-      }
-      setConfirmOpen(true);
-    } catch (err) {
-      alert("Unable to calculate fare: " + ((err as any)?.message ?? ""));
-    }
-  };
-
-  // callback when OTP login success from dialog
-  const onOTPLoginSuccess = (normalizedUserData: any) => {
-    // update booking state immediately
-    if (normalizedUserData?.MOBILE_NO) {
-      updateField("phoneNumber", String(normalizedUserData.MOBILE_NO));
-    }
-    setLoginDialogOpen(false);
-
-    // proceed: if fare not present, trigger fetch, else open confirm
-    (async () => {
-      try {
-        if (fareAmount == null) {
-          await fetchFareAmount();
-        }
-        setConfirmOpen(true);
-      } catch (err) {
-        alert(
-          "Unable to calculate fare after login: " +
-            ((err as any)?.message ?? "")
-        );
-      }
-    })();
-  };
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
-    setSelectedTripType(newValue);
-  };
-
-  // Label for the hours selector (dynamic)
-  const hoursLabel =
-    selectedTripType === "round-trip" ? "Package Hours" : "Estimated Usage";
+  // showReview guard
+  const showReview =
+    (user && (page === 2 || page === 3)) || (!user && page === 3);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div
-        className={`max-w-[450px] min-w-[400px] md:min-w-[450px] w-full mx-auto ${
-          isEmbedded ? "" : "px-4"
-        } bg-white rounded-2xl`}
-      >
-        <div className="p-4 pt-1">
-          {/* Trip Type Tabs */}
-          <div className="mb-0">
-            <FormControl component="fieldset">
-              <Tabs
-                value={selectedTripType}
-                onChange={handleTabChange}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="scrollable"
-                scrollButtons="auto"
+      <div className="max-w-[450px] w-full flex justify-center">
+        <div className="min-w-full bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="p-3 md:p-5 !pt-0">
+            {bookingSuccess && bookingResponse ? (
+              <Box
                 sx={{
-                  "& .MuiTab-root": {
-                    fontSize: "0.85rem",
-                    fontWeight: 500,
-                    textTransform: "none",
-                  },
-                }}
-              >
-                {tripTypes.map((type) => (
-                  <Tab key={type.value} value={type.value} label={type.label} />
-                ))}
-              </Tabs>
-            </FormControl>
-          </div>
-
-          <Divider sx={{ mb: 2 }} />
-
-          {/* Locations */}
-          <div className="mb-4">
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 600,
-                mb: 2,
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <LocationOn color="primary" />
-              Locations
-            </Typography>
-
-            <LocationAutocomplete
-              label="Pickup Location"
-              placeholder="Enter pickup location"
-              value={pickupLocation}
-              onChange={(location: Location | null) =>
-                updateField("pickupLocation", location)
-              }
-              error={!!errors.pickupLocation}
-              helperText={errors.pickupLocation}
-              fetchSuggestions={async (q) => {
-                try {
-                  const response = await fetch(
-                    `/api/locations/search?query=${encodeURIComponent(q)}`
-                  );
-                  const data = await response.json();
-                  return data.status === "success" ? data.data : [];
-                } catch {
-                  return [];
-                }
-              }}
-            />
-
-            {selectedTripType !== "daily" && (
-              <div className="mt-4">
-                <LocationAutocomplete
-                  label="Drop Location"
-                  placeholder="Enter drop location"
-                  value={dropLocation}
-                  onChange={(location: Location | null) =>
-                    updateField("dropLocation", location)
-                  }
-                  error={!!errors.dropLocation}
-                  helperText={errors.dropLocation}
-                  fetchSuggestions={async (q) => {
-                    try {
-                      const response = await fetch(
-                        `/api/locations/search?query=${encodeURIComponent(q)}`
-                      );
-                      const data = await response.json();
-                      return data.status === "success" ? data.data : [];
-                    } catch {
-                      return [];
-                    }
-                  }}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Schedule / Time */}
-          {selectedTripType !== "daily" && (
-            <div className="mb-4">
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 600,
-                  mb: 2,
+                  textAlign: "center",
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Schedule color="primary" />
-                {selectedTripType === "outstation"
-                  ? "Date & Time"
-                  : "When is driver needed?"}
-              </Typography>
-
-              <DateTimePicker
-                label="Select date and time"
-                value={scheduledTime ? dayjs(scheduledTime) : dayjs().add(1, "hour")}
-                onChange={(newValue: Dayjs | null) =>
-                  updateField("scheduledTime", newValue?.toDate() || null)
-                }
-                minDateTime={dayjs().add(1, "hour")}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    error: !!errors.scheduledTime,
-                    helperText: errors.scheduledTime,
-                  },
-                }}
-              />
-            </div>
-          )}
-
-          {/* Hours selector - always visible and mandatory */}
-          <div className="mb-4">
-            <FormControl fullWidth>
-              <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
-                {hoursLabel}
-              </FormLabel>
-              <Select
-                value={estimatedUsage}
-                onChange={(e) =>
-                  setEstimatedUsage(
-                    Number((e.target as HTMLSelectElement).value)
-                  )
-                }
-                displayEmpty={false}
-              >
-                {usageOptions.map((hours) => (
-                  <MenuItem key={hours} value={hours}>
-                    {hours} Hrs
-                  </MenuItem>
-                ))}
-              </Select>
-              {estimatedUsageError ? (
-                <Typography
-                  variant="caption"
-                  sx={{ color: "error.main", mt: 0.5 }}
-                >
-                  {estimatedUsageError}
-                </Typography>
-              ) : null}
-            </FormControl>
-          </div>
-
-          {/* Car Preferences */}
-          <div className="mb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <FormControl fullWidth>
-                <FormLabel sx={{ fontWeight: 600, mb: 1 }}>Car Type</FormLabel>
-                <Select
-                  value={carType}
-                  onChange={(e) =>
-                    updateField("carType", e.target.value as any)
-                  }
-                >
-                  {carTypes.map((type) => (
-                    <MenuItem key={type.value} value={type.value}>
-                      {type.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth>
-                <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
-                  Vehicle Size
-                </FormLabel>
-                <Select
-                  value={vehicleSize}
-                  onChange={(e) =>
-                    updateField("vehicleSize", e.target.value as any)
-                  }
-                >
-                  {vehicleSizes.map((size) => (
-                    <MenuItem key={size.value} value={size.value}>
-                      {size.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-          </div>
-
-          {/* Show calculated fare if available */}
-          <div className="mb-4">
-            {fareLoading ? (
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <CircularProgress size={18} />
-                <Typography variant="body2">Calculating fare...</Typography>
-              </div>
-            ) : fareAmount != null ? (
-              <div className="text-center">
-                <h4 className="text-lg !mb-1">
-                  Estimated Fare:{" "}
-                  <span className="text-blue-800">
-                    ₹{fareAmount.toFixed(2)}
-                  </span>
-                </h4>
-                {fareData?.NIGHTCHARGES ? (
-                  <p className="!text-xs">(Includes night charges)</p>
-                ) : null}
-              </div>
-            ) : fareError ? (
-              <Typography
-                variant="caption"
-                color="error"
-                sx={{ display: "block" }}
-              >
-                {fareError}
-              </Typography>
-            ) : null}
-          </div>
-
-          {/* Submit Button */}
-          <Button
-            variant="contained"
-            size="large"
-            fullWidth
-            onClick={handleRequestDriver}
-            disabled={bookingLoading || fareLoading}
-            sx={{
-              py: 1.5,
-              fontSize: "1.1rem",
-              fontWeight: 600,
-              borderRadius: 2,
-              backgroundColor:
-                selectedTripType === "daily" ? "#000" : "#2e7d32",
-            }}
-          >
-            {bookingLoading || fareLoading ? (
-              <div
-                style={{
-                  display: "flex",
-                  gap: 8,
-                  alignItems: "center",
+                  minHeight: 400,
                   justifyContent: "center",
                 }}
               >
-                <CircularProgress size={20} style={{ color: "#fff" }} />
-                Booking...
-              </div>
-            ) : selectedTripType === "daily" ? (
-              "Continue to Schedule Driver"
+                <Lottie
+                  animationData={doneAnimation}
+                  loop={true}
+                  style={{ width: 200, height: 200, marginTop: -4}}
+                />
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, marginTop: -4 }}>
+                  Booking Confirmed!
+                </Typography>
+                <Typography variant="h6" color="text.secondary">
+                  Booking ID: {bookingResponse.bookingNo}
+                </Typography>
+                <Typography variant="body1" sx={{ mt: 2 }}>
+                  Driver details will be sent via SMS to {phoneNumber || "your phone"}.
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
+                  Pay {bookingResponse.paymentType} at the end of the ride.
+                </Typography>
+                <Button variant="contained" onClick={resetForm}>
+                  Make a New Booking
+                </Button>
+              </Box>
             ) : (
-              "Request Driver"
+              <>
+                <Tabs
+                  value={selectedTripType}
+                  onChange={(e, val) => {
+                    setSelectedTripType(val);
+                    setPage(1);
+                  }}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  centered
+                  sx={{
+                    "& .MuiTabs-flexContainer": {
+                      justifyContent: "center",
+                    },
+                    "& .MuiTab-root": {
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      textTransform: "none",
+                    },
+                  }}
+                >
+                  {tripTypes.map((type) => (
+                    <Tab
+                      key={type.value}
+                      value={type.value}
+                      label={type.label}
+                    />
+                  ))}
+                </Tabs>
+
+                <Divider sx={{ mb: 2 }} />
+
+                {!isWizardFlow ? (
+                  <>
+                    <LocationFields includeDrop={false} />
+                    <UsageField />
+                    <CarFields />
+                    {user ? (
+                      <FareDisplay />
+                    ) : (
+                      <>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 600,
+                            mb: 2,
+                          }}
+                        >
+                          Login to Continue
+                        </Typography>
+                        <LoginForm
+                          onSuccess={(userData) => {
+                            updateField(
+                              "phoneNumber",
+                              userData.phone || userData.mobile
+                            );
+                          }}
+                          initialPhone={phoneNumber}
+                          compact={true}
+                        />
+                      </>
+                    )}
+                    {bookingError && (
+                      <Alert severity="error" sx={{ mb: 2 }}>
+                        {bookingError}
+                      </Alert>
+                    )}
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{ mt: 2, backgroundColor: "#000" }}
+                      onClick={user ? handleBookNow : handleNextToPage3}
+                      disabled={bookingLoading}
+                    >
+                      {bookingLoading ? (
+                        <CircularProgress size={24} />
+                      ) : user ? (
+                        "Continue to Schedule Driver"
+                      ) : (
+                        "Next"
+                      )}
+                    </Button>
+                  </>
+                ) : (
+                  <Box sx={{ position: "relative" }}>
+                    {page === 1 && (
+                      <>
+                        <LocationFields includeDrop />
+                        <ScheduleField />
+                        <CarFields />
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={handleNextToPage2}
+                          sx={{ mt: 2 }}
+                        >
+                          Next
+                        </Button>
+                      </>
+                    )}
+
+                    {page === 2 && !user && (
+                      <>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 600,
+                            mb: 2,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          Login to Continue
+                        </Typography>
+
+                        <LoginForm
+                          onSuccess={(userData) => {
+                            setPage(3);
+                            updateField(
+                              "phoneNumber",
+                              userData.phone || userData.mobile
+                            );
+                          }}
+                          onCancel={handleBackToPage1}
+                          initialPhone={phoneNumber}
+                          compact={true}
+                          className="mb-4"
+                        />
+
+                        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            onClick={handleBackToPage1}
+                          >
+                            Back
+                          </Button>
+                        </Box>
+                      </>
+                    )}
+
+                    {showReview ? (
+                      <>
+                        <UsageField />
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 700, mb: 2 }}
+                        >
+                          Review & Confirm
+                        </Typography>
+
+                        {bookingError && (
+                          <Alert severity="error" sx={{ mb: 2 }}>
+                            {bookingError}
+                          </Alert>
+                        )}
+
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} md={7}>
+                            <Card
+                              variant="outlined"
+                              sx={{ mb: 2, minWidth: "100%" }}
+                            >
+                              <CardContent>
+                                <div className="w-full">
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                      mb: 2,
+                                    }}
+                                  >
+                                    <Chip
+                                      label={`${vehicleSize || "Any"} • ${
+                                        carType || "Any"
+                                      }`}
+                                      color="primary"
+                                      variant="outlined"
+                                    />
+                                    <Typography
+                                      variant="h5"
+                                      sx={{ fontWeight: 700 }}
+                                    >
+                                      {estimatedUsage} Hrs
+                                    </Typography>
+                                  </Box>
+                                  <Divider sx={{ my: 1.5, minWidth: "100%" }} />
+                                  <Box sx={{ mb: 2, width: "100%" }}>
+                                    <Typography
+                                      variant="body1"
+                                      sx={{ fontWeight: 600 }}
+                                    >
+                                      {pickupLocation?.name || "Not set"} →{" "}
+                                      {dropLocation?.name || "Not set"}
+                                    </Typography>
+                                  </Box>
+                                  <Box sx={{ mb: 2 }}>
+                                    <Typography
+                                      variant="subtitle2"
+                                      color="text.secondary"
+                                    >
+                                      When
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ fontWeight: 600 }}
+                                    >
+                                      {scheduledTime
+                                        ? dayjs(scheduledTime).format(
+                                            "ddd, MMM D, h:mm A"
+                                          )
+                                        : "Not set"}
+                                    </Typography>
+                                  </Box>
+                                  {fareBreakdown && (
+                                    <FareBreakdownComponent
+                                      breakdown={fareBreakdown}
+                                    />
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                            <Box sx={{ display: "flex", gap: 2 }}>
+                              <Button
+                                variant="outlined"
+                                fullWidth
+                                onClick={
+                                  user ? handleBackToPage1 : handleBackToPage2
+                                }
+                              >
+                                Back
+                              </Button>
+                              <Button
+                                variant="contained"
+                                fullWidth
+                                onClick={handleBookNow}
+                                disabled={bookingLoading}
+                                sx={{ backgroundColor: "#2e7d32" }}
+                              >
+                                {bookingLoading ? (
+                                  <CircularProgress size={20} color="inherit" />
+                                ) : (
+                                  "Confirm Booking"
+                                )}
+                              </Button>
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </>
+                    ) : null}
+                  </Box>
+                )}
+              </>
             )}
-          </Button>
+          </div>
+
+          {isWizardFlow && !bookingSuccess && (
+            <Box sx={{ pt: 1 }}>
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                sx={{ height: 6, borderRadius: 4 }}
+              />
+            </Box>
+          )}
         </div>
-
-        <PhoneModal
-          open={phoneModalOpen}
-          onClose={() => setPhoneModalOpen(false)}
-          phoneNumber={phoneNumber}
-          onPhoneNumberChange={(phone) => updateField("phoneNumber", phone)}
-        />
-
-        {/* OTP login modal from booking form */}
-        <OTPLoginDialog
-          open={loginDialogOpen}
-          onClose={() => setLoginDialogOpen(false)}
-          onSuccess={onOTPLoginSuccess}
-          initialPhone={phoneNumber ?? ""}
-        />
-
-        {/* Fare confirmation dialog */}
-        <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-          <DialogTitle>Confirm Booking</DialogTitle>
-          <DialogContent>
-            <Typography sx={{ mb: 1 }}>
-              Estimated Fare:
-              <strong>
-                {" "}
-                {fareAmount != null ? ` ₹${fareAmount.toFixed(2)}` : " -"}
-              </strong>
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Please confirm to create the booking. The final fare will be
-              validated by the server.
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
-            <Button
-              variant="contained"
-              onClick={confirmAndCreateBooking}
-              disabled={bookingLoading}
-            >
-              Confirm & Book
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Booking success dialog with simple animation */}
-        <Dialog open={bookingSuccess} onClose={() => setBookingSuccess(false)}>
-          <DialogContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 2,
-              py: 4,
-            }}
-          >
-            <div
-              style={{
-                width: 120,
-                height: 120,
-                borderRadius: 120,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background:
-                  "linear-gradient(135deg, rgba(46,125,50,0.15), rgba(0,200,83,0.15))",
-                boxShadow: "0 8px 20px rgba(46,125,50,0.12)",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              {/* Animated checkmark - CSS keyframes */}
-              <svg
-                width="80"
-                height="80"
-                viewBox="0 0 52 52"
-                style={{
-                  transform: "scale(1)",
-                  transition: "transform .3s ease",
-                }}
-              >
-                <circle
-                  cx="26"
-                  cy="26"
-                  r="25"
-                  fill="none"
-                  stroke="#2e7d32"
-                  strokeWidth="2"
-                  strokeDasharray="160"
-                  strokeDashoffset="160"
-                  style={{
-                    animation: "dashCircle 0.7s ease-out forwards",
-                  }}
-                />
-                <path
-                  fill="none"
-                  stroke="#2e7d32"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M14 27 l7 7 l17 -17"
-                  strokeDasharray="50"
-                  strokeDashoffset="50"
-                  style={{
-                    animation: "dashCheck 0.5s 0.7s ease-out forwards",
-                  }}
-                />
-              </svg>
-            </div>
-
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Booking Confirmed
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center">
-              {successMessage || "Your booking was created successfully."}
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setBookingSuccess(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
       </div>
-
-      {/* animations CSS */}
-      <style jsx global>{`
-        @keyframes dashCircle {
-          from {
-            stroke-dashoffset: 160;
-            opacity: 0.6;
-          }
-          to {
-            stroke-dashoffset: 0;
-            opacity: 1;
-          }
-        }
-        @keyframes dashCheck {
-          from {
-            stroke-dashoffset: 50;
-            opacity: 0;
-          }
-          to {
-            stroke-dashoffset: 0;
-            opacity: 1;
-          }
-        }
-      `}</style>
     </LocalizationProvider>
   );
 }
