@@ -168,3 +168,42 @@ export const getRelativeTime = (date: Date): string => {
   return formatDate(date);
 };
 
+// File: utils/apiHelpers.ts
+export async function POST(path: string, data?: any, opts?: { signal?: AbortSignal }) {
+  // Normalize incoming path like:
+  // "api/V1/booking/sendOTP" or "/api/V1/booking/sendOTP" => proxy path "/api/proxy/booking/sendOTP"
+  const cleaned = path.replace(/^\/+/, ""); // remove leading slash
+  let proxyUrl = "";
+
+  // If caller already passed a proxy path, use it
+  if (cleaned.startsWith("api/proxy/booking")) {
+    proxyUrl = `/${cleaned}`;
+  } else if (cleaned.startsWith("api/V1/booking")) {
+    const remotePath = cleaned.replace(/^api\/V1\/booking\/?/, "");
+    proxyUrl = `/api/proxy/booking/${remotePath}`;
+  } else if (cleaned.startsWith("api/V1/")) {
+    // other v1 endpoints — forward to proxy root (adjust if needed)
+    const remotePath = cleaned.replace(/^api\/V1\/?/, "");
+    proxyUrl = `/api/proxy/booking/${remotePath}`;
+  } else {
+    // fallback — send to path as-is (relative)
+    proxyUrl = `/${cleaned}`;
+  }
+
+  const res = await fetch(proxyUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: typeof data === "undefined" ? undefined : JSON.stringify(data),
+    signal: opts?.signal,
+  });
+
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    // If API returned non-JSON, return raw text
+    return text;
+  }
+}
