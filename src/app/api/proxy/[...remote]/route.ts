@@ -1,15 +1,24 @@
-// app/api/proxy/[...remote]/route.ts
+// File: app/api/proxy/[...remote]/route.ts
 import { NextResponse } from "next/server";
 
-const REMOTE_BASE = (process.env.REMOTE_API_BASE || "http://top4mobileapp.vbsit.in").replace(/\/$/, "");
-const REMOTE_AUTH = process.env.REMOTE_API_AUTH || "Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc=";
+const REMOTE_BASE = (
+  process.env.REMOTE_API_BASE || "http://top4mobileapp.vbsit.in"
+).replace(/\/$/, "");
+const REMOTE_AUTH =
+  process.env.REMOTE_API_AUTH || "Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc=";
 
-async function handleProxy(request: Request, remoteSegments: string[] | undefined) {
+async function handleProxy(
+  request: Request,
+  remoteSegments: string[] | undefined
+) {
   try {
     const segments = Array.isArray(remoteSegments) ? [...remoteSegments] : [];
 
     if (segments.length === 0) {
-      return NextResponse.json({ error: "Missing remote endpoint in URL" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing remote endpoint in URL" },
+        { status: 400 }
+      );
     }
 
     // Normalize — remove a leading 'booking' if present to avoid duplication.
@@ -41,10 +50,6 @@ async function handleProxy(request: Request, remoteSegments: string[] | undefine
     if (incomingContentType) headers["content-type"] = incomingContentType;
     if (incomingAccept) headers["accept"] = incomingAccept;
 
-    // Forward common headers (Authorization will be set explicitly below)
-    // You can forward other headers if you want:
-    // e.g. const incomingAuth = request.headers.get("authorization"); if(incomingAuth) headers["authorization"] = incomingAuth;
-
     if (REMOTE_AUTH) {
       headers["Authorization"] = REMOTE_AUTH;
     }
@@ -58,7 +63,7 @@ async function handleProxy(request: Request, remoteSegments: string[] | undefine
     }
 
     // Debug log (server logs) — remove in production if desired
-    console.log("[proxy] Fetching remote URL:", remoteUrl, "method:", method, "headers:", headers);
+    console.log("[proxy] Fetching remote URL:", remoteUrl, "method:", method);
 
     const remoteRes = await fetch(remoteUrl, { method, headers, body });
 
@@ -67,7 +72,7 @@ async function handleProxy(request: Request, remoteSegments: string[] | undefine
     // Prepare response headers (copy remote headers back)
     const responseHeaders = new Headers();
     remoteRes.headers.forEach((value, key) => {
-      // Do not forward hop-by-hop headers if you want to be strict (optional)
+      // Optionally skip hop-by-hop headers here if needed
       responseHeaders.set(key, value);
     });
 
@@ -77,22 +82,32 @@ async function handleProxy(request: Request, remoteSegments: string[] | undefine
     });
   } catch (err: any) {
     console.error("Proxy error:", err);
-    return NextResponse.json({ error: "Proxy failed", details: String(err) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Proxy failed", details: String(err) },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(request: Request, { params }: { params: { remote?: string[] } }) {
-  return handleProxy(request, params?.remote);
+// NOTE: using `context: any` avoids Next's overly strict internal type comparison during build
+// We still extract params and forward them to handleProxy.
+export async function POST(request: Request, context: any) {
+  const remote = context?.params?.remote as string[] | undefined;
+  return handleProxy(request, remote);
 }
-export async function GET(request: Request, { params }: { params: { remote?: string[] } }) {
-  return handleProxy(request, params?.remote);
+export async function GET(request: Request, context: any) {
+  const remote = context?.params?.remote as string[] | undefined;
+  return handleProxy(request, remote);
 }
-export async function PUT(request: Request, { params }: { params: { remote?: string[] } }) {
-  return handleProxy(request, params?.remote);
+export async function PUT(request: Request, context: any) {
+  const remote = context?.params?.remote as string[] | undefined;
+  return handleProxy(request, remote);
 }
-export async function PATCH(request: Request, { params }: { params: { remote?: string[] } }) {
-  return handleProxy(request, params?.remote);
+export async function PATCH(request: Request, context: any) {
+  const remote = context?.params?.remote as string[] | undefined;
+  return handleProxy(request, remote);
 }
-export async function DELETE(request: Request, { params }: { params: { remote?: string[] } }) {
-  return handleProxy(request, params?.remote);
+export async function DELETE(request: Request, context: any) {
+  const remote = context?.params?.remote as string[] | undefined;
+  return handleProxy(request, remote);
 }
