@@ -1,6 +1,7 @@
+// File: hooks/useAuth.ts
 "use client";
 
-import { POST } from "@/utils/apiHelpres";
+import { POST } from "@/utils/helpers";
 import { useEffect, useState, useCallback } from "react";
 
 export function normalizeUser(raw: any, fallbackPhone?: string) {

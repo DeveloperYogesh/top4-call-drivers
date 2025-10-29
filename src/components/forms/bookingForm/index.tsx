@@ -32,6 +32,7 @@ import FareDisplay from "./fareDisplay";
 import ScheduleField from "./scheduleField";
 import ConfirmView from "./confirmView";
 import LoginForm from "@/components/auth/LoginForm";
+import { POST } from "@/utils/helpers";
 
 // --- constants (kept small) ---
 const tripTypes = [
@@ -93,13 +94,13 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
   };
 
   // set defaults on mount
-  // initialize some defaults (without preset locations)
   useEffect(() => {
     const defaultTime = dayjs().add(1, "hour").add(5, "second").toDate();
     updateField("scheduledTime", defaultTime);
     updateField("vehicleSize", "sedan");
     updateField("carType", "manual");
     if (user?.phone) updateField("phoneNumber", user.phone);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateField, user]);
 
   // keep a memoized Dayjs value for date picker child
@@ -122,7 +123,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     return true;
   };
 
-  // full callFareApi implementation (uses your live API)
+  // full callFareApi implementation (uses your live API via the proxy)
   const calculateFareBreakdown = (): {
     baseFare: number;
     nightCharge: number;
@@ -147,41 +148,27 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         pickuptype: isWizardFlow ? "InCity" : "InCity",
         pickupplace: pickupLocation?.name || "",
         dropplace: dropLocation?.name || "",
-        requestdt: scheduledTime
-          ? dayjs(scheduledTime).format("DD/MM/YYYY")
-          : "",
+        requestdt: scheduledTime ? dayjs(scheduledTime).format("DD/MM/YYYY") : "",
         pickuptime: scheduledTime ? dayjs(scheduledTime).format("HH:mm") : "",
         tripkms: "0",
       };
 
-      const res = await fetch(
-        "http://top4mobileapp.vbsit.in/api/V1/booking/GetFareAmount",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc=",
-          },
-          body: JSON.stringify(payload),
-          signal,
-        }
-      );
+      // Use POST helper that calls /api/proxy/booking/GetFareAmount
+      const data = await POST("api/V1/booking/GetFareAmount", payload, { signal });
 
-      if (!res.ok) {
-        throw new Error(`Fare API returned ${res.status}`);
-      }
-
-      const data = await res.json();
-      // console.log("Fare API response:", data);
-
-      if (
+      // If remote returns non-JSON or a string, handle gracefully
+      if (typeof data === "string") {
+        // Remote returned raw text — fall back to estimate
+        const breakdown = calculateFareBreakdown();
+        setFareBreakdown(breakdown);
+      } else if (
         data &&
-        (typeof data.TOTALFARE !== "undefined" ||
-          typeof data.BASEFARE !== "undefined")
+        (typeof (data as any).TOTALFARE !== "undefined" ||
+          typeof (data as any).BASEFARE !== "undefined")
       ) {
-        const baseFare = Number(data.BASEFARE ?? 0);
-        const nightCharge = Number(data.NIGHTCHARGES ?? 0);
-        const totalFromApi = Number(data.TOTALFARE ?? NaN);
+        const baseFare = Number((data as any).BASEFARE ?? 0);
+        const nightCharge = Number((data as any).NIGHTCHARGES ?? 0);
+        const totalFromApi = Number((data as any).TOTALFARE ?? NaN);
 
         if (!Number.isNaN(totalFromApi)) {
           const roundedBase = Math.round(baseFare);
@@ -334,7 +321,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     [updateField]
   );
 
-  // unified booking function with insertbooking API
+  // unified booking function with insertbooking API (via proxy)
   const handleBookNow = async () => {
     setBookingError(null);
     if (!estimatedUsage || estimatedUsage <= 0) {
@@ -411,23 +398,13 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     };
 
     try {
-      const res = await fetch(
-        "http://top4mobileapp.vbsit.in/api/V1/booking/insertbookingnew",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Basic dG9wNHdlYnNpdGU6eFRrVzY0OFc=",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      // use POST helper which will call /api/proxy/booking/insertbookingnew
+      const data = await POST("api/V1/booking/insertbookingnew", payload);
 
-      const data = await res.json();
       console.log("Booking Response:", data);
 
-      if (!res.ok || data.Success !== true) {
-        throw new Error(data.Message || "Booking failed. Please try again.");
+      if (!data || data.Success !== true) {
+        throw new Error((data && (data.Message || data.message)) || "Booking failed. Please try again.");
       }
 
       const bookingNo = data.Data?.BookingNo?.split(":").pop()?.trim() || "N/A";
