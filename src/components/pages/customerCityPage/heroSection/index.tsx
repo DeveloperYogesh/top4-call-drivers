@@ -49,11 +49,13 @@ export default function HeroSection({ cityData }: HeroSectionProps) {
               </Button>
 
               <Button
+              component={Link}
+                href="/call-drivers-tariff"
                 variant="outlined"
                 size="large"
                 className="!border-white !text-white px-6 py-3 text-lg hover:!bg-white/10"
               >
-                View Pricing
+                Check Tariff
               </Button>
             </div>
 
