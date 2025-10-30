@@ -24,7 +24,7 @@ export const metadata = generateSEOMetadata({
 const structuredData = generateStructuredData('service', {
   name: 'Professional Driver Booking Service',
   description: 'Book verified professional drivers instantly for safe and reliable transportation',
-  cities: ['Tirupur', 'Chennai', 'Madurai', 'Trichy', 'Coimbatore']
+  cities: ['Tiruppur', 'Chennai', 'Madurai', 'Trichy', 'Coimbatore']
 });
 
 export default function BookDriverPage() {

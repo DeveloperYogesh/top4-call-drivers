@@ -12,7 +12,7 @@ module.exports = {
     const result = [];
     
     // Add dynamic city pages
-    const cities = ['tirupur', 'chennai', 'trichy', 'madurai', 'coimbatore'];
+    const cities = ['tiruppur', 'chennai', 'trichy', 'madurai', 'coimbatore'];
     cities.forEach(city => {
       result.push({
         loc: `/best-acting-drivers-in-${city}`,

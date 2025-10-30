@@ -5,7 +5,13 @@ import {
   APP_STORE_LINKS,
   CITIES,
 } from "@/utils/constants";
-import { EmailOutlined, Facebook, LocationOn, Phone, Twitter } from "@mui/icons-material";
+import {
+  EmailOutlined,
+  Facebook,
+  LocationOn,
+  Phone,
+  Twitter,
+} from "@mui/icons-material";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -18,44 +24,60 @@ export default function Footer() {
           {/* Company Info & Contact - First Column */}
           <div className="md:col-span-2">
             <div className="flex items-center mb-4">
-            <Link href={ROUTES.HOME} aria-label={`${APP_CONFIG.name} home`} className="inline-flex items-center">
-            <Image
-                width="47"
-                height="47"
-                src="/images/top4-call-drivers-logo.png"
-                className="mr-2"
-                alt={APP_CONFIG.name}
-              />
-              <span className={`text-lg font-semibold text-white`}>{APP_CONFIG.name}</span>
-            </Link>
-          </div>
-            
+              <Link
+                href={ROUTES.HOME}
+                aria-label={`${APP_CONFIG.name} home`}
+                className="inline-flex items-center"
+              >
+                <Image
+                  width="47"
+                  height="47"
+                  src="/images/top4-call-drivers-logo.png"
+                  className="mr-2"
+                  alt={APP_CONFIG.name}
+                />
+                <span className={`text-lg font-semibold text-white`}>
+                  {APP_CONFIG.name}
+                </span>
+              </Link>
+            </div>
+
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-gray-400" />
-                <a href="tel:04428287777" className="text-gray-300 hover:text-white">
+                <a
+                  href="tel:04428287777"
+                  className="text-gray-300 hover:text-white"
+                >
                   044-28287777
                 </a>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-gray-400" />
-                <a href="tel:+918190081900" className="text-gray-300 hover:text-white">
+                <a
+                  href="tel:+918190081900"
+                  className="text-gray-300 hover:text-white"
+                >
                   8190081900
                 </a>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <EmailOutlined className="w-4 h-4 text-gray-400" />
-                <a href="mailto:info@example.com" className="text-gray-300 hover:text-white">
+                <a
+                  href="mailto:info@example.com"
+                  className="text-gray-300 hover:text-white"
+                >
                   top4calldriverservices@gmail.com
                 </a>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <LocationOn className="w-4 h-4 text-gray-400" />
                 <span className="text-gray-300">
-                  No: 26 Jayalakshmipuram, 3rd Street, Nungambakkam, Chennai - 600034.
+                  No: 26 Jayalakshmipuram, 3rd Street, Nungambakkam, Chennai -
+                  600034.
                 </span>
               </div>
             </div>
@@ -92,24 +114,42 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-3">BRANCHES</h4>
             <ul className="space-y-2 text-sm text-gray-300">
               <li>
-                <Link href="/best-acting-drivers-in-chennai/" title="Best Acting Drivers in Chennai - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                <Link
+                  href="/best-acting-drivers-in-chennai"
+                  title="Best Acting Drivers in Chennai - TOP4 Call Drivers"
+                  className="hover:text-white transition-colors"
+                >
                   Chennai 044-28287777
                 </Link>
               </li>
               <li>Trichy 0431-2791779</li>
               <li>
-                <Link href="/best-acting-drivers-in-coimbatore/" title="Best Acting Drivers in Coimbatore - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                <Link
+                  href="/best-acting-drivers-in-coimbatore"
+                  title="Best Acting Drivers in Coimbatore - TOP4 Call Drivers"
+                  className="hover:text-white transition-colors"
+                >
                   Coimbatore 7418922002
                 </Link>
               </li>
               <li>
-                <Link href="/best-acting-drivers-in-madurai/" title="Best Acting Drivers in Madurai - TOP4 Call Drivers" className="hover:text-white transition-colors">
+                <Link
+                  href="/best-acting-drivers-in-madurai"
+                  title="Best Acting Drivers in Madurai - TOP4 Call Drivers"
+                  className="hover:text-white transition-colors"
+                >
                   Madurai 7338878427
                 </Link>
               </li>
-              <li>Tirupur 7418922002</li>
-              <li>Bangalore 044-28287777</li>
-              <li>Hyderabad 044-28287777</li>
+              <li>
+                <Link
+                  href="/best-acting-drivers-in-tiruppur"
+                  title="Best Acting Drivers in Tiruppur - TOP4 Call Drivers"
+                  className="hover:text-white transition-colors"
+                >
+                  Tiruppur 7418922002
+                </Link>
+              </li>
             </ul>
 
             {/* Social Icons */}
@@ -157,13 +197,22 @@ export default function Footer() {
             © {new Date().getFullYear()} {APP_CONFIG.name}. All rights reserved.
           </p>
           <div className="flex gap-4">
-            <Link href={ROUTES.TERMS} className="text-gray-400 hover:text-white transition-colors">
+            <Link
+              href={ROUTES.TERMS}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               Terms & Conditions
             </Link>
-            <Link href={ROUTES.PRIVACY} className="text-gray-400 hover:text-white transition-colors">
+            <Link
+              href={ROUTES.PRIVACY}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               Privacy Policy
             </Link>
-            <Link href={ROUTES.REFUND} className="text-gray-400 hover:text-white transition-colors">
+            <Link
+              href={ROUTES.REFUND}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               Refund Policy
             </Link>
           </div>

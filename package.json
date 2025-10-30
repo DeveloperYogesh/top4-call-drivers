@@ -25,6 +25,7 @@
     "bcryptjs": "^3.0.2",
     "dayjs": "^1.11.13",
     "framer-motion": "^12.23.24",
+    "gsap": "^3.13.0",
     "jsonwebtoken": "^9.0.2",
     "lottie-react": "^2.4.1",
     "next": "^15.5.4",
@@ -34,6 +35,7 @@
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-hook-form": "^7.62.0",
+    "split-type": "^0.3.4",
     "zod": "^4.0.17"
   },
   "devDependencies": {

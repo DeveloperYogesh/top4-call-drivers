@@ -37,7 +37,7 @@ export const SERVICES = [
       'Hire verified, professional drivers for hassle-free commutes, running errands and safe after-party drops on an hourly basis',
     icon: 'DirectionsCar',
     available: true,
-    cities: ['chennai', 'trichy', 'madurai', 'tirupur', 'coimbatore'],
+    cities: ['chennai', 'trichy', 'madurai', 'tiruppur', 'coimbatore'],
   },
   {
     id: 'car-wash',
@@ -46,7 +46,7 @@ export const SERVICES = [
       'Pressure wash, eco wash & daily wash by trained executives equipped with high-grade machines and premium materials',
     icon: 'LocalCarWash',
     available: false,
-    cities: ['chennai', 'trichy', 'madurai', 'tirupur', 'coimbatore'],
+    cities: ['chennai', 'trichy', 'madurai', 'tiruppur', 'coimbatore'],
   },
   {
     id: 'fastag-recharge',
@@ -64,7 +64,7 @@ export const SERVICES = [
       'TOP4 Call Drivers brings on-demand car cleaning to your doorstep with satisfaction guarantee. Now available in select cities — more coming soon.',
     icon: 'CleaningServices',
     available: false,
-    cities: ['chennai', 'coimbatore', 'tirupur'],
+    cities: ['chennai', 'coimbatore', 'tiruppur'],
   },
   {
     id: 'car-maintenance',
@@ -73,7 +73,7 @@ export const SERVICES = [
       'Discover and book the best car services and maintenance options near you. Seamless booking experience and secure online payments.',
     icon: 'Build',
     available: false,
-    cities: ['chennai', 'trichy', 'madurai', 'tirupur', 'coimbatore'],
+    cities: ['chennai', 'trichy', 'madurai', 'tiruppur', 'coimbatore'],
   },
   {
     id: 'car-insurance',
@@ -87,7 +87,7 @@ export const SERVICES = [
 ];
 
 export const CITIES = [
-  { id: 'tirupur', name: 'Tirupur', state: 'Tamil Nadu', slug: 'tirupur' },
+  { id: 'tiruppur', name: 'Tiruppur', state: 'Tamil Nadu', slug: 'tiruppur' },
   { id: 'chennai', name: 'Chennai', state: 'Tamil Nadu', slug: 'chennai' },
   { id: 'coimbatore', name: 'Coimbatore', state: 'Tamil Nadu', slug: 'coimbatore' },
   { id: 'madurai', name: 'Madurai', state: 'Tamil Nadu', slug: 'madurai' },
@@ -96,15 +96,15 @@ export const CITIES = [
 
 export const SUPPORTED_CITIES = [
   {
-    name: 'Tirupur',
-    slug: 'tirupur',
+    name: 'Tiruppur',
+    slug: 'tiruppur',
     state: 'Tamil Nadu',
     basePrice: 299,
     driversCount: 500,
     areasCount: 25,
     areas: [
-      'Tirupur Central',
-      'New Tirupur Industrial Park (NIT)',
+      'Tiruppur Central',
+      'New Tiruppur Industrial Park (NIT)',
       'Avinashi (nearby)',
       'Pudur',
       'Karuvampalayam',
@@ -112,11 +112,11 @@ export const SUPPORTED_CITIES = [
       'Kumarasamy Nagar',
       'Kumaran Nagar',
       'Karumathampatti',
-      'Tirupur Railway Station',
+      'Tiruppur Railway Station',
     ],
     description:
-      'Book professional drivers in Tirupur for safe and comfortable rides across the textile & industrial hub.',
-    keywords: ['driver hire tirupur', 'professional drivers tirupur', 'car driver booking tirupur'],
+      'Book professional drivers in Tiruppur for safe and comfortable rides across the textile & industrial hub.',
+    keywords: ['driver hire tiruppur', 'professional drivers tiruppur', 'car driver booking tiruppur'],
   },
   {
     name: 'Chennai',
