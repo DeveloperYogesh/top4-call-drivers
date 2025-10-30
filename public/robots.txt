@@ -11,7 +11,7 @@ Disallow: /signup
 Disallow: /profile
 
 # Host
-Host: https://top4calldrivers.com/
+Host: https://top4calldrivers.com
 
 # Sitemaps
 Sitemap: https://top4calldrivers.com/sitemap.xml

@@ -170,7 +170,7 @@ function initializeDatabase() {
 
   // Cities data
   const citiesData = [
-    { id: '1', cityName: 'Tirupur', stateId: '1', isActive: true },
+    { id: '1', cityName: 'Tiruppur', stateId: '1', isActive: true },
     { id: '2', cityName: 'Chennai', stateId: '1', isActive: true },
     { id: '3', cityName: 'Madurai', stateId: '1', isActive: true },
     { id: '4', cityName: 'Trichy', stateId: '1', isActive: true },
@@ -246,7 +246,7 @@ function initializeDatabase() {
       totalTrips: 150,
       isVerified: true,
       isActive: true,
-      currentLocation: 'Tirupur',
+      currentLocation: 'Tiruppur',
       createdAt: new Date(),
       updatedAt: new Date(),
     },

@@ -196,7 +196,7 @@ export function generateStructuredData(type: string, data: any = {}) {
         name: data.name || 'Professional Driver Service',
         description: data.description || 'Hire verified, professional drivers for hassle-free commutes',
         provider: baseData,
-        areaServed: data.cities || ['Tirupur', 'Chennai', 'Madurai', 'Trichy', 'Coimbatore'],
+        areaServed: data.cities || ['Tiruppur', 'Chennai', 'Madurai', 'Trichy', 'Coimbatore'],
         serviceType: 'Driver Service',
         category: 'Transportation',
       };
@@ -212,7 +212,7 @@ export function generateStructuredData(type: string, data: any = {}) {
           addressCountry: 'IN',
           // default to Tamil Nadu for your supported cities
           addressRegion: data.state || 'Tamil Nadu',
-          addressLocality: data.city || 'Tirupur',
+          addressLocality: data.city || 'Tiruppur',
         },
         geo: data.coordinates && {
           '@type': 'GeoCoordinates',

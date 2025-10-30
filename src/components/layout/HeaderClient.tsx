@@ -80,7 +80,7 @@ export default function HeaderClientUpdated() {
 
   
   const CITIES = [
-    { label: "Tirupur", customerHref: "/best-acting-drivers-in-tirupur", driverHref: "/car-driver-job-in-tirupur" },
+    { label: "Tiruppur", customerHref: "/best-acting-drivers-in-tiruppur", driverHref: "/car-driver-job-in-tiruppur" },
     { label: "Chennai", customerHref: "/best-acting-drivers-in-chennai", driverHref: "/car-driver-job-in-chennai" },
     { label: "Trichy", customerHref: "/best-acting-drivers-in-trichy", driverHref: "/car-driver-job-in-trichy" },
     { label: "Madurai", customerHref: "/best-acting-drivers-in-madurai", driverHref: "/car-driver-job-in-madurai" },
