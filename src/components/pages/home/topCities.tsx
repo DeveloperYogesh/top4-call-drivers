@@ -42,7 +42,7 @@ const cities: City[] = [
     name: "Madurai",
     description:
       "Top4 Call Drivers brings you call driver service in Madurai right at your fingertips.",
-    imgSrc: "/images/cities/tamilnadu-madurai-meenakshi-temple.webp",
+    imgSrc: "/images/cities/tamilnadu-madurai-acting-drivers-top4-call-drivers.webp",
   },
 ];
 
