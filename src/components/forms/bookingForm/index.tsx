@@ -11,6 +11,7 @@ import React, {
 import dayjs, { Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import {
   Box,
   Button,
@@ -20,6 +21,8 @@ import {
   Tabs,
   Tab,
   Typography,
+  Chip,
+  Stack,
 } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import { useBooking } from "@/hooks/useBooking";
@@ -34,13 +37,34 @@ import ConfirmView from "./confirmView";
 import LoginForm from "@/components/auth/LoginForm";
 import { POST } from "@/utils/helpers";
 
-// --- constants (kept small) ---
+// --- constants ---
 const tripTypes = [
   { value: "one-way", label: "One Way" },
   { value: "round-trip", label: "Round Trip" },
   { value: "outstation", label: "Outstation" },
-  // { value: "daily", label: "Daily" },
+  { value: "daily", label: "Daily" },
 ];
+
+const WEEKDAY_LABELS = [
+  { key: "Mon", label: "Mon" },
+  { key: "Tue", label: "Tue" },
+  { key: "Wed", label: "Wed" },
+  { key: "Thu", label: "Thu" },
+  { key: "Fri", label: "Fri" },
+  { key: "Sat", label: "Sat" },
+  { key: "Sun", label: "Sun" },
+];
+
+// map to numeric values expected by backend (if it expects numbers)
+const WEEKDAY_MAP: Record<string, number> = {
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+  Sun: 7,
+};
 
 interface BookingFormProps {
   isEmbedded?: boolean;
@@ -48,6 +72,8 @@ interface BookingFormProps {
 
 export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
   const { user } = useAuth();
+
+  // common UI state
   const [estimatedUsage, setEstimatedUsage] = useState<number>(3);
   const [estimatedUsageError, setEstimatedUsageError] = useState<string>("");
   const [bookingLoading, setBookingLoading] = useState(false);
@@ -57,13 +83,17 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
   const [selectedTripType, setSelectedTripType] = useState<string>(
     tripTypes[1].value
-  );
+  ); // default Round Trip
+
+  // fare state (used for non-daily)
   const [fareLoading, setFareLoading] = useState(false);
   const [fareError, setFareError] = useState<string | null>(null);
   const [fareBreakdown, setFareBreakdown] = useState<any | null>(null);
 
+  // wizard pages
   const [page, setPage] = useState(1);
-  const totalPages = user ? 2 : 3;
+  const totalPages = user ? 2 : 3; // for non-daily wizard progress
+  // IMPORTANT: non-daily flows remain wizard; daily is NOT wizard in original behavior
   const isWizardFlow = selectedTripType !== "daily";
   const progress = (page / totalPages) * 100;
 
@@ -80,7 +110,16 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     validateBooking,
   } = useBooking();
 
-  // tolerant lat/long extractor to avoid TypeScript errors when Location shape varies
+  // daily-specific
+  const [dailyWeekDays, setDailyWeekDays] = useState<string[]>([]);
+  const [weekdayError, setWeekdayError] = useState<string | null>(null);
+  const [loginCompleted, setLoginCompleted] = useState(false);
+
+  // fetch cancellation refs for fare API
+  const fetchControllerRef = useRef<AbortController | null>(null);
+  const fetchTimerRef = useRef<number | null>(null);
+
+  // tolerant lat/long extractor
   const getLatLong = (loc?: Location | null) => {
     const lat =
       (loc as any)?.latitude ?? (loc as any)?.lat ?? (loc as any)?.LAT ?? 0;
@@ -93,7 +132,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     return `${lat}, ${lng}`;
   };
 
-  // set defaults on mount
+  // default on mount
   useEffect(() => {
     const defaultTime = dayjs().add(1, "hour").add(5, "second").toDate();
     updateField("scheduledTime", defaultTime);
@@ -103,27 +142,25 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateField, user]);
 
-  // keep a memoized Dayjs value for date picker child
   const scheduledDayjs = useMemo(
     () => (scheduledTime ? dayjs(scheduledTime) : null),
     [scheduledTime]
   );
 
-  // Placeholders for the fare API logic — you can move this into a service file later
-  const fetchControllerRef = useRef<AbortController | null>(null);
-  const fetchTimerRef = useRef<number | null>(null);
-
+  // fare calc helpers (unchanged for non-daily)
   const canCalculateFare = () => {
     if (!vehicleSize) return false;
+    if (!isWizardFlow) {
+      // daily (non-wizard) -> fare calculation not used for UI, but we still allow background calc only when weekdays chosen
+      return true;
+    }
+    // wizard flow: require full details
     if (isWizardFlow) {
       if (!pickupLocation || !dropLocation || !scheduledTime) return false;
-    } else {
-      if (!pickupLocation) return false;
     }
     return true;
   };
 
-  // full callFareApi implementation (uses your live API via the proxy)
   const calculateFareBreakdown = (): {
     baseFare: number;
     nightCharge: number;
@@ -131,8 +168,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
   } => {
     const baseFare = 450;
     const nightCharge = 100;
-    const subtotal = baseFare + nightCharge;
-    const total = subtotal;
+    const total = baseFare + nightCharge;
     return { baseFare, nightCharge, total };
   };
 
@@ -141,11 +177,16 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     setFareError(null);
 
     try {
-      const payload = {
+      const payload: any = {
         classid: "1",
         Hours: String(estimatedUsage),
-        triptype: selectedTripType === "one-way" ? "One Way" : selectedTripType,
-        pickuptype: isWizardFlow ? "InCity" : "InCity",
+        triptype:
+          selectedTripType === "one-way"
+            ? "One Way"
+            : selectedTripType === "daily"
+            ? "Daily"
+            : selectedTripType,
+        pickuptype: "InCity",
         pickupplace: pickupLocation?.name || "",
         dropplace: dropLocation?.name || "",
         requestdt: scheduledTime ? dayjs(scheduledTime).format("DD/MM/YYYY") : "",
@@ -153,14 +194,20 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         tripkms: "0",
       };
 
-      // Use POST helper that calls /api/proxy/booking/GetFareAmount
-      const data = await POST("api/V1/booking/GetFareAmount", payload, { signal });
+      if (selectedTripType === "daily") {
+        // API-friendly weekdays as numbers "1,2,3"
+        payload.weekDays = dailyWeekDays
+          .map((k) => WEEKDAY_MAP[k])
+          .filter(Boolean)
+          .join(",");
+      }
 
-      // If remote returns non-JSON or a string, handle gracefully
+      const data = await POST("api/V1/booking/GetFareAmount", payload, {
+        signal,
+      });
+
       if (typeof data === "string") {
-        // Remote returned raw text — fall back to estimate
-        const breakdown = calculateFareBreakdown();
-        setFareBreakdown(breakdown);
+        setFareBreakdown(calculateFareBreakdown());
       } else if (
         data &&
         (typeof (data as any).TOTALFARE !== "undefined" ||
@@ -171,14 +218,10 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         const totalFromApi = Number((data as any).TOTALFARE ?? NaN);
 
         if (!Number.isNaN(totalFromApi)) {
-          const roundedBase = Math.round(baseFare);
-          const roundedNight = Math.round(nightCharge);
-          const roundedTotal = Math.round(totalFromApi);
-
           setFareBreakdown({
-            baseFare: roundedBase,
-            nightCharge: roundedNight,
-            total: roundedTotal,
+            baseFare: Math.round(baseFare),
+            nightCharge: Math.round(nightCharge),
+            total: Math.round(totalFromApi),
           });
         } else {
           const breakdown = calculateFareBreakdown();
@@ -189,16 +232,12 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
           });
         }
       } else {
-        const breakdown = calculateFareBreakdown();
-        setFareBreakdown(breakdown);
+        setFareBreakdown(calculateFareBreakdown());
       }
     } catch (err: any) {
-      if (err?.name === "AbortError") {
-        return;
-      }
+      if (err?.name === "AbortError") return;
       console.error("Fare calculation error (API):", err);
-      const breakdown = calculateFareBreakdown();
-      setFareBreakdown(breakdown);
+      setFareBreakdown(calculateFareBreakdown());
       setFareError("Couldn't fetch live fare — showing estimated fare.");
     } finally {
       setFareLoading(false);
@@ -213,6 +252,14 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     if (fetchControllerRef.current) {
       fetchControllerRef.current.abort();
       fetchControllerRef.current = null;
+    }
+
+    // For daily we only calculate fare in background when weekdays are selected (optional)
+    if (selectedTripType === "daily" && dailyWeekDays.length === 0) {
+      setFareBreakdown(null);
+      setFareError(null);
+      setFareLoading(false);
+      return;
     }
 
     if (!canCalculateFare()) {
@@ -247,9 +294,10 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     estimatedUsage,
     scheduledTime,
     selectedTripType,
-    isWizardFlow,
+    dailyWeekDays,
   ]);
 
+  // Step helpers
   const handleNextToPage2 = () => {
     const newErrors: Record<string, string> = {};
     if (!pickupLocation || !pickupLocation.name)
@@ -257,9 +305,22 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     if (!dropLocation || !dropLocation.name)
       newErrors.dropLocation = "Drop location is required.";
     if (!scheduledTime) newErrors.scheduledTime = "Schedule time is required.";
-    // cast updateField to any temporarily so TS accepts "errors" key
     (updateField as any)("errors", newErrors);
     if (Object.keys(newErrors).length === 0) setPage(2);
+  };
+
+  const handleNextToPage2Daily = () => {
+    const newErrors: Record<string, string> = {};
+    if (!pickupLocation || !pickupLocation.name)
+      newErrors.pickupLocation = "Pickup location is required.";
+    if (!estimatedUsage || estimatedUsage <= 0)
+      setEstimatedUsageError("Please select package hours.");
+    else setEstimatedUsageError("");
+    (updateField as any)("errors", newErrors);
+    if (Object.keys(newErrors).length === 0 && !estimatedUsageError) {
+      setLoginCompleted(false);
+      setPage(2);
+    }
   };
 
   const handleNextToPage3 = () => {
@@ -294,11 +355,14 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
     setFareBreakdown(null);
     setBookingLoading(false);
-    setSelectedTripType(tripTypes[0].value);
+    setSelectedTripType(tripTypes[1].value);
     setEstimatedUsage(3);
+    setDailyWeekDays([]);
+    setWeekdayError(null);
+    setLoginCompleted(false);
   };
 
-  // memoized callbacks handed to children
+  // callbacks to children
   const onPickupChange = useCallback(
     (location: Location | null) => updateField("pickupLocation", location),
     [updateField]
@@ -321,7 +385,32 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     [updateField]
   );
 
-  // unified booking function with insertbooking API (via proxy)
+  // weekdays toggle
+  const toggleWeekday = (dayKey: string) => {
+    setWeekdayError(null);
+    setDailyWeekDays((prev) => {
+      if (prev.includes(dayKey)) return prev.filter((d) => d !== dayKey);
+      return [...prev, dayKey];
+    });
+  };
+
+  const validateDailyWeekdays = (): boolean => {
+    if (selectedTripType !== "daily") return true;
+    if (dailyWeekDays.length < 3) {
+      setWeekdayError("Select at least 3 days.");
+      return false;
+    }
+    if (dailyWeekDays.length > 7) {
+      setWeekdayError("Select at most 7 days.");
+      return false;
+    }
+    setWeekdayError(null);
+    return true;
+  };
+
+  const canProceedDaily = dailyWeekDays.length >= 3;
+
+  // unified booking function (daily: price = "")
   const handleBookNow = async () => {
     setBookingError(null);
     if (!estimatedUsage || estimatedUsage <= 0) {
@@ -329,6 +418,13 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       return;
     }
     setEstimatedUsageError("");
+
+    if (selectedTripType === "daily") {
+      if (!validateDailyWeekdays()) {
+        setBookingError("Please select valid weekdays (3–7 days).");
+        return;
+      }
+    }
 
     const effectivePhone = (
       (phoneNumber && String(phoneNumber)) ||
@@ -355,7 +451,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
     updateField("phoneNumber", effectivePhone);
 
-    if (!fareBreakdown?.total) {
+    // For non-daily flows require fareBreakdown.total; for daily we send empty price
+    if (selectedTripType !== "daily" && !fareBreakdown?.total) {
       setBookingError(
         "Could not determine fare. Please check details and try again."
       );
@@ -379,11 +476,10 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         { value: "suv", label: "SUV" },
       ].find((v) => v.value === vehicleSize)?.label || vehicleSize;
 
-    const payload = {
+    const payload: any = {
       tripType: tripLabel,
       reqType: tripLabel,
       pickupLocation: pickupLocation?.name || "",
-      // use tolerant extractor to avoid TS errors if Location shape differs
       pickupLatLong: getLatLong(pickupLocation),
       dropLocation: dropLocation?.name || "",
       dropLatLong: getLatLong(dropLocation),
@@ -391,20 +487,34 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         ? dayjs(scheduledTime).format("YYYY-MM-DD HH:mm:ss")
         : "",
       returnTime: "",
-      price: String(fareBreakdown.total),
+      price: selectedTripType === "daily" ? "0" : String(fareBreakdown?.total ?? ""),
       carType: carLabel,
       packageHours: String(estimatedUsage),
       mobileNumber: effectivePhone,
     };
 
+    if (selectedTripType === "daily") {
+      payload.weekDays = dailyWeekDays
+        .map((k) => WEEKDAY_MAP[k])
+        .filter(Boolean)
+        .join(",");
+      payload.startDate = scheduledTime
+        ? dayjs(scheduledTime).format("YYYY-MM-DD")
+        : "";
+      payload.pickupTime = scheduledTime
+        ? dayjs(scheduledTime).format("HH:mm")
+        : "";
+    }
+
     try {
-      // use POST helper which will call /api/proxy/booking/insertbookingnew
       const data = await POST("api/V1/booking/insertbookingnew", payload);
 
       console.log("Booking Response:", data);
 
       if (!data || data.Success !== true) {
-        throw new Error((data && (data.Message || data.message)) || "Booking failed. Please try again.");
+        throw new Error(
+          (data && (data.Message || data.message)) || "Booking failed. Please try again."
+        );
       }
 
       const bookingNo = data.Data?.BookingNo?.split(":").pop()?.trim() || "N/A";
@@ -414,9 +524,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       setBookingSuccess(true);
     } catch (error: any) {
       console.error("Booking error:", error);
-      setBookingError(
-        error?.message || "An unknown error occurred. Please try again."
-      );
+      setBookingError(error?.message || "An unknown error occurred. Please try again.");
     } finally {
       setBookingLoading(false);
     }
@@ -449,14 +557,9 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                   Booking ID: {bookingResponse.bookingNo}
                 </Typography>
                 <Typography variant="body1" sx={{ mt: 2 }}>
-                  Driver details will be sent via SMS to{" "}
-                  {phoneNumber || "your phone"}.
+                  Driver details will be sent via SMS to {phoneNumber || "your phone"}.
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 3 }}
-                >
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                   Pay {bookingResponse.paymentType} at the end of the ride.
                 </Typography>
                 <Button variant="contained" onClick={resetForm}>
@@ -470,93 +573,25 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                   onChange={(e, val) => {
                     setSelectedTripType(val);
                     setPage(1);
+                    // reset daily-specific when switching
+                    setDailyWeekDays([]);
+                    setWeekdayError(null);
+                    setLoginCompleted(false);
                   }}
                   indicatorColor="primary"
                   textColor="primary"
                   centered
                 >
                   {tripTypes.map((type) => (
-                    <Tab
-                      key={type.value}
-                      value={type.value}
-                      label={type.label}
-                    />
+                    <Tab key={type.value} value={type.value} label={type.label} />
                   ))}
                 </Tabs>
 
                 <Divider sx={{ mb: 2 }} />
 
-                {!isWizardFlow ? (
-                  <>
-                    <LocationFields
-                      includeDrop={false}
-                      pickupLocation={pickupLocation}
-                      dropLocation={dropLocation}
-                      onPickupChange={onPickupChange}
-                      onDropChange={onDropChange}
-                      errors={errors}
-                    />
-                    <UsageField
-                      value={estimatedUsage}
-                      onChange={setEstimatedUsage}
-                      error={estimatedUsageError}
-                    />
-                    <CarFields
-                      carType={carType}
-                      vehicleSize={vehicleSize}
-                      onCarTypeChange={onCarTypeChange}
-                      onVehicleSizeChange={onVehicleSizeChange}
-                    />
-                    {user ? (
-                      <FareDisplay
-                        fareLoading={fareLoading}
-                        fareError={fareError}
-                        fareBreakdown={fareBreakdown}
-                      />
-                    ) : (
-                      <>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, mb: 2 }}
-                        >
-                          Login to Continue
-                        </Typography>
-                        <LoginForm
-                          onSuccess={(userData: any) => {
-                            updateField(
-                              "phoneNumber",
-                              userData.phone || userData.mobile
-                            );
-                          }}
-                          initialPhone={phoneNumber}
-                          compact={true}
-                        />
-                      </>
-                    )}
-
-                    {bookingError && (
-                      <Box sx={{ mb: 2 }}>
-                        <Typography color="error">{bookingError}</Typography>
-                      </Box>
-                    )}
-
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      sx={{ mt: 2, backgroundColor: "#000" }}
-                      onClick={user ? handleBookNow : handleNextToPage3}
-                      disabled={bookingLoading}
-                    >
-                      {bookingLoading ? (
-                        <CircularProgress size={24} />
-                      ) : user ? (
-                        "Continue to Schedule Driver"
-                      ) : (
-                        "Next"
-                      )}
-                    </Button>
-                  </>
-                ) : (
+                {/* Non-daily flows — KEEP EXACT behavior */}
+                {isWizardFlow ? (
+                  // original wizard flow for one-way / round-trip / outstation
                   <Box sx={{ position: "relative" }}>
                     {page === 1 && (
                       <>
@@ -592,19 +627,13 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
                     {page === 2 && !user && (
                       <>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, mb: 2 }}
-                        >
+                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                           Login to Continue
                         </Typography>
                         <LoginForm
                           onSuccess={(userData: any) => {
                             setPage(3);
-                            updateField(
-                              "phoneNumber",
-                              userData.phone || userData.mobile
-                            );
+                            updateField("phoneNumber", userData.phone || userData.mobile);
                           }}
                           onCancel={handleBackToPage1}
                           initialPhone={phoneNumber}
@@ -612,11 +641,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                           className="mb-4"
                         />
                         <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-                          <Button
-                            variant="outlined"
-                            fullWidth
-                            onClick={handleBackToPage1}
-                          >
+                          <Button variant="outlined" fullWidth onClick={handleBackToPage1}>
                             Back
                           </Button>
                         </Box>
@@ -646,18 +671,234 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                       </>
                     ) : null}
                   </Box>
+                ) : (
+                  // DAILY flow (3-step wizard specific to daily)
+                  <Box sx={{ position: "relative" }}>
+                    {/* Page 1 - pickup, usage, car (no drop) */}
+                    {page === 1 && (
+                      <>
+                        <LocationFields
+                          includeDrop={false}
+                          pickupLocation={pickupLocation}
+                          dropLocation={dropLocation}
+                          onPickupChange={onPickupChange}
+                          onDropChange={onDropChange}
+                          errors={errors}
+                        />
+                        <UsageField
+                          value={estimatedUsage}
+                          onChange={setEstimatedUsage}
+                          error={estimatedUsageError}
+                        />
+                        <CarFields
+                          carType={carType}
+                          vehicleSize={vehicleSize}
+                          onCarTypeChange={onCarTypeChange}
+                          onVehicleSizeChange={onVehicleSizeChange}
+                        />
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={handleNextToPage2Daily}
+                          sx={{ mt: 2 }}
+                        >
+                          Next
+                        </Button>
+                      </>
+                    )}
+
+                    {/* Page 2 - date/time + weekdays (no fare display here) */}
+                    {page === 2 && (
+                      <>
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                            Select start date
+                          </Typography>
+                          <DatePicker
+                            value={scheduledDayjs}
+                            slotProps={{
+                              textField: { fullWidth: true },
+                            }}
+                            onChange={(d: Dayjs | null) => {
+                              const base = scheduledDayjs ? dayjs(scheduledDayjs) : dayjs();
+                              if (!d) return onDateChange(null);
+                              const combined = base
+                                .set("year", d.year())
+                                .set("month", d.month())
+                                .set("date", d.date());
+                              onDateChange(combined as Dayjs);
+                            }}
+                          />
+                        </Box>
+
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                            Select pick-up time
+                          </Typography>
+                          <TimePicker
+                            value={scheduledDayjs}
+                            slotProps={{
+                              textField: { fullWidth: true },
+                            }}
+                            onChange={(t: Dayjs | null) => {
+                              if (!t) return onDateChange(null);
+                              const base = scheduledDayjs ? dayjs(scheduledDayjs) : dayjs();
+                              const combined = base.set("hour", t.hour()).set("minute", t.minute());
+                              onDateChange(combined as Dayjs);
+                            }}
+                          />
+                        </Box>
+
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                            Choose weekdays (select 3 to 7)
+                          </Typography>
+                          <Stack direction="row" spacing={1} flexWrap="wrap">
+                            {WEEKDAY_LABELS.map((w) => (
+                              <Chip
+                                key={w.key}
+                                label={w.label}
+                                clickable
+                                color={dailyWeekDays.includes(w.key) ? "primary" : "default"}
+                                variant={dailyWeekDays.includes(w.key) ? "filled" : "outlined"}
+                                onClick={() => toggleWeekday(w.key)}
+                                sx={{ mb: 1 }}
+                              />
+                            ))}
+                          </Stack>
+                          {weekdayError && (
+                            <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+                              {weekdayError}
+                            </Typography>
+                          )}
+                        </Box>
+
+                        {/* intentionally not showing FareDisplay here */}
+
+                        {bookingError && (
+                          <Box sx={{ mb: 2 }}>
+                            <Typography color="error">{bookingError}</Typography>
+                          </Box>
+                        )}
+
+                        {user ? (
+                          // logged-in user sees Confirm & Book here (must click to place booking)
+                          <Box sx={{ display: "flex", gap: 2 }}>
+                            <Button variant="outlined" fullWidth onClick={handleBackToPage1}>
+                              Back
+                            </Button>
+                            <Button
+                              variant="contained"
+                              fullWidth
+                              onClick={() => {
+                                if (!validateDailyWeekdays()) return;
+                                handleBookNow();
+                              }}
+                              disabled={bookingLoading || !canProceedDaily}
+                            >
+                              {bookingLoading ? <CircularProgress size={20} /> : "Confirm & Book"}
+                            </Button>
+                          </Box>
+                        ) : (
+                          // not logged in -> go to login (page 3)
+                          <Box sx={{ display: "flex", gap: 2 }}>
+                            <Button variant="outlined" fullWidth onClick={handleBackToPage1}>
+                              Back
+                            </Button>
+                            <Button
+                              variant="contained"
+                              fullWidth
+                              onClick={() => {
+                                if (!validateDailyWeekdays()) {
+                                  setWeekdayError("Select at least 3 days.");
+                                  return;
+                                }
+                                setPage(3);
+                              }}
+                            >
+                              Continue
+                            </Button>
+                          </Box>
+                        )}
+                      </>
+                    )}
+
+                    {/* Page 3 - login & confirm (for not-logged-in users or final confirm) */}
+                    {page === 3 && (
+                      <>
+                        {!user ? (
+                          <>
+                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                              Login to Continue
+                            </Typography>
+                            <LoginForm
+                              onSuccess={(userData: any) => {
+                                setLoginCompleted(true);
+                                updateField("phoneNumber", userData.phone || userData.mobile);
+                              }}
+                              onCancel={() => setPage(2)}
+                              initialPhone={phoneNumber}
+                              compact={true}
+                              className="mb-4"
+                            />
+
+                            {/* show confirm after login completes */}
+                            {(loginCompleted || user) && (
+                              <Box sx={{ display: "flex", gap: 2 }}>
+                                <Button variant="outlined" fullWidth onClick={handleBackToPage2}>
+                                  Back
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  fullWidth
+                                  onClick={() => {
+                                    if (!validateDailyWeekdays()) {
+                                      setPage(2);
+                                      return;
+                                    }
+                                    handleBookNow();
+                                  }}
+                                  disabled={bookingLoading || !canProceedDaily}
+                                >
+                                  {bookingLoading ? <CircularProgress size={20} /> : "Confirm & Book"}
+                                </Button>
+                              </Box>
+                            )}
+                          </>
+                        ) : (
+                          // if user somehow reached page 3 while logged in -> show Confirm (safe)
+                          <Box sx={{ display: "flex", gap: 2 }}>
+                            <Button variant="outlined" fullWidth onClick={handleBackToPage2}>
+                              Back
+                            </Button>
+                            <Button
+                              variant="contained"
+                              fullWidth
+                              onClick={() => {
+                                if (!validateDailyWeekdays()) {
+                                  setPage(2);
+                                  return;
+                                }
+                                handleBookNow();
+                              }}
+                              disabled={bookingLoading || !canProceedDaily}
+                            >
+                              {bookingLoading ? <CircularProgress size={20} /> : "Confirm & Book"}
+                            </Button>
+                          </Box>
+                        )}
+                      </>
+                    )}
+                  </Box>
                 )}
               </>
             )}
           </div>
 
+          {/* progress bar only for wizard flows (keeps previous behaviour) */}
           {isWizardFlow && !bookingSuccess && (
             <Box sx={{ pt: 1 }}>
-              <LinearProgress
-                variant="determinate"
-                value={progress}
-                sx={{ height: 6, borderRadius: 4 }}
-              />
+              <LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 4 }} />
             </Box>
           )}
         </div>
