@@ -1,41 +1,40 @@
 // File: components/booking/BookingForm.tsx
 "use client";
 
-import React, {
+import LoginForm from "@/components/auth/LoginForm";
+import { useAuth } from "@/hooks/useAuth";
+import { useBooking } from "@/hooks/useBooking";
+import { Location } from "@/types";
+import { POST } from "@/utils/helpers";
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Divider,
+  LinearProgress,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs, { Dayjs } from "dayjs";
+import {
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import dayjs, { Dayjs } from "dayjs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker, TimePicker } from "@mui/x-date-pickers";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Divider,
-  LinearProgress,
-  Tabs,
-  Tab,
-  Typography,
-  Chip,
-  Stack,
-} from "@mui/material";
-import { useAuth } from "@/hooks/useAuth";
-import { useBooking } from "@/hooks/useBooking";
-import { Location } from "@/types";
-import LocationFields from "./locationFields";
-import UsageField from "./usageField";
 import CarFields from "./carFields";
-import LottieDone from "./lottieDone";
-import FareDisplay from "./fareDisplay";
-import ScheduleField from "./scheduleField";
 import ConfirmView from "./confirmView";
-import LoginForm from "@/components/auth/LoginForm";
-import { POST } from "@/utils/helpers";
+import LocationFields from "./locationFields";
+import LottieDone from "./lottieDone";
+import ScheduleField from "./scheduleField";
+import UsageField from "./usageField";
 
 // --- constants ---
 const tripTypes = [
@@ -46,13 +45,13 @@ const tripTypes = [
 ];
 
 const WEEKDAY_LABELS = [
+  { key: "Sun", label: "Sun" },
   { key: "Mon", label: "Mon" },
   { key: "Tue", label: "Tue" },
   { key: "Wed", label: "Wed" },
   { key: "Thu", label: "Thu" },
   { key: "Fri", label: "Fri" },
   { key: "Sat", label: "Sat" },
-  { key: "Sun", label: "Sun" },
 ];
 
 // map to numeric values expected by backend (if it expects numbers)
@@ -121,14 +120,47 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
   // tolerant lat/long extractor
   const getLatLong = (loc?: Location | null) => {
-    const lat =
-      (loc as any)?.latitude ?? (loc as any)?.lat ?? (loc as any)?.LAT ?? 0;
-    const lng =
+    if (!loc) {
+      console.warn("getLatLong: location is null or undefined");
+      return "0, 0";
+    }
+    
+    // Try different property names for latitude (check both direct and nested)
+    const latValue = 
+      (loc as any)?.latitude ?? 
+      (loc as any)?.lat ?? 
+      (loc as any)?.LAT ?? 
+      loc.lat ??
+      (loc as any)?.coordinates?.lat ??
+      (loc as any)?.geometry?.location?.lat ??
+      (typeof (loc as any)?.geometry?.location?.lat === 'function' 
+        ? (loc as any).geometry.location.lat() 
+        : undefined);
+    
+    // Try different property names for longitude (check both direct and nested)
+    const lngValue =
       (loc as any)?.longitude ??
       (loc as any)?.lng ??
       (loc as any)?.lon ??
       (loc as any)?.LON ??
-      0;
+      loc.lng ??
+      (loc as any)?.coordinates?.lng ??
+      (loc as any)?.geometry?.location?.lng ??
+      (typeof (loc as any)?.geometry?.location?.lng === 'function' 
+        ? (loc as any).geometry.location.lng() 
+        : undefined);
+    
+    // Convert to numbers and validate
+    const lat = latValue != null && !isNaN(Number(latValue)) ? Number(latValue) : 0;
+    const lng = lngValue != null && !isNaN(Number(lngValue)) ? Number(lngValue) : 0;
+    
+    // Debug log to see what we're getting
+    if (lat === 0 && lng === 0) {
+      console.warn("getLatLong: coordinates are 0,0. Location object:", JSON.stringify(loc, null, 2));
+    } else {
+      console.log("getLatLong - location:", loc.name, "lat:", lat, "lng:", lng);
+    }
+    
     return `${lat}, ${lng}`;
   };
 
@@ -193,6 +225,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         pickuptime: scheduledTime ? dayjs(scheduledTime).format("HH:mm") : "",
         tripkms: "0",
       };
+      
+      
 
       if (selectedTripType === "daily") {
         // API-friendly weekdays as numbers "1,2,3"
@@ -476,8 +510,20 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         { value: "suv", label: "SUV" },
       ].find((v) => v.value === vehicleSize)?.label || vehicleSize;
 
+    // Debug: Log location objects before creating payload
+    console.log("pickupLocation object:", pickupLocation);
+    console.log("dropLocation object:", dropLocation);
+    
     const payload: any = {
-      tripType: tripLabel,
+      tripType: selectedTripType === "one-way"
+      ? "InCity"
+      : selectedTripType === "outstation"
+      ? "Outstation"
+      : selectedTripType === "daily"
+      ? "Daily"
+      : selectedTripType === "round-trip"
+      ? "InCity"
+      : selectedTripType,
       reqType: tripLabel,
       pickupLocation: pickupLocation?.name || "",
       pickupLatLong: getLatLong(pickupLocation),
@@ -492,6 +538,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       packageHours: String(estimatedUsage),
       mobileNumber: effectivePhone,
     };
+
+    console.log("payload", payload);
 
     if (selectedTripType === "daily") {
       payload.weekDays = dailyWeekDays
@@ -508,8 +556,6 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
     try {
       const data = await POST("api/V1/booking/insertbookingnew", payload);
-
-      console.log("Booking Response:", data);
 
       if (!data || data.Success !== true) {
         throw new Error(

@@ -130,7 +130,10 @@ export default function LocationAutocomplete({
 
   // Helper: fetch details from Google PlacesService (guarded by request-id)
   const fetchPlaceDetailsGoogle = useCallback(async (placeId: string) => {
-    if (!placesServiceRef.current) return null;
+    if (!placesServiceRef.current) {
+      console.warn("fetchPlaceDetailsGoogle: PlacesService not available");
+      return null;
+    }
     // cached?
     if (placeCache.current.has(placeId)) return placeCache.current.get(placeId) ?? null;
 
@@ -139,17 +142,43 @@ export default function LocationAutocomplete({
         placesServiceRef.current.getDetails(
           { placeId, fields: ["address_components", "formatted_address", "geometry", "name"] },
           (place: any, status: any) => {
-            if (!place || status !== (window as any).google.maps.places.PlacesServiceStatus.OK) {
+            const OK_STATUS = (window as any).google?.maps?.places?.PlacesServiceStatus?.OK;
+            if (!place || status !== OK_STATUS) {
+              console.warn("fetchPlaceDetailsGoogle: Status not OK", {
+                status,
+                expected: OK_STATUS,
+                placeId,
+                hasPlace: !!place
+              });
               resolve(null);
               return;
             }
+            
+            // Extract coordinates - handle both method call and direct property access
+            let lat: number | undefined;
+            let lng: number | undefined;
+            
+            if (place.geometry?.location) {
+              if (typeof place.geometry.location.lat === 'function') {
+                lat = place.geometry.location.lat();
+                lng = place.geometry.location.lng();
+              } else {
+                lat = place.geometry.location.lat;
+                lng = place.geometry.location.lng;
+              }
+            }
+            
+            if (lat == null || lng == null) {
+              console.warn("fetchPlaceDetailsGoogle: No coordinates found in place geometry", place.geometry);
+            }
+            
             const loc: Location = {
               id: place.place_id,
               name: place.formatted_address || place.name || place.place_id,
               city: undefined,
               state: undefined,
-              lat: place.geometry?.location?.lat?.(),
-              lng: place.geometry?.location?.lng?.(),
+              lat,
+              lng,
             };
             if (place.address_components) {
               for (const c of place.address_components) {
@@ -167,6 +196,57 @@ export default function LocationAutocomplete({
         resolve(null);
       }
     });
+  }, []);
+
+  // REST API fallback to fetch place details using Google Places REST API
+  const fetchPlaceDetailsREST = useCallback(async (placeId: string) => {
+    if (placeCache.current.has(placeId)) return placeCache.current.get(placeId) ?? null;
+    
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      console.warn("Google API key not found for REST API fallback");
+      return null;
+    }
+
+    try {
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&key=${apiKey}&fields=place_id,formatted_address,name,geometry,address_components`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error("REST API fetch failed:", res.status, res.statusText);
+        return null;
+      }
+      const data = await res.json();
+      
+      if (data.status === "OK" && data.result) {
+        const place = data.result;
+        const loc: Location = {
+          id: place.place_id || placeId,
+          name: place.formatted_address || place.name || placeId,
+          city: undefined,
+          state: undefined,
+          lat: place.geometry?.location?.lat,
+          lng: place.geometry?.location?.lng,
+        };
+        
+        if (place.address_components) {
+          for (const c of place.address_components) {
+            if (c.types.includes("locality")) loc.city = c.long_name;
+            if (c.types.includes("administrative_area_level_1")) loc.state = c.long_name;
+            if (!loc.city && c.types.includes("sublocality")) loc.city = c.long_name;
+          }
+        }
+        
+        placeCache.current.set(placeId, loc);
+        console.log("REST API fetched coordinates for", loc.name, ":", loc.lat, loc.lng);
+        return loc;
+      } else {
+        console.error("REST API returned error status:", data.status, data.error_message);
+        return null;
+      }
+    } catch (e) {
+      console.error("fetchPlaceDetailsREST error", e);
+      return null;
+    }
   }, []);
 
   // Server fallback to fetch place details (if caller supplies server endpoints)
@@ -343,44 +423,48 @@ export default function LocationAutocomplete({
       return;
     }
 
-    // If server-mode (fetchSuggestions provided) try server details fetch first
-    if (fetchSuggestions && newValue.id) {
-      // check cache
+    // Always try to fetch place details if we have a place ID
+    if (newValue.id) {
+      // Check cache first
       if (placeCache.current.has(newValue.id)) {
-        onChange(placeCache.current.get(newValue.id) ?? newValue);
-        return;
-      }
-      const details = await fetchPlaceDetailsServer(newValue.id);
-      if (details) {
-        onChange(details);
-        return;
-      }
-      // fallback to google details if available
-      if (googleLoaded && placesServiceRef.current) {
-        const g = await fetchPlaceDetailsGoogle(newValue.id);
-        if (g) {
-          onChange(g);
+        const cached = placeCache.current.get(newValue.id);
+        if (cached && cached.lat != null && cached.lng != null) {
+          onChange(cached);
           return;
         }
       }
-      // final fallback: return the textual suggestion
-      onChange(newValue);
-      return;
-    }
 
-    // If no server-mode and google available, fetch google details
-    if (!fetchSuggestions && googleLoaded && placesServiceRef.current && newValue.id) {
-      // cache?
-      if (placeCache.current.has(newValue.id)) {
-        onChange(placeCache.current.get(newValue.id) ?? newValue);
+      // Always try Google JavaScript API first if available (most reliable for coordinates)
+      if (googleLoaded && placesServiceRef.current) {
+        const g = await fetchPlaceDetailsGoogle(newValue.id);
+        if (g && g.lat != null && g.lng != null) {
+          console.log("Google JS API fetched coordinates for", g.name, ":", g.lat, g.lng);
+          onChange(g);
+          return;
+        } else {
+          console.warn("Google JS API failed to fetch coordinates for", newValue.name);
+        }
+      }
+
+      // Try server API route (handles CORS and API key security)
+      const serverDetails = await fetchPlaceDetailsServer(newValue.id);
+      if (serverDetails && serverDetails.lat != null && serverDetails.lng != null) {
+        console.log("Server API fetched coordinates for", serverDetails.name, ":", serverDetails.lat, serverDetails.lng);
+        onChange(serverDetails);
         return;
       }
-      const detailed = await fetchPlaceDetailsGoogle(newValue.id);
-      onChange(detailed || newValue);
-      return;
+
+      // Try REST API fallback (works even if server API fails)
+      const restDetails = await fetchPlaceDetailsREST(newValue.id);
+      if (restDetails && restDetails.lat != null && restDetails.lng != null) {
+        console.log("REST API fetched coordinates for", restDetails.name, ":", restDetails.lat, restDetails.lng);
+        onChange(restDetails);
+        return;
+      }
     }
 
-    // fallback
+    // Final fallback: warn and return location without coordinates
+    console.warn("LocationAutocomplete: Could not fetch coordinates for location:", newValue.name, "ID:", newValue.id);
     onChange(newValue);
   };
 
@@ -445,3 +529,4 @@ export default function LocationAutocomplete({
     />
   );
 }
+
