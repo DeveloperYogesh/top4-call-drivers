@@ -1,11 +1,12 @@
 // seo.ts
+import { cache } from 'react';
 import { Metadata } from 'next';
 import { APP_CONFIG, SOCIAL_LINKS, SUPPORTED_CITIES } from '@/utils/constants';
 import { CityData } from '@/types';
 
-export function getCityData(citySlug: string): CityData | null {
+export const getCityData = cache((citySlug: string): CityData | null => {
   return SUPPORTED_CITIES.find((city) => city.slug === citySlug) || null;
-}
+});
 
 export function generateCityMetadata(cityData: CityData): Metadata {
   const title = `Best Acting Drivers in ${cityData.name} - TOP4 Call Drivers`;

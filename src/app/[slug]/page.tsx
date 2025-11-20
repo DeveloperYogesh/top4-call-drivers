@@ -8,6 +8,7 @@ import CustomerCityPage from "@/components/pages/customerCityPage";
 // Use inline typing for params to avoid alias conflicts with Next.js generated types
 
 export const dynamicParams = false;
+export const dynamic = "force-static";
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: any): Promise<Metadata> {

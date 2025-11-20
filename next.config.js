@@ -5,13 +5,10 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async rewrites() {
-    return [
-      { source: "/best-acting-drivers-in-:city", destination: "/best-acting-drivers-in/:city" },
-      { source: "/car-driver-job-in-:city", destination: "/car-driver-job-in/:city" },
-    ];
+  turbopack: {
+    // Ensures Turbopack uses this project as the workspace root when other lockfiles exist.
+    root: __dirname,
   },
-
   async headers() {
     return [
       {
@@ -54,6 +51,12 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
+      },
+    ],
   },
 
   poweredByHeader: false,

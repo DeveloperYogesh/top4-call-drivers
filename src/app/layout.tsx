@@ -24,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={poppins.className}>
+      <body className={poppins.variable}>
         <AccessibilityProvider>
           <ThemeProvider>
             <div className="min-h-screen flex flex-col">

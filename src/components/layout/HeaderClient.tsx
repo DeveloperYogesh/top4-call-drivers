@@ -52,7 +52,7 @@ export default function HeaderClientUpdated() {
   const navTextInactive = isTransparent
     ? "text-white hover:bg-white/5"
     : "text-gray-700 hover:bg-gray-100";
-  const summaryBase = `list-none px-2 py-1 rounded-md font-semibold cursor-pointer ${
+  const summaryBase = `list-none px-2 py-1 rounded-md font-medium text-sm cursor-pointer ${
     isTransparent
       ? "text-white hover:bg-white/5"
       : "text-gray-700 hover:bg-gray-100"
@@ -75,7 +75,8 @@ export default function HeaderClientUpdated() {
 
   const NAV_ITEMS = [
     { label: "Tariff", href: ROUTES.TARIFF },
-    { label: "About Us", href: ROUTES.ABOUT },
+    { label: "About", href: ROUTES.ABOUT },
+    { label: "Blog", href: ROUTES.BLOG },
   ];
 
   
@@ -183,14 +184,14 @@ export default function HeaderClientUpdated() {
           </div>
 
           <nav
-            className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-start gap-6"
+            className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-start lg:gap-3 2xl:gap-6"
             aria-label="Primary navigation"
           >
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-2 py-1 rounded-md font-medium transition-colors ${
+                className={`px-2 py-1 rounded-md font-medium text-sm transition-colors ${
                   item.href === pathname ? navTextActive : navTextInactive
                 }`}
               >

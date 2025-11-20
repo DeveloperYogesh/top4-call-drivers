@@ -1,16 +1,26 @@
 import { CityData } from "@/types";
-import {
-    Phone
-} from "@mui/icons-material";
-import { Button } from "@mui/material";
 import Link from "next/link";
 
 interface CtaSectionProps {
   cityData: CityData;
 }
 
-export default function CtaSection({ cityData }: CtaSectionProps) {
+const PhoneIcon = () => (
+  <svg
+    aria-hidden="true"
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
+  </svg>
+);
 
+export default function CtaSection({ cityData }: CtaSectionProps) {
   return (
     <section>
       <div className="bg-[#354B9C] text-white py-8 text-center">
@@ -24,16 +34,13 @@ export default function CtaSection({ cityData }: CtaSectionProps) {
             for their transportation needs
           </p>
 
-          <Button
-            component={Link}
+          <Link
             href="/book-driver"
-            variant="contained"
-            size="large"
-            className="bg-white text-[#354B9C] px-8 py-4 text-lg font-semibold hover:bg-white/90"
-            startIcon={<Phone />}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-lg font-semibold text-[#354B9C] transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
+            <PhoneIcon />
             Book Driver Now
-          </Button>
+          </Link>
         </div>
       </div>
     </section>
