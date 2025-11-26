@@ -267,12 +267,46 @@ export function generateStructuredData(type: string, data: any = {}) {
           })) || [],
       };
 
+    case 'review':
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'Review',
+        itemReviewed: {
+          '@type': 'Organization',
+          name: APP_CONFIG.name,
+          image: `${APP_CONFIG.url}/images/logo.png`,
+        },
+        author: {
+          '@type': 'Person',
+          name: data.author || 'Anonymous',
+        },
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: data.rating || 5,
+          bestRating: 5,
+        },
+        reviewBody: data.reviewBody,
+      };
+
     default:
       // default to organization info (include @context)
       return {
         '@context': 'https://schema.org',
         '@type': 'Organization',
         ...baseData,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${APP_CONFIG.url}/images/logo.png`,
+          width: 112,
+          height: 112,
+        },
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'No: 26 Jayalakshmipuram, 3rd Street, Nungambakkam',
+          addressLocality: 'Chennai',
+          postalCode: '600034',
+          addressCountry: 'IN',
+        },
       };
   }
 }

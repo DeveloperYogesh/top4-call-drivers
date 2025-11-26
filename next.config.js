@@ -44,6 +44,9 @@ const nextConfig = {
     ];
   },
 
+  experimental: {
+    optimizePackageImports: ['@mui/material', '@mui/icons-material', 'lodash', 'date-fns'],
+  },
   output: 'standalone',
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -55,6 +58,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'i.ytimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
     ],
   },
