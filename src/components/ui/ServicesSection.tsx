@@ -1,5 +1,3 @@
-import React from "react";
-import { Button } from "@mui/material";
 import {
   DirectionsCar,
   LocalCarWash,
@@ -7,7 +5,6 @@ import {
   CleaningServices,
   Build,
   Security,
-  ArrowForward,
 } from "@mui/icons-material";
 import Link from "next/link";
 import { SERVICES, ROUTES } from "@/utils/constants";
@@ -63,25 +60,23 @@ export default function ServicesSection() {
                     </p>
                     <div className="mt-2">
                       {service.available ? (
-                        <Button
-                          variant="outlined"
-                          endIcon={<ArrowForward />}
-                          component={Link}
-                          href={ROUTES.SERVICES}
-                          className="rounded-lg font-semibold transition-all duration-300 service-button"
+                        <Link
+                          href={
+                            service.id === "professional-drivers"
+                              ? ROUTES.BOOK_DRIVER
+                              : `${ROUTES.SERVICES}/${service.id}`
+                          }
+                          className="inline-flex items-center gap-2 rounded-lg border border-[#354B9C] px-4 py-2 text-sm font-semibold text-[#354B9C] transition hover:bg-[#354B9C] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#354B9C]"
                         >
                           {service.id === "professional-drivers"
                             ? "Book Now"
                             : "Learn More"}
-                        </Button>
+                          <span aria-hidden="true">→</span>
+                        </Link>
                       ) : (
-                        <Button
-                          variant="text"
-                          disabled
-                          className="rounded-lg font-semibold"
-                        >
+                        <span className="inline-flex rounded-lg border border-dashed border-gray-300 px-4 py-2 text-sm font-semibold text-gray-400">
                           Coming Soon
-                        </Button>
+                        </span>
                       )}
                     </div>
                   </div>
@@ -107,25 +102,19 @@ export default function ServicesSection() {
             <p className="text-base text-gray-600 mb-4 max-w-2xl mx-auto">
               Download the TOP4 Call Drivers app on iOS / Android phones for a seamless car ownership experience. Track all your bookings and get rewarded for every transaction.
             </p>
-            <div className="flex gap-2 justify-center flex-wrap">
-              <Button
-                variant="contained"
-                size="large"
-                component={Link}
+            <div className="flex flex-wrap justify-center gap-2">
+              <Link
                 href={ROUTES.DOWNLOAD}
-                className="px-6 py-3 rounded-lg font-semibold"
+                className="inline-flex items-center justify-center rounded-full bg-[#354B9C] px-6 py-3 text-lg font-semibold text-white transition hover:bg-[#2b3d83] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b3d83]"
               >
                 Download App
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                component={Link}
+              </Link>
+              <Link
                 href={ROUTES.SERVICES}
-                className="px-6 py-3 rounded-lg font-semibold"
+                className="inline-flex items-center justify-center rounded-full border border-[#354B9C] px-6 py-3 text-lg font-semibold text-[#354B9C] transition hover:bg-[#354B9C]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#354B9C]"
               >
                 View All Services
-              </Button>
+              </Link>
             </div>
           </div>
         </section>

@@ -931,7 +931,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                             >
                               {bookingLoading ? <CircularProgress size={20} /> : "Confirm & Book"}
                             </Button>
-                          </Box>
+                          </Box> 
                         )}
                       </>
                     )}

@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { generateStructuredData } from "@/lib/seo";
+import { APP_CONFIG } from "@/utils/constants";
 // Removed next/head; not used in the App Router
 // Link not used on this server component
 import { SERVICES } from "@/utils/constants";
@@ -13,6 +15,10 @@ import {
   Security,
 } from "@mui/icons-material";
 import type { JSX } from "react";
+
+export const dynamic = "force-static";
+export const revalidate = 86400; // 24h is sufficient for service copy updates
+export const dynamicParams = false;
 
 type Props = {
   params: Promise<{ service: string }>;
@@ -197,8 +203,29 @@ export default async function ServicePage({ params }: Props) {
   );
   const plansForService = pricingData[serviceData.id] ?? [];
 
+  const structuredData = generateStructuredData("service", {
+    name: serviceData.name,
+    description: serviceData.description,
+    cities: serviceData.cities,
+  });
+  const breadcrumbData = generateStructuredData("breadcrumb", {
+    items: [
+      { name: "Home", url: APP_CONFIG.url },
+      { name: "Services", url: `${APP_CONFIG.url}/services` },
+      { name: serviceData.name, url: `${APP_CONFIG.url}/services/${serviceData.id}` },
+    ],
+  });
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }}
+      />
       {/* Structured data can be added via the Metadata API if needed */}
 
       <div>

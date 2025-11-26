@@ -25,7 +25,7 @@ const cities: City[] = [
     name: "Connected Drivers",
     description:
       "A growing network of skilled and verified drivers ready to serve you anytime, anywhere",
-    number: "5",
+    number: "5K",
   },
   {
     name: "Happy Trips",

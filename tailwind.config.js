@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        ownPrimary: '#354B9C',
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -85,6 +86,25 @@ module.exports = {
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
         'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         'hard': '0 10px 40px -10px rgba(0, 0, 0, 0.2)',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInLeft: {
+          '0%': { opacity: '0', transform: 'translateX(-20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        fadeInRight: {
+          '0%': { opacity: '0', transform: 'translateX(20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.5s ease-out forwards',
+        fadeInLeft: 'fadeInLeft 0.5s ease-out forwards',
+        fadeInRight: 'fadeInRight 0.5s ease-out forwards',
       },
     },
   },

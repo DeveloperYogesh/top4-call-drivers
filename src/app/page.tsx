@@ -2,6 +2,9 @@ import React, { Suspense } from "react";
 import { generateMetadata as generateSEOMetadata, generateStructuredData } from "@/lib/seo";
 import HomeContainer from "@/components/pages/home";
 
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
 export const metadata = generateSEOMetadata({
   title: "No. 1 Driver Service: Hire TOP4 Call Drivers Online",
   description:

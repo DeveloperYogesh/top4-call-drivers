@@ -1,7 +1,5 @@
 import { CityData } from "@/types";
 import { formatCurrency } from "@/utils/helpers";
-import { CheckCircle } from "@mui/icons-material";
-import { Button, Chip } from "@mui/material";
 import Link from "next/link";
 
 interface BenefitsSectionProps {
@@ -38,9 +36,14 @@ export default function BenefitsSection({ cityData }: BenefitsSectionProps) {
             <div className="mb-3">
               <p className="font-semibold mb-2">Popular vehicle types:</p>
               <div className="flex flex-wrap gap-2">
-                <Chip label="Hatchback" variant="outlined" />
-                <Chip label="Sedan" variant="outlined" />
-                <Chip label="SUV" variant="outlined" />
+                {["Hatchback", "Sedan", "SUV"].map((vehicle) => (
+                  <span
+                    key={vehicle}
+                    className="rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-gray-700"
+                  >
+                    {vehicle}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -55,22 +58,21 @@ export default function BenefitsSection({ cityData }: BenefitsSectionProps) {
 
             <div className="mb-4">
               {benefits.map((benefit, index) => (
-                <div key={index} className="flex items-center gap-2 mb-2">
-                  <CheckCircle color="primary" />
+                <div key={index} className="mb-2 flex items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#354B9C]/10 text-[#354B9C]">
+                    ✓
+                  </span>
                   <p className="text-base">{benefit}</p>
                 </div>
               ))}
             </div>
 
-            <Button
-              component={Link}
+            <Link
               href="/book-driver"
-              variant="contained"
-              size="large"
-              className="px-6 py-3 text-lg font-semibold"
+              className="inline-flex items-center justify-center rounded-full bg-[#354B9C] px-6 py-3 text-lg font-semibold text-white transition hover:bg-[#2b3d83] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2b3d83]"
             >
               Book Your Driver Now
-            </Button>
+            </Link>
           </div>
         </div>
       </div>

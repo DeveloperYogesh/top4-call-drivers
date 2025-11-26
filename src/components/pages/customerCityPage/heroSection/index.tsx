@@ -1,14 +1,25 @@
 import { CityData } from "@/types";
 import { formatCurrency } from "@/utils/helpers";
-import {
-  Phone
-} from "@mui/icons-material";
-import { Button } from "@mui/material";
 import Link from "next/link";
 
 interface HeroSectionProps {
   cityData: CityData;
 }
+
+const PhoneIcon = () => (
+  <svg
+    aria-hidden="true"
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z" />
+  </svg>
+);
 
 export default function HeroSection({ cityData }: HeroSectionProps) {
 
@@ -36,27 +47,21 @@ export default function HeroSection({ cityData }: HeroSectionProps) {
               starting from {formatCurrency(cityData.basePrice)}.
             </p>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-4 my-6">
-              <Button
-                component={Link}
+            <div className="my-6 flex flex-col justify-center gap-4 sm:flex-row">
+              <Link
                 href="/book-driver"
-                variant="contained"
-                size="large"
-                className="bg-white text-[#354B9C] px-6 py-3 text-lg font-semibold hover:bg-white/90"
-                startIcon={<Phone />}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-lg font-semibold text-[#354B9C] transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
+                <PhoneIcon />
                 Book Driver Now
-              </Button>
+              </Link>
 
-              <Button
-              component={Link}
+              <Link
                 href="/call-drivers-tariff"
-                variant="outlined"
-                size="large"
-                className="!border-white !text-white px-6 py-3 text-lg hover:!bg-white/10"
+                className="inline-flex items-center justify-center rounded-full border border-white px-6 py-3 text-lg font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Check Tariff
-              </Button>
+              </Link>
             </div>
 
             <div className="w-fit mx-auto">
