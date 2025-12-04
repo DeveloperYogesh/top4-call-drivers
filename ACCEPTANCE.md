@@ -28,7 +28,7 @@ npm start
 **Request:**
 ```json
 {
-  "mobileno": "7845950289"
+  "mobileno": "04428287777"
 }
 ```
 **Expected Response:** `200 OK`
@@ -45,7 +45,7 @@ npm start
 **Request:**
 ```json
 {
-  "mobileno": "7845950289",
+  "mobileno": "04428287777",
   "OTP": "123456",
   "devicetoken": ""
 }
@@ -57,7 +57,7 @@ npm start
   "message": "OTP verified successfully",
   "user": {
     "id": "1",
-    "mobileno": "7845950289",
+    "mobileno": "04428287777",
     "firstname": "User",
     "lastname": "",
     "emailid": ""
@@ -74,7 +74,7 @@ npm start
   "status": "success",
   "user": {
     "id": "1",
-    "mobileno": "7845950289",
+    "mobileno": "04428287777",
     "firstname": "User",
     "lastname": "",
     "emailid": ""
@@ -110,7 +110,7 @@ npm start
 **Request:**
 ```json
 {
-  "PhoneNo": "7845950289",
+  "PhoneNo": "04428287777",
   "CustomerName": "John Doe",
   "TravelDate": "21/11/2023",
   "TravelTime": "21:01",

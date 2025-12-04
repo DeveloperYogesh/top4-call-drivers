@@ -483,6 +483,176 @@ Acting drivers are the backbone of seamless transportation in cities like Coimba
     <p><strong>Address:</strong> TOP4 Call Drivers, 25 Jayalakshmipuram Main Rd, Jawaharlal Nehru Nagar, Nungambakkam, Chennai – 600034, Tamil Nadu</p>
     <p><strong>Email:</strong> top4calldrivers@gmail.com</p>
     <p><strong>Phone:</strong> +91 89396 69996</p>
-  `,
+    `,
+  },
+
+  "/best-acting-drivers-in-tiruppur": {
+    head: "Best Acting Driver in Tirupur | Top 4 Call Drivers",
+    content: `
+    <h2>Best Acting Driver in Tirupur</h2>
+    <p>Top 4 Call Taxi offers reliable and professional acting drivers in Tirupur, Tamil Nadu for hourly, daily, and outstation travel. Whether you're in Kumaran Road, Avinashi Road, Kangeyam Road, Mangalam, Palladam, Dharapuram, or any part of Tiruppur city, our trained drivers ensure safe, smooth, and comfortable travel anytime. With clear pricing, verified professionals, and fast booking support, we are one of the most trusted options for call drivers in Tirupur.</p>
+    <p>Whether you need a personal car driver in Tirupur for a few hours or an experienced driver for long-distance travel across Tiruppur, Tamil Nadu, Top 4 Call Drivers provides prompt service at affordable charges. Our acting driver charges in Tirupur are transparent with no hidden fees, making your travel convenient and worry-free.</p>
+
+    <h2>TOP4 Call Drivers Charges Per Day</h2>
+    <table class="tariff-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Service</th>
+          <th>Call Driver Per Day Rate in Tirupur</th>
+          <th>Conditions Applied</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>In-City Normal Car Driver Rates in Tirupur</td>
+          <td>
+            Minimum 3 Hours<br/>
+            Extra Per Hour<br/>
+            Night Charges<br/>
+            Drop Charge<br/>
+            Cancel Charge
+          </td>
+          <td>
+            ₹350<br/>
+            ₹70<br/>
+            ₹100 Extra<br/>
+            ₹50/100<br/>
+            ₹100
+          </td>
+          <td>
+            –<br/>
+            –<br/>
+            10:15 PM to 5:30 AM<br/>
+            Minimum (5KM)<br/>
+            Before 30 minutes
+          </td>
+        </tr>
+        <tr>
+          <td>In-City Luxury Car Driver Rates in Tirupur</td>
+          <td>
+            Minimum 3 Hours<br/>
+            Extra Per Hour<br/>
+            Night Charges<br/>
+            Drop Charge<br/>
+            Cancel Charge
+          </td>
+          <td>
+            ₹400<br/>
+            ₹70<br/>
+            ₹100 Extra<br/>
+            ₹50/100<br/>
+            ₹100
+          </td>
+          <td>
+            –<br/>
+            –<br/>
+            10:15 PM to 5:30 AM<br/>
+            Minimum (5KM)<br/>
+            Before 30 minutes
+          </td>
+        </tr>
+        <tr>
+          <td>Call Driver in Tirupur for Valet Parking for Events</td>
+          <td>
+            Per Driver<br/>
+            Extra Per Hour<br/>
+            Supervisor (For Every 10 Drivers)
+          </td>
+          <td>
+            ₹500<br/>
+            ₹100<br/>
+            ₹700
+          </td>
+          <td>
+            Minimum 5 Hours<br/>
+            Applies after the min hours<br/>
+            Mandatory for every 10 drivers
+          </td>
+        </tr>
+        <tr>
+          <td>Monthly Call Driver Plans in Tirupur</td>
+          <td>
+            Normal Plan (10 hrs/day)<br/>
+            Normal Plan (12 hrs/day)<br/>
+            Luxury Plan (10 hrs/day)<br/>
+            Luxury Plan (12 hrs/day)
+          </td>
+          <td>
+            ₹18,000<br/>
+            ₹20,000<br/>
+            ₹22,000<br/>
+            ₹24,000
+          </td>
+          <td>
+            10 Hours per day; ₹50 per extra hour<br/>
+            12 Hours per day; ₹50 per extra hour<br/>
+            10 Hours per day; ₹60 per extra hour<br/>
+            12 Hours per day; ₹60 per extra hour
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Why Choose Top 4 Acting Drivers in Tirupur</h3>
+    <p>Finding a dependable acting driver in Tirupur is easy when you choose a service that truly understands the city’s lifestyle, traffic flow, and daily travel needs. Top 4 offers a smooth, reliable driving experience that fits perfectly with Tiruppur’s busy textile-driven routine.</p>
+    <ul>
+      <li><strong>Local driving expertise:</strong> Our drivers navigate Tirupur’s busy mill roads, narrow residential lanes, and peak-hour traffic with ease, ensuring a quicker and safer ride every time.</li>
+      <li><strong>Trusted and responsible staff:</strong> Every driver goes through identity checks, driving skill assessments, and behaviour screening so you can travel confidently with a reliable professional.</li>
+      <li><strong>Fast driver availability:</strong> Whether it’s a last-minute plan or an urgent situation, we assign the nearest driver within minutes, no long waiting, no delays.</li>
+      <li><strong>Plans that match your needs:</strong> Choose a short 1–2 hour driver, full-day support, night driving assistance, or outstation travel. Our packages are simple, flexible, and budget-friendly.</li>
+      <li><strong>Support for all purposes:</strong> From school drops to factory visits, medical appointments, airport rides, events, and outstation trips, our drivers are trained to handle every type of travel requirement.</li>
+    </ul>
+
+    <h3>Areas We Serve in Tirupur</h3>
+    <p>Our car acting driver in Tirupur service covers the entire city, nearby localities, and suburbs.</p>
+    <ul>
+      <li><strong>Central Tirupur:</strong> Kumaran Road, Old Bus Stand, New Bus Stand, Valipalayam</li>
+      <li><strong>North Tirupur:</strong> Anupparpalayam, Pudhupalli, Perumanallur, Kunnathur Road</li>
+      <li><strong>South Tirupur:</strong> Mangalam Road, Kangeyam Road, PN Road, Murugan Nagar</li>
+      <li><strong>East Tirupur:</strong> Palladam Road, Karuvampalayam, Odakkadu</li>
+      <li><strong>West Tirupur:</strong> Dharapuram Road, Chettipalayam, Veerapandi</li>
+    </ul>
+    <p>We also serve suburbs like Mangalam, Neruperichal, Uthukuli, Avinashi, and Palladam.</p>
+
+    <h3>Popular Searches / Areas:</h3>
+    <ul>
+      <li>Call drivers in Tirupur Kumaran Road</li>
+      <li>Call drivers in Tirupur Avinashi Road</li>
+      <li>Call drivers in Tirupur Kangeyam Road</li>
+      <li>Call drivers in Tirupur Palladam</li>
+      <li>Call drivers in Tirupur Dharapuram</li>
+      <li>Call drivers in Tirupur Mangalam</li>
+    </ul>
+
+    <h3>Outstation Driver Service from Tirupur</h3>
+    <p>Many customers book our acting drivers in Tiruppur Tamil Nadu for outstation trips. Popular routes include:</p>
+    <p>Tirupur to Coimbatore • Tirupur to Erode • Tirupur to Salem • Tirupur to Ooty • Tirupur to Chennai • Tirupur to Trichy • Tirupur to Madurai • Tirupur to Palani • Tirupur to Pollachi</p>
+    <p>Our highway-experienced drivers ensure safe and comfortable travel for family trips, industry visits, corporate outings, hospital travel, and temple journeys.</p>
+
+    <h3>Personal Car Drivers for Daily Travel</h3>
+    <p>Daily commuting in Tirupur whether to textile factories, offices, schools, showrooms, or mills can be tiring, especially with peak-hour traffic on PN Road, Karanampettai Road, and Kangeyam Road. Hiring a personal car driver in Tirupur makes your everyday travel more comfortable and stress-free.</p>
+    <p>With Top 4, you get a dedicated driver who handles your car with care, picks you up on time, and drops you safely at your usual destinations. Many families and professionals in Tirupur depend on our drivers for:</p>
+    <ul>
+        <li>Office commutes</li>
+        <li>Daily school pickup and drop</li>
+        <li>Factory visits and textile unit travel</li>
+        <li>Bank and errand trips</li>
+        <li>Home-to-shop or shop-to-home travel</li>
+        <li>Routine medical visits for seniors</li>
+    </ul>
+    <p>A personal car driver ensures you avoid traffic stress, driving fatigue, and parking struggles. You can relax, attend calls, finish work, or simply spend time with your family while your trained driver takes care of the road. Our drivers know every shortcut and less-crowded route in Tirupur, ensuring quicker, smoother travel each day.</p>
+
+    <h3>Our Acting Drivers Can Handle All Car Types</h3>
+    <p>No matter what car you own, our acting drivers in Tirupur are trained to drive it smoothly and safely. From compact hatchbacks to premium sedans and large SUVs, our drivers are familiar with all vehicle types and road conditions. Whether your car has manual or automatic transmission, diesel or petrol engine, basic controls or advanced features, our drivers adapt quickly and operate your vehicle with complete confidence. This makes your travel comfortable, secure, and worry-free every single time.</p>
+    <p>Our team regularly handles popular brands like Maruti Suzuki, Hyundai, Tata, Kia, Toyota, Mahindra, Honda, MG, and more, ensuring complete familiarity with their features. Even if your car has advanced systems like cruise control, rear sensors, or digital dashboards, our drivers manage them with ease. You can trust them to maintain smooth driving, safe braking, and proper parking in any situation.</p>
+
+    <h3>Book Top 4 Call Drivers in Tirupur</h3>
+    <p>Booking an acting driver in Tirupur is quick and hassle-free. You can hire a driver in just a few seconds through the Top 4 website, mobile app, or a direct phone call. Simply choose your pickup location, select your timing, and confirm your driver will be assigned instantly. Whether you prefer online booking or talking to our support team, Top 4 makes the entire process smooth, fast, and convenient for every customer.</p>
+    <p>You can track your booking, view driver details, and get real-time updates directly from the app. For those who are not comfortable booking online, our customer care team will assist you immediately over the phone. No matter which method you choose, the process is simple, transparent, and designed to save your time.</p>
+
+    <h3>Contact TOP4 Call Drivers Tirupur</h3>
+    <p><strong>Phone:</strong> 7418922002</p>
+    `,
   },
 };

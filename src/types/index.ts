@@ -98,6 +98,8 @@ export interface CityData {
   areas: string[];
   description: string;
   keywords: string[];
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface NavigationItem {

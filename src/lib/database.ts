@@ -204,7 +204,7 @@ function initializeDatabase() {
   const sampleUsers = [
     {
       id: '1',
-      mobileno: '7845950289',
+      mobileno: '04428287777',
       firstname: 'John',
       lastname: 'Doe',
       emailid: 'john.doe@example.com',
