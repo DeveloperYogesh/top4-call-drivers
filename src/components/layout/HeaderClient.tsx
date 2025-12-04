@@ -34,19 +34,19 @@ export default function HeaderClientUpdated() {
 
   const headerClass = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
     isTransparent
-      ? "bg-transparent py-4"
+      ? "bg-gradient-to-b from-black/60 to-transparent py-4"
       : "bg-white/90 backdrop-blur-md shadow-sm py-2 border-b border-gray-100"
   }`;
 
-  const logoClass = isTransparent ? "text-white" : "text-[#354B9C]";
+  const logoClass = isTransparent ? "text-white drop-shadow-md" : "text-[#354B9C]";
   const navTextClass = (isActive: boolean) =>
     `text-sm font-medium transition-colors duration-200 ${
       isActive
         ? isTransparent
-          ? "text-white font-bold"
+          ? "text-white font-bold drop-shadow-md"
           : "text-[#354B9C] font-bold"
         : isTransparent
-        ? "text-white/90 hover:text-white"
+        ? "text-white/90 hover:text-white drop-shadow-md"
         : "text-gray-600 hover:text-[#354B9C]"
     }`;
 
@@ -54,6 +54,7 @@ export default function HeaderClientUpdated() {
     { label: "Tariff", href: ROUTES.TARIFF },
     { label: "About", href: ROUTES.ABOUT },
     { label: "Blog", href: ROUTES.BLOG },
+    { label: "Contact", href: ROUTES.CONTACT },
   ];
 
   const CITIES = [

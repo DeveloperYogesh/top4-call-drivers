@@ -25,7 +25,7 @@ export default function HeaderControls({ user, displayName, isTransparent }: Pro
           <span className="sr-only">Open menu</span>
 
           <div className="py-2 rounded-md flex items-center justify-center">
-            <span className={`ml-2 font-medium text-sm text-[#354B9C] ${isTransparent? "text-white" : ""}`}>Hi, Traveller</span>
+            <span className={`ml-2 font-medium text-sm text-[#354B9C] ${isTransparent? "text-white drop-shadow-md" : ""}`}>Hi, Traveller</span>
           </div>
           <KeyboardArrowDown className={`"w-5 h-5 ${isTransparent? "text-white" : "text-[#354B9C]"}`} />
         </summary>

@@ -9,8 +9,8 @@ export const getCityData = cache((citySlug: string): CityData | null => {
 });
 
 export function generateCityMetadata(cityData: CityData): Metadata {
-  const title = `Best Acting Drivers in ${cityData.name} - TOP4 Call Drivers`;
-  const description = cityData.description;
+  const title = cityData.metaTitle || `Best Acting Drivers in ${cityData.name} - TOP4 Call Drivers`;
+  const description = cityData.metaDescription || cityData.description;
   const url = `/best-acting-drivers-in-${cityData.slug}`;
 
   // Next.js metadata "type" must be 'website' | 'article' — use 'website' for service pages.

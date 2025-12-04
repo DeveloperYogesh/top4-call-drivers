@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
 import HeaderServer from "@/components/layout/HeaderServer";
 import Script from "next/script";
+import StickyCTA from "@/components/layout/stickyFooter";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default function RootLayout({
               >
                 {children}
               </main>
+              <StickyCTA />
               <Footer />
             </div>
           </ThemeProvider>
