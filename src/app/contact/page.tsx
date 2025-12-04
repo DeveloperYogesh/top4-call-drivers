@@ -7,10 +7,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import YouTubeIcon from '@mui/icons-material/YouTube';
 import { APP_CONFIG, SOCIAL_LINKS } from '@/utils/constants';
+import { Twitter, YouTube } from '@mui/icons-material';
 
 // SEO Metadata
 export const metadata: Metadata = generateMetadata({
@@ -279,7 +278,7 @@ export default function ContactPage() {
               className="group flex items-center gap-3 bg-white hover:bg-sky-50 text-gray-800 px-5 py-3 rounded-lg border border-gray-200 hover:border-sky-500 hover:shadow-sm transform hover:-translate-y-1 transition-all duration-300"
               aria-label="Visit our Twitter profile"
             >
-              <TwitterIcon className="text-2xl text-sky-500" />
+              <Twitter className="text-2xl text-sky-500" />
               <span className="font-medium">Twitter</span>
             </a>
 
@@ -303,7 +302,7 @@ export default function ContactPage() {
               className="group flex items-center gap-3 bg-white hover:bg-red-50 text-gray-800 px-5 py-3 rounded-lg border border-gray-200 hover:border-red-600 hover:shadow-sm transform hover:-translate-y-1 transition-all duration-300"
               aria-label="Visit our YouTube channel"
             >
-              <YouTubeIcon className="text-2xl text-red-600" />
+              <YouTube className="text-2xl text-red-600" />
               <span className="font-medium">YouTube</span>
             </a>
           </div>
