@@ -92,22 +92,27 @@ async function handleProxy(
 // NOTE: using `context: any` avoids Next's overly strict internal type comparison during build
 // We still extract params and forward them to handleProxy.
 export async function POST(request: Request, context: any) {
-  const remote = context?.params?.remote as string[] | undefined;
+  const params = await context.params;
+  const remote = params?.remote as string[] | undefined;
   return handleProxy(request, remote);
 }
 export async function GET(request: Request, context: any) {
-  const remote = context?.params?.remote as string[] | undefined;
+  const params = await context.params;
+  const remote = params?.remote as string[] | undefined;
   return handleProxy(request, remote);
 }
 export async function PUT(request: Request, context: any) {
-  const remote = context?.params?.remote as string[] | undefined;
+  const params = await context.params;
+  const remote = params?.remote as string[] | undefined;
   return handleProxy(request, remote);
 }
 export async function PATCH(request: Request, context: any) {
-  const remote = context?.params?.remote as string[] | undefined;
+  const params = await context.params;
+  const remote = params?.remote as string[] | undefined;
   return handleProxy(request, remote);
 }
 export async function DELETE(request: Request, context: any) {
-  const remote = context?.params?.remote as string[] | undefined;
+  const params = await context.params;
+  const remote = params?.remote as string[] | undefined;
   return handleProxy(request, remote);
 }
