@@ -42,7 +42,7 @@ export default function LocationAutocomplete({
   error,
   helperText,
   fetchSuggestions,
-  minLength = 2, // 2 is often snappier; choose 3 if you want less calls
+  minLength = 3, // 3 is more efficient; reduces API queries
 }: Props) {
   const googleApiKey =
     process.env.NEXT_PUBLIC_GOOGLE_API_KEY || process.env.GOOGLE_API_KEY;
@@ -153,11 +153,11 @@ export default function LocationAutocomplete({
               resolve(null);
               return;
             }
-            
+
             // Extract coordinates - handle both method call and direct property access
             let lat: number | undefined;
             let lng: number | undefined;
-            
+
             if (place.geometry?.location) {
               if (typeof place.geometry.location.lat === 'function') {
                 lat = place.geometry.location.lat();
@@ -167,11 +167,11 @@ export default function LocationAutocomplete({
                 lng = place.geometry.location.lng;
               }
             }
-            
+
             if (lat == null || lng == null) {
               console.warn("fetchPlaceDetailsGoogle: No coordinates found in place geometry", place.geometry);
             }
-            
+
             const loc: Location = {
               id: place.place_id,
               name: place.formatted_address || place.name || place.place_id,
@@ -201,7 +201,7 @@ export default function LocationAutocomplete({
   // REST API fallback to fetch place details using Google Places REST API
   const fetchPlaceDetailsREST = useCallback(async (placeId: string) => {
     if (placeCache.current.has(placeId)) return placeCache.current.get(placeId) ?? null;
-    
+
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) {
       console.warn("Google API key not found for REST API fallback");
@@ -216,7 +216,7 @@ export default function LocationAutocomplete({
         return null;
       }
       const data = await res.json();
-      
+
       if (data.status === "OK" && data.result) {
         const place = data.result;
         const loc: Location = {
@@ -227,7 +227,7 @@ export default function LocationAutocomplete({
           lat: place.geometry?.location?.lat,
           lng: place.geometry?.location?.lng,
         };
-        
+
         if (place.address_components) {
           for (const c of place.address_components) {
             if (c.types.includes("locality")) loc.city = c.long_name;
@@ -235,7 +235,7 @@ export default function LocationAutocomplete({
             if (!loc.city && c.types.includes("sublocality")) loc.city = c.long_name;
           }
         }
-        
+
         placeCache.current.set(placeId, loc);
         console.log("REST API fetched coordinates for", loc.name, ":", loc.lat, loc.lng);
         return loc;
@@ -303,7 +303,7 @@ export default function LocationAutocomplete({
             serverAbortRef.current.abort();
             serverAbortRef.current = null;
           }
-        } catch {}
+        } catch { }
         serverAbortRef.current = new AbortController();
         const signal = serverAbortRef.current.signal;
 
