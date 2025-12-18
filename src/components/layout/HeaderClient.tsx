@@ -32,20 +32,18 @@ export default function HeaderClientUpdated() {
   // If NOT on Home -> White (always)
   const isTransparent = isHome && !isScrolled;
 
-  const headerClass = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-    isTransparent
-      ? "bg-gradient-to-b from-black/60 to-transparent py-4"
-      : "bg-white/90 backdrop-blur-md shadow-sm py-2 border-b border-gray-100"
-  }`;
+  const headerClass = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isTransparent
+    ? "bg-gradient-to-b from-black/60 to-transparent py-4"
+    : "bg-white/90 backdrop-blur-md shadow-sm py-2 border-b border-gray-100"
+    }`;
 
   const logoClass = isTransparent ? "text-white drop-shadow-md" : "text-[#354B9C]";
   const navTextClass = (isActive: boolean) =>
-    `text-sm font-medium transition-colors duration-200 ${
-      isActive
-        ? isTransparent
-          ? "text-white font-bold drop-shadow-md"
-          : "text-[#354B9C] font-bold"
-        : isTransparent
+    `text-sm font-medium transition-colors duration-200 ${isActive
+      ? isTransparent
+        ? "text-white font-bold drop-shadow-md"
+        : "text-[#354B9C] font-bold"
+      : isTransparent
         ? "text-white/90 hover:text-white drop-shadow-md"
         : "text-gray-600 hover:text-[#354B9C]"
     }`;
@@ -192,8 +190,8 @@ export default function HeaderClientUpdated() {
               </AnimatePresence>
             </div>
 
-             {/* Driver Jobs Dropdown */}
-             <div
+            {/* Driver Jobs Dropdown */}
+            <div
               className="relative group"
               onMouseEnter={() => openMenu("driverJobs")}
               onMouseLeave={closeMenuWithDelay}
@@ -229,12 +227,11 @@ export default function HeaderClientUpdated() {
           {/* Right Actions */}
           <div className="flex items-center gap-2 md:gap-4">
             <Link
-              href="tel:+9104428287777"
-              className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                isTransparent
-                  ? "bg-white/10 text-white hover:bg-white/20 border border-white/30"
-                  : "bg-blue-50 text-blue-600 hover:bg-blue-100"
-              }`}
+              href="tel:04428287777"
+              className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${isTransparent
+                ? "bg-white/10 text-white hover:bg-white/20 border border-white/30"
+                : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                }`}
             >
               <PhoneIcon fontSize="small" />
               <span>Call Us</span>
@@ -249,11 +246,10 @@ export default function HeaderClientUpdated() {
             ) : (
               <Link
                 href="/login"
-                className={`px-5 py-2 rounded-full text-sm font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95 ${
-                  isTransparent
-                    ? "bg-white text-[#354B9C]"
-                    : "bg-[#354B9C] text-white"
-                }`}
+                className={`px-5 py-2 rounded-full text-sm font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95 ${isTransparent
+                  ? "bg-white text-[#354B9C]"
+                  : "bg-[#354B9C] text-white"
+                  }`}
               >
                 Sign In
               </Link>
@@ -262,9 +258,8 @@ export default function HeaderClientUpdated() {
             {/* Mobile Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`lg:hidden p-2 rounded-md ${
-                isTransparent ? "text-white" : "text-gray-800"
-              }`}
+              className={`lg:hidden p-2 rounded-md ${isTransparent ? "text-white" : "text-gray-800"
+                }`}
             >
               <span className="sr-only">Open menu</span>
               <div className="space-y-1.5">
@@ -296,7 +291,7 @@ export default function HeaderClientUpdated() {
                 ✕
               </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
               <div className="space-y-4">
                 {NAV_ITEMS.map((item) => (
@@ -355,7 +350,7 @@ export default function HeaderClientUpdated() {
                 </Link>
               )}
               <a
-                href="tel:+9104428287777"
+                href="tel:04428287777"
                 className="block w-full py-3 bg-white border border-gray-200 text-gray-700 text-center rounded-xl font-semibold"
               >
                 Call Support

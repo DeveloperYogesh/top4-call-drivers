@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Box, Tab, Tabs, Typography, CircularProgress, Container, Grid } from "@mui/material";
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
 import { useBookingHistory } from "@/hooks/useBookingHistory";
 import BookingCard from "./BookingCard";
 
@@ -63,7 +69,7 @@ export default function HistoryList() {
           <Tab label={`Past (${past.length})`} />
         </Tabs>
       </Box>
-      
+
       <CustomTabPanel value={value} index={0}>
         {upcoming.length === 0 ? (
           <Typography textAlign="center" color="text.secondary">
@@ -72,14 +78,14 @@ export default function HistoryList() {
         ) : (
           <Grid container spacing={3}>
             {upcoming.map((booking) => (
-              <Grid size={{ xs: 12, md: 4 }} key={booking.BOOKING_ID}>
+              <Grid key={booking.BOOKING_ID}>
                 <BookingCard booking={booking} />
               </Grid>
             ))}
           </Grid>
         )}
       </CustomTabPanel>
-      
+
       <CustomTabPanel value={value} index={1}>
         {past.length === 0 ? (
           <Typography textAlign="center" color="text.secondary">
@@ -88,7 +94,7 @@ export default function HistoryList() {
         ) : (
           <Grid container spacing={3}>
             {past.map((booking) => (
-              <Grid size={{ xs: 12, md: 4 }} key={booking.BOOKING_ID}>
+              <Grid key={booking.BOOKING_ID}>
                 <BookingCard booking={booking} />
               </Grid>
             ))}
