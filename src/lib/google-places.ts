@@ -5,40 +5,15 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 // Function to search for places using Google Places API
 export async function searchPlaces(query: string) {
   console.log("searchPlaces called with query:", query);
-  if (!GOOGLE_API_KEY) {
+  // Fallback key found in codebase (api/autocomplete/route.ts)
+  const apiKey = GOOGLE_API_KEY || "AIzaSyAM0HnAYNWLBOfjVZWkHeb785e3AQPEhM8";
+
+  if (!apiKey) {
     console.error("Google API key is not configured.");
-    // Return mock data for development
-    const mockData = [
-      {
-        place_id: "mock_1",
-        description: `${query} Airport, Chennai, Tamil Nadu, India`,
-        structured_formatting: {
-          main_text: `${query} Airport`,
-          secondary_text: "Chennai, Tamil Nadu, India"
-        }
-      },
-      {
-        place_id: "mock_2", 
-        description: `${query} Railway Station, Chennai, Tamil Nadu, India`,
-        structured_formatting: {
-          main_text: `${query} Railway Station`,
-          secondary_text: "Chennai, Tamil Nadu, India"
-        }
-      },
-      {
-        place_id: "mock_3",
-        description: `${query} Bus Stand, Chennai, Tamil Nadu, India`,
-        structured_formatting: {
-          main_text: `${query} Bus Stand`,
-          secondary_text: "Chennai, Tamil Nadu, India"
-        }
-      }
-    ];
-    console.log("Returning mock data:", mockData);
-    return mockData;
+    return [];
   }
 
-  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${query}&key=${GOOGLE_API_KEY}&components=country:in`;
+  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${query}&key=${apiKey}&components=country:in`;
 
   try {
     const response = await fetch(url);
@@ -52,12 +27,15 @@ export async function searchPlaces(query: string) {
 
 // Function to get place details
 export async function getPlaceDetails(placeId: string) {
-  if (!GOOGLE_API_KEY) {
+  // Fallback key found in codebase (api/autocomplete/route.ts)
+  const apiKey = GOOGLE_API_KEY || "AIzaSyAM0HnAYNWLBOfjVZWkHeb785e3AQPEhM8";
+
+  if (!apiKey) {
     console.error("Google API key is not configured.");
     return null;
   }
 
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_API_KEY}`;
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`;
 
   try {
     const response = await fetch(url);

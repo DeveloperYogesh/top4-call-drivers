@@ -124,19 +124,19 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       console.warn("getLatLong: location is null or undefined");
       return "0, 0";
     }
-    
+
     // Try different property names for latitude (check both direct and nested)
-    const latValue = 
-      (loc as any)?.latitude ?? 
-      (loc as any)?.lat ?? 
-      (loc as any)?.LAT ?? 
+    const latValue =
+      (loc as any)?.latitude ??
+      (loc as any)?.lat ??
+      (loc as any)?.LAT ??
       loc.lat ??
       (loc as any)?.coordinates?.lat ??
       (loc as any)?.geometry?.location?.lat ??
-      (typeof (loc as any)?.geometry?.location?.lat === 'function' 
-        ? (loc as any).geometry.location.lat() 
+      (typeof (loc as any)?.geometry?.location?.lat === 'function'
+        ? (loc as any).geometry.location.lat()
         : undefined);
-    
+
     // Try different property names for longitude (check both direct and nested)
     const lngValue =
       (loc as any)?.longitude ??
@@ -146,21 +146,21 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       loc.lng ??
       (loc as any)?.coordinates?.lng ??
       (loc as any)?.geometry?.location?.lng ??
-      (typeof (loc as any)?.geometry?.location?.lng === 'function' 
-        ? (loc as any).geometry.location.lng() 
+      (typeof (loc as any)?.geometry?.location?.lng === 'function'
+        ? (loc as any).geometry.location.lng()
         : undefined);
-    
+
     // Convert to numbers and validate
     const lat = latValue != null && !isNaN(Number(latValue)) ? Number(latValue) : 0;
     const lng = lngValue != null && !isNaN(Number(lngValue)) ? Number(lngValue) : 0;
-    
+
     // Debug log to see what we're getting
     if (lat === 0 && lng === 0) {
       console.warn("getLatLong: coordinates are 0,0. Location object:", JSON.stringify(loc, null, 2));
     } else {
       console.log("getLatLong - location:", loc.name, "lat:", lat, "lng:", lng);
     }
-    
+
     return `${lat}, ${lng}`;
   };
 
@@ -168,9 +168,26 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
   useEffect(() => {
     const defaultTime = dayjs().add(1, "hour").add(5, "second").toDate();
     updateField("scheduledTime", defaultTime);
-    updateField("vehicleSize", "sedan");
-    updateField("carType", "manual");
-    if (user?.phone) updateField("phoneNumber", user.phone);
+
+    // Autofill from user profile if available
+    if (user) {
+      if (user.segment) {
+        updateField("vehicleSize", user.segment.toLowerCase() as any);
+      } else {
+        updateField("vehicleSize", "sedan");
+      }
+
+      if (user.vehicletype) {
+        updateField("carType", user.vehicletype.toLowerCase() as any);
+      } else {
+        updateField("carType", "manual");
+      }
+
+      updateField("phoneNumber", user.phone || user.mobile || (user as any).MOBILE_NO || "");
+    } else {
+      updateField("vehicleSize", "sedan");
+      updateField("carType", "manual");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateField, user]);
 
@@ -216,8 +233,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
           selectedTripType === "one-way"
             ? "One Way"
             : selectedTripType === "daily"
-            ? "Daily"
-            : selectedTripType,
+              ? "Daily"
+              : selectedTripType,
         pickuptype: "InCity",
         pickupplace: pickupLocation?.name || "",
         dropplace: dropLocation?.name || "",
@@ -225,8 +242,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         pickuptime: scheduledTime ? dayjs(scheduledTime).format("HH:mm") : "",
         tripkms: "0",
       };
-      
-      
+
+
 
       if (selectedTripType === "daily") {
         // API-friendly weekdays as numbers "1,2,3"
@@ -513,17 +530,17 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
     // Debug: Log location objects before creating payload
     console.log("pickupLocation object:", pickupLocation);
     console.log("dropLocation object:", dropLocation);
-    
+
     const payload: any = {
       tripType: selectedTripType === "one-way"
-      ? "InCity"
-      : selectedTripType === "outstation"
-      ? "Outstation"
-      : selectedTripType === "daily"
-      ? "Daily"
-      : selectedTripType === "round-trip"
-      ? "InCity"
-      : selectedTripType,
+        ? "InCity"
+        : selectedTripType === "outstation"
+          ? "Outstation"
+          : selectedTripType === "daily"
+            ? "Daily"
+            : selectedTripType === "round-trip"
+              ? "InCity"
+              : selectedTripType,
       reqType: tripLabel,
       pickupLocation: pickupLocation?.name || "",
       pickupLatLong: getLatLong(pickupLocation),
@@ -931,7 +948,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                             >
                               {bookingLoading ? <CircularProgress size={20} /> : "Confirm & Book"}
                             </Button>
-                          </Box> 
+                          </Box>
                         )}
                       </>
                     )}

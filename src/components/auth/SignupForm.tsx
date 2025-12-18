@@ -1,158 +1,188 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SignupFormData {
   firstName: string;
   lastName: string;
   phone: string;
   email: string;
-  password: string;
-  confirmPassword: string;
+  vehicleModel: string;
+  segment: string;
+  vehicleType: string;
   otp: string;
 }
 
 export default function SignupForm() {
   const router = useRouter();
-  const [formData, setFormData] = useState<SignupFormData>({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    otp: '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [success, setSuccess] = useState('');
+  const { sendOTP, verifyOTP, registerUser } = useAuth();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [formData, setFormData] = useState<SignupFormData>({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    vehicleModel: "",
+    segment: "SUV", // default
+    vehicleType: "Manual", // default
+    otp: "",
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [secondsLeft, setSecondsLeft] = useState(0);
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
+  };
+
+  const startTimer = (secs: number) => {
+    setSecondsLeft(secs);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setSecondsLeft((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
   };
 
   const validateForm = () => {
     if (!formData.firstName.trim()) {
-      setError('First name is required');
+      setError("First name is required");
       return false;
     }
     if (!formData.phone || formData.phone.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
+      setError("Please enter a valid 10-digit mobile number");
       return false;
     }
-    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Please enter a valid email address');
+    if (
+      !formData.email ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+    ) {
+      setError("Please enter a valid email address");
       return false;
     }
-    if (!formData.password || formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    if (!formData.vehicleModel.trim()) {
+      setError("Vehicle model is required");
       return false;
     }
     return true;
   };
 
   const handleSendOTP = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
-    setError('');
+    setError("");
+    setSuccess("");
 
     try {
-      const response = await fetch('http://top4mobileapp.vbsit.in/api/V1/booking/sendOTP', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mobileno: formData.phone }),
-      });
+      // Use useAuth hook instead of direct fetch
+      const res = await sendOTP(formData.phone);
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (res?.success || res?.Success) {
         setOtpSent(true);
-        setSuccess('OTP sent successfully! Please check your mobile.');
+        setSuccess("OTP sent successfully! Please check your mobile.");
+        startTimer(60);
       } else {
-        setError(data.message || 'Failed to send OTP');
+        setError(res?.message || res?.Message || "Failed to send OTP");
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSignup = async () => {
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpSent) {
+      await handleSendOTP();
+      return;
+    }
+
     if (!formData.otp || formData.otp.length !== 4) {
-      setError('Please enter a valid 4-digit OTP');
+      setError("Please enter a valid 4-digit OTP");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          phone: formData.phone,
-          email: formData.email,
-          password: formData.password,
-          otp: formData.otp,
-        }),
+      // 1. Verify OTP first
+      const verifyRes = await verifyOTP(formData.phone, formData.otp);
+
+      if (!verifyRes.success) {
+        setError(verifyRes.message || "Invalid OTP");
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. If valid, Register User
+      const regRes = await registerUser({
+        mobileno: formData.phone,
+        firstname: formData.firstName,
+        lastname: formData.lastName,
+        emailid: formData.email,
+        vehiclemodel: formData.vehicleModel,
+        segment: formData.segment,
+        vehicletype: formData.vehicleType,
+        userImage: "", // default empty
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Account created successfully! Redirecting...');
+      if (regRes.success) {
+        setSuccess("Account created successfully! Redirecting...");
+        // useAuth persistor typically handles storing session, so just redirect
         setTimeout(() => {
-          router.push('/');
+          router.push("/");
           router.refresh();
         }, 1000);
       } else {
-        setError(data.message || 'Failed to create account');
+        if (regRes.message?.toLowerCase().includes("already exists")) {
+          setError("User already registered with this number. Please Sign In.");
+          // Optional: You could automatically redirect or show a button, 
+          // but a clear message is a good first step.
+        } else {
+          setError(regRes.message || "Failed to create account");
+        }
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
+      console.error(error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!otpSent) {
-      await handleSendOTP();
-    } else {
-      await handleSignup();
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSignup} className="space-y-6">
       {!otpSent ? (
         <>
           {/* Name Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-700"
+              >
                 First Name *
               </label>
               <div className="mt-1">
@@ -170,7 +200,10 @@ export default function SignupForm() {
               </div>
             </div>
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Last Name
               </label>
               <div className="mt-1">
@@ -190,7 +223,10 @@ export default function SignupForm() {
 
           {/* Phone Number */}
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700"
+            >
               Mobile Number *
             </label>
             <div className="mt-1">
@@ -211,7 +247,10 @@ export default function SignupForm() {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email Address *
             </label>
             <div className="mt-1">
@@ -229,42 +268,70 @@ export default function SignupForm() {
             </div>
           </div>
 
-          {/* Password Fields */}
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password *
+          {/* Vehicle Details */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-3">
+              <label
+                htmlFor="vehicleModel"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Vehicle Model *
               </label>
               <div className="mt-1">
                 <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
+                  id="vehicleModel"
+                  name="vehicleModel"
+                  type="text"
                   required
-                  placeholder="Enter password (min 6 characters)"
-                  value={formData.password}
+                  placeholder="e.g. Swift, Innova"
+                  value={formData.vehicleModel}
                   onChange={handleInputChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
                 />
               </div>
             </div>
+
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password *
+              <label
+                htmlFor="segment"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Segment *
               </label>
               <div className="mt-1">
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
+                <select
+                  id="segment"
+                  name="segment"
+                  value={formData.segment}
                   onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
-                />
+                  className="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
+                >
+                  <option value="Hatchback">Hatchback</option>
+                  <option value="Sedan">Sedan</option>
+                  <option value="SUV">SUV</option>
+                  <option value="Luxury">Luxury</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="vehicleType"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Transmission Type *
+              </label>
+              <div className="mt-1">
+                <select
+                  id="vehicleType"
+                  name="vehicleType"
+                  value={formData.vehicleType}
+                  onChange={handleInputChange}
+                  className="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#354B9C] focus:border-[#354B9C] sm:text-sm"
+                >
+                  <option value="Manual">Manual</option>
+                  <option value="Automatic">Automatic</option>
+                </select>
               </div>
             </div>
           </div>
@@ -282,7 +349,10 @@ export default function SignupForm() {
           </div>
 
           <div>
-            <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="otp"
+              className="block text-sm font-medium text-gray-700"
+            >
               Enter OTP *
             </label>
             <div className="mt-1">
@@ -299,18 +369,22 @@ export default function SignupForm() {
               />
             </div>
             <div className="mt-2 text-sm text-gray-600 text-center">
-              Didn't receive ?
+              Didn't receive?{" "}
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
+                  if (secondsLeft > 0) return;
                   setOtpSent(false);
-                  setFormData(prev => ({ ...prev, otp: '' }));
-                  handleSendOTP();
+                  setFormData((prev) => ({ ...prev, otp: "" }));
+                  await handleSendOTP();
                 }}
-                className="font-medium text-[#354B9C] hover:text-[#2a3a7a]"
-                disabled={isLoading}
+                className={`font-medium ${secondsLeft > 0
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-[#354B9C] hover:text-[#2a3a7a]"
+                  }`}
+                disabled={secondsLeft > 0 || isLoading}
               >
-                {` Resend`}
+                {secondsLeft > 0 ? `Resend in ${secondsLeft}s` : "Resend"}
               </button>
             </div>
           </div>
@@ -340,28 +414,45 @@ export default function SignupForm() {
         >
           {isLoading ? (
             <div className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Processing...
             </div>
           ) : (
-            <>
-              {otpSent ? 'Create Account' : 'Send OTP'}
-            </>
+            <>{otpSent ? "Create Account" : "Send OTP"}</>
           )}
         </button>
       </div>
 
       {!otpSent && (
         <div className="text-xs text-gray-500 text-center">
-          By creating an account, you agree to our{' '}
+          By creating an account, you agree to our{" "}
           <Link href="/terms" className="text-[#354B9C] hover:text-[#2a3a7a]">
             Terms of Service
-          </Link>{' '}
-          and{' '}
-          <Link href="/privacy" className="text-[#354B9C] hover:text-[#2a3a7a]">
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/privacy"
+            className="text-[#354B9C] hover:text-[#2a3a7a]"
+          >
             Privacy Policy
           </Link>
         </div>
@@ -369,4 +460,3 @@ export default function SignupForm() {
     </form>
   );
 }
-
