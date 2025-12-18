@@ -102,6 +102,37 @@ export function useAuth() {
     [persistUser]
   );
 
+  const checkUserExist = useCallback(async (mobileno: string) => {
+    try {
+      console.log("Checking user existence for:", mobileno);
+      const res = await POST("api/V1/booking/UserDetails", { mobileno });
+      console.log("Check user response:", res);
+      // Ensure we check for actual success flag or data presence
+      if (res?.Success === true || res?.success === true) {
+        return { exists: true, data: res.Data };
+      }
+      return { exists: false };
+    } catch (e) {
+      console.error("checkUserExist error:", e);
+      return { exists: false, error: e };
+    }
+  }, []);
+
+  const signUp = useCallback(async (data: any) => {
+    try {
+      console.log("Signing up user:", data);
+      const res = await POST("api/V1/booking/newuser_SignUp", data);
+      console.log("Signup response:", res);
+      if (res?.Success === true || res?.success === true) {
+         return { success: true, data: res };
+      }
+      return { success: false, message: res?.Message || res?.message || "Signup failed" };
+    } catch (e: any) {
+      console.error("signUp error:", e);
+      return { success: false, message: e.message || "Signup failed" };
+    }
+  }, []);
+
   const logout = useCallback(() => {
     try {
       window.localStorage.removeItem("userData");
@@ -119,5 +150,7 @@ export function useAuth() {
     verifyOTP,
     persistUser,
     logout,
+    checkUserExist,
+    signUp,
   } as const;
 }

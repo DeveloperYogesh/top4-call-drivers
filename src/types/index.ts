@@ -117,3 +117,61 @@ export interface Location {
   lat?: number;
   lng?: number;
 }
+
+export interface BookingItem {
+  NOOFDRIVERS: string;
+  PHONE_NO: string;
+  PICKUPTIME2: string;
+  BOOKING_NO: string;
+  BOOKING_ID: string;
+  TRAVELDTTM: string;
+  PICKUP_PLACE: string;
+  DRIVER_CODE: string;
+  DRIVER_NAME: string;
+  PICKUPLAT: string;
+  PICKUPLON: string;
+  BOOKING_TYPE: string;
+  DURATION: string;
+  FARE: string;
+  DROP_PLACE: string;
+  STATUS: string;
+}
+
+export interface BookingHistoryResponse {
+  Success: boolean;
+  Message: string;
+  UpcomingTrip: BookingItem[];
+  PastTrip: BookingItem[];
+}
+
+export interface UserDetailsResponse {
+  Success: boolean;
+  Message: string;
+  Data?: {
+    FIRST_NAME: string;
+    LAST_NAME: string;
+    E_MAIL: string;
+    MOBILE_NO: string;
+    VEHICLETYPE: string;
+    SEGMENT: string;
+    VEHICLEMODEL: string;
+    userImage: string;
+  };
+}
+
+export interface SignUpRequest {
+  mobileno: string;
+  firstname: string;
+  lastname: string;
+  emailid: string;
+  vehiclemodel: string;
+  segment: string;
+  vehicletype: string;
+  userImage?: string;
+}
+
+export interface SignUpResponse {
+  Success: boolean;
+  Message: string;
+  Data?: any;
+}

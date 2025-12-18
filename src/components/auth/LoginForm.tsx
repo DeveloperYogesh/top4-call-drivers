@@ -7,6 +7,10 @@ import {
   CircularProgress,
   TextField,
   Typography,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
@@ -25,12 +29,12 @@ export default function LoginForm({
   onSuccess,
   onCancel,
   initialPhone = "",
-  autoFocus = true,
+  autoFocus = false,
   compact = false,
   showChangeNumber = true,
   className = "",
 }: LoginFormProps) {
-  const { sendOTP, verifyOTP } = useAuth();
+  const { sendOTP, verifyOTP, checkUserExist, signUp, persistUser } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -41,21 +45,33 @@ export default function LoginForm({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [secondsLeft, setSecondsLeft] = useState(0);
+  
+  // New User / Signup State
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
+  const [signupData, setSignupData] = useState({
+    firstname: "",
+    lastname: "",
+    emailid: "",
+    vehiclemodel: "",
+    segment: "",
+    vehicletype: "",
+  });
 
   const phoneRef = useRef<HTMLInputElement | null>(null);
   const digitRefs = useRef<Array<HTMLInputElement | null>>([]);
   const verifyingRef = useRef(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null); // ✅ fixed timer ref
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (initialPhone) setPhone(initialPhone);
-    if (autoFocus && !otpSent) {
+    if (autoFocus && !otpSent && !isNewUser) {
       setTimeout(() => phoneRef.current?.focus(), 50);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [initialPhone, autoFocus, otpSent]);
+  }, [initialPhone, autoFocus, otpSent, isNewUser]);
 
   const startTimer = (secs: number) => {
     setSecondsLeft(secs);
@@ -83,7 +99,7 @@ export default function LoginForm({
         setOtpSent(true);
         setDigits(["", "", "", ""]);
         setSuccess("OTP sent. Please check your phone.");
-        startTimer(60); // ✅ starts the countdown
+        startTimer(60);
         setTimeout(() => digitRefs.current[0]?.focus(), 80);
       } else {
         setError(res?.message || res?.Message || "Failed to send OTP");
@@ -102,43 +118,93 @@ export default function LoginForm({
     setError("");
     setSuccess("");
     const cp = cleanedPhone(phone);
-    if (cp.length !== 10) {
-      setError("Please enter a valid 10-digit mobile number");
-      verifyingRef.current = false;
-      return;
-    }
-    if (otpToVerify.length !== 4) {
-      setError("Please enter a valid 4-digit OTP");
-      verifyingRef.current = false;
-      return;
-    }
-
+    
     setLoading(true);
     try {
       const res = await verifyOTP(cp, otpToVerify);
       if (res?.success) {
-        setSuccess("Login successful!");
-        onSuccess?.(res.user);
-        if (pathname === "/login") router.push("/");
+        // OTP verified, now check if user exists
+        checkUserStatus(cp, res.user);
       } else {
         setError(res?.message || "Invalid OTP");
+        setLoading(false);
       }
     } catch (err) {
       console.error("doVerify error:", err);
       setError("Network error. Please try again.");
+      setLoading(false);
+    } finally {
+      verifyingRef.current = false;
+    }
+  };
+
+  const checkUserStatus = async (cp: string, verifiedUser: any) => {
+    try {
+      const check = await checkUserExist(cp);
+      if (check.exists) {
+        // User exists, complete login
+        setSuccess("Login successful!");
+        persistUser(check.data); // Update with full profile
+        onSuccess?.(check.data);
+        if (pathname === "/login") router.push("/");
+      } else {
+        // User does not exist, show signup
+        setIsNewUser(true);
+        setShowSignup(true);
+        setSuccess("OTP Verified. Please create account.");
+      }
+    } catch (err) {
+      console.error("User check failed", err);
+      setError("Failed to verify user status.");
     } finally {
       setLoading(false);
-      verifyingRef.current = false;
+    }
+  };
+
+  const handleSignup = async () => {
+    setError("");
+    if (!signupData.firstname || !signupData.emailid) {
+      setError("First Name and Email are required.");
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const payload = {
+        mobileno: cleanedPhone(phone),
+        ...signupData,
+        userImage: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" // Placeholder or default
+      };
+      
+      const res = await signUp(payload);
+      if (res.success) {
+        setSuccess("Account created successfully!");
+        // Fetch full profile or use returned data
+        const check = await checkUserExist(cleanedPhone(phone));
+        const userData = check.exists ? check.data : { ...payload, MOBILE_NO: payload.mobileno }; // Fallback
+        
+        persistUser(userData);
+        onSuccess?.(userData);
+        if (pathname === "/login") router.push("/");
+      } else {
+         setError(res.message);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Signup failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const otpValue = digits.join("");
+    if (otpValue.length === 4 && !otpSent) return; // Guard
     if (otpValue.length === 4) {
       const t = setTimeout(() => doVerify(otpValue), 80);
       return () => clearTimeout(t);
     }
-  }, [digits]);
+  }, [digits, otpSent]);
 
   const handleDigitChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
@@ -152,47 +218,15 @@ export default function LoginForm({
     }
   };
 
-  const handleDigitKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    const key = e.key;
-    if (key === "Backspace") {
+  const handleDigitKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
       if (digits[index]) {
-        setDigits((prev) => {
-          const next = [...prev];
-          next[index] = "";
-          return next;
-        });
+        setDigits(prev => { const n = [...prev]; n[index] = ""; return n; });
       } else if (index > 0) {
         digitRefs.current[index - 1]?.focus();
-        setDigits((prev) => {
-          const next = [...prev];
-          next[index - 1] = "";
-          return next;
-        });
+        setDigits(prev => { const n = [...prev]; n[index - 1] = ""; return n; });
       }
-    } else if (key === "ArrowLeft" && index > 0) {
-      digitRefs.current[index - 1]?.focus();
-    } else if (key === "ArrowRight" && index < 3) {
-      digitRefs.current[index + 1]?.focus();
     }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const text = e.clipboardData.getData("Text");
-    const onlyDigits = text.replace(/\D/g, "");
-    if (onlyDigits.length === 0) return;
-    const firstFour = onlyDigits.slice(0, 4).split("");
-    setDigits((prev) => {
-      const next = [...prev];
-      for (let i = 0; i < 4; i++) next[i] = firstFour[i] ?? "";
-      return next;
-    });
-    const lastFilled = Math.min(onlyDigits.length, 4) - 1;
-    const focusIndex = lastFilled >= 0 ? lastFilled : 0;
-    setTimeout(() => digitRefs.current[focusIndex]?.focus(), 50);
-    e.preventDefault();
   };
 
   const handleChangeNumber = () => {
@@ -200,7 +234,8 @@ export default function LoginForm({
     setDigits(["", "", "", ""]);
     setError("");
     setSuccess("");
-    if (timerRef.current) clearInterval(timerRef.current);
+    setShowSignup(false);
+    setIsNewUser(false);
     setSecondsLeft(0);
     setTimeout(() => phoneRef.current?.focus(), 50);
   };
@@ -209,8 +244,87 @@ export default function LoginForm({
     if (secondsLeft > 0) return;
     setError("");
     setSuccess("");
-    await handleSendOTP(); // ✅ this restarts timer properly
+    await handleSendOTP();
   };
+
+  // Render Signup Form
+  if (showSignup) {
+    return (
+      <div className={className}>
+        <Typography variant="h6" gutterBottom>Create Account</Typography>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Complete your profile for {phone}
+        </Typography>
+        
+        <Box display="flex" flexDirection="column" gap={2} mt={2}>
+          <Box display="flex" gap={2}>
+            <TextField 
+              label="First Name" 
+              fullWidth 
+              size="small"
+              value={signupData.firstname}
+              onChange={(e) => setSignupData(p => ({ ...p, firstname: e.target.value }))}
+            />
+            <TextField 
+              label="Last Name" 
+              fullWidth 
+              size="small"
+              value={signupData.lastname}
+              onChange={(e) => setSignupData(p => ({ ...p, lastname: e.target.value }))}
+            />
+          </Box>
+          <TextField 
+            label="Email" 
+            fullWidth 
+            size="small"
+            value={signupData.emailid}
+            onChange={(e) => setSignupData(p => ({ ...p, emailid: e.target.value }))}
+          />
+          <Box display="flex" gap={2}>
+            <TextField 
+              label="Vehicle Model" 
+              fullWidth 
+              size="small"
+              value={signupData.vehiclemodel}
+              onChange={(e) => setSignupData(p => ({ ...p, vehiclemodel: e.target.value }))}
+            />
+             <FormControl fullWidth size="small">
+              <InputLabel>Type</InputLabel>
+              <Select
+                label="Type"
+                value={signupData.vehicletype}
+                onChange={(e) => setSignupData(p => ({ ...p, vehicletype: e.target.value }))}
+              >
+                <MenuItem value="Manual">Manual</MenuItem>
+                <MenuItem value="Automatic">Automatic</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          
+           <FormControl fullWidth size="small">
+              <InputLabel>Segment</InputLabel>
+              <Select
+                label="Segment"
+                value={signupData.segment}
+                onChange={(e) => setSignupData(p => ({ ...p, segment: e.target.value }))}
+              >
+                <MenuItem value="Hatchback">Hatchback</MenuItem>
+                <MenuItem value="Sedan">Sedan</MenuItem>
+                <MenuItem value="SUV">SUV</MenuItem>
+              </Select>
+            </FormControl>
+
+          
+          {error && <Typography color="error" variant="body2">{error}</Typography>}
+          
+          <Button variant="contained" onClick={handleSignup} disabled={loading}>
+            {loading ? <CircularProgress size={20} /> : "Create Account"}
+          </Button>
+          <Button variant="text" onClick={handleChangeNumber}>Cancel</Button>
+        </Box>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>
@@ -239,7 +353,7 @@ export default function LoginForm({
             gap={2}
             mt={compact ? 1 : 3}
           >
-            <Button
+             <Button
               type="button"
               variant="contained"
               onClick={handleSendOTP}
@@ -266,7 +380,7 @@ export default function LoginForm({
               <input
                 key={i}
                 ref={(el) => {
-                  digitRefs.current[i] = el; // ✅ fixed ref
+                  digitRefs.current[i] = el;
                 }}
                 value={d}
                 onChange={(ev) =>
@@ -276,7 +390,6 @@ export default function LoginForm({
                   )
                 }
                 onKeyDown={(ev) => handleDigitKeyDown(i, ev)}
-                onPaste={handlePaste}
                 maxLength={1}
                 inputMode="numeric"
                 style={{
@@ -321,12 +434,12 @@ export default function LoginForm({
         </>
       )}
 
-      {success && (
+      {success && !showSignup && (
         <Typography sx={{ color: "green", mt: 1, textAlign: "center" }}>
           {success}
         </Typography>
       )}
-      {error && otpSent && (
+      {error && otpSent && !showSignup && (
         <Typography color="error" sx={{ textAlign: "center" }}>
           {error}
         </Typography>

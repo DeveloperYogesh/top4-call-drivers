@@ -19,7 +19,7 @@ export default function HeaderControls({ user, displayName, isTransparent }: Pro
     <div className="relative">
       <details className="relative">
         <summary
-          className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-gray-700 ${isTransparent? "bg-white/5" : "bg-black/5"} cursor-pointer list-none`}
+          className={`inline-flex items-center gap-2 px-2 md:px-3 py-1 rounded-md text-gray-700 ${isTransparent? "bg-white/5" : "bg-black/5"} cursor-pointer list-none`}
           aria-haspopup="true"
         >
           <span className="sr-only">Open menu</span>
@@ -33,7 +33,7 @@ export default function HeaderControls({ user, displayName, isTransparent }: Pro
         <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-md shadow-lg z-20">
           <div className="py-1">
             <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</Link>
-            <Link href="/bookings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Bookings</Link>
+            <Link href="/history" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Bookings</Link>
 
             <div className="border-t border-gray-100" />
 

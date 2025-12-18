@@ -96,7 +96,7 @@ export default function HeaderClientUpdated() {
 
   return (
     <header className={headerClass}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2 md:px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link href={ROUTES.HOME} className="flex items-center gap-2 group">
@@ -109,7 +109,7 @@ export default function HeaderClientUpdated() {
                 priority
               />
             </div>
-            <span className={`text-xl font-bold tracking-tight ${logoClass}`}>
+            <span className={`text-lg md:text-xl font-bold tracking-tight ${logoClass}`}>
               {APP_CONFIG.name}
             </span>
           </Link>
@@ -227,7 +227,7 @@ export default function HeaderClientUpdated() {
           </nav>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Link
               href="tel:+9104428287777"
               className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
