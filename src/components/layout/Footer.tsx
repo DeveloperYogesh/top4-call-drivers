@@ -81,8 +81,8 @@ export default function Footer() {
                 <span className="block text-gray-500 text-xs mb-1">Serving in:</span>
                 <div className="flex flex-wrap gap-2">
                   {['Chennai', 'Trichy', 'Madurai', 'Coimbatore', 'Tiruppur'].map(city => (
-                    <Link 
-                      key={city} 
+                    <Link
+                      key={city}
                       href={`/best-acting-drivers-in-${city.toLowerCase()}`}
                       className="bg-gray-800 px-2 py-1 rounded text-xs hover:bg-blue-600 hover:text-white transition-colors"
                     >
@@ -100,7 +100,6 @@ export default function Footer() {
           <div className="flex gap-6">
             <Link href={ROUTES.TERMS} className="hover:text-white transition-colors">Terms</Link>
             <Link href={ROUTES.PRIVACY} className="hover:text-white transition-colors">Privacy</Link>
-            <Link href={ROUTES.REFUND} className="hover:text-white transition-colors">Refund Policy</Link>
           </div>
         </div>
       </div>
