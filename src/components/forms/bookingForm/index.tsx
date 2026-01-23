@@ -636,6 +636,12 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                   onChange={(e, val) => {
                     setSelectedTripType(val);
                     setPage(1);
+                    // set default usage based on type
+                    if (val === "outstation") {
+                      setEstimatedUsage(12);
+                    } else {
+                      setEstimatedUsage(3);
+                    }
                     // reset daily-specific when switching
                     setDailyWeekDays([]);
                     setWeekdayError(null);
@@ -717,6 +723,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                           value={estimatedUsage}
                           onChange={setEstimatedUsage}
                           error={estimatedUsageError}
+                          tripType={selectedTripType}
                         />
                         <ConfirmView
                           pickupLocation={pickupLocation}
@@ -752,6 +759,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
                           value={estimatedUsage}
                           onChange={setEstimatedUsage}
                           error={estimatedUsageError}
+                          tripType={selectedTripType}
                         />
                         <CarFields
                           carType={carType}
