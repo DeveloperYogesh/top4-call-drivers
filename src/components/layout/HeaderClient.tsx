@@ -32,9 +32,9 @@ export default function HeaderClientUpdated() {
   // If NOT on Home -> White (always)
   const isTransparent = isHome && !isScrolled;
 
-  const headerClass = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isTransparent
+  const headerClass = `fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${isTransparent
     ? "bg-gradient-to-b from-black/60 to-transparent py-4"
-    : "bg-white/90 backdrop-blur-md shadow-sm py-2 border-b border-gray-100"
+    : `bg-white/90 ${mobileMenuOpen ? "" : "backdrop-blur-md"} shadow-sm py-2 border-b border-gray-100`
     }`;
 
   const logoClass = isTransparent ? "text-white drop-shadow-md" : "text-[#354B9C]";

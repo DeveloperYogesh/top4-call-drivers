@@ -100,6 +100,7 @@ export interface CityData {
   keywords: string[];
   metaTitle?: string;
   metaDescription?: string;
+  phoneNumber?: string;
 }
 
 export interface NavigationItem {
