@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, normalizeUser } from "@/hooks/useAuth";
-import HeaderClient from "@/components/layout/HeaderClient";
-import Footer from "@/components/layout/Footer";
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -116,33 +114,28 @@ export default function ProfilePage() {
 
     if (!user && !isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col">
-                <HeaderClient />
-                <div className="flex-grow flex items-center justify-center">
-                    <div className="text-center p-8">
-                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h3 className="!my-0">Sign In Required</h3>
-                        <p className="text-gray-500 mb-6 max-w-sm mx-auto">Please sign in to access your profile and manage your preferences.</p>
-                        <button
-                            onClick={() => router.push('/login')}
-                            className="px-8 py-3 bg-[#354B9C] text-white font-medium rounded-full shadow-lg hover:bg-[#2a3a7a] hover:shadow-xl transition-all transform hover:-translate-y-0.5"
-                        >
-                            Go to Login
-                        </button>
+            <div className="flex-grow flex items-center justify-center min-h-[60vh]">
+                <div className="text-center p-8">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
                     </div>
+                    <h3 className="!my-0">Sign In Required</h3>
+                    <p className="text-gray-500 mb-6 max-w-sm mx-auto">Please sign in to access your profile and manage your preferences.</p>
+                    <button
+                        onClick={() => router.push('/login')}
+                        className="px-8 py-3 bg-[#354B9C] text-white font-medium rounded-full shadow-lg hover:bg-[#2a3a7a] hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+                    >
+                        Go to Login
+                    </button>
                 </div>
-                <Footer />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
-            <HeaderClient />
+        <div className="bg-[#F8FAFC]">
 
             <main className="flex-grow custom-container">
                 {/* Profile Header */}
@@ -380,7 +373,6 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </main>
-            <Footer />
         </div>
     );
 }

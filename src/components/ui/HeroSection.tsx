@@ -9,7 +9,7 @@ export default function HeroSection(): JSX.Element {
       aria-label="Hero"
       className="bg-slate-100 -mt-[64px] pt-[64px] xl:-ml-1 flex items-end"
       style={{
-        backgroundImage: "url(/images/top4-call-driver-hero-image.png)",
+        backgroundImage: "url(/images/top4-call-drivers-hero-img.webp)",
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center center",

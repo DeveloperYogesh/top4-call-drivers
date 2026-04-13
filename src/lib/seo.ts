@@ -134,10 +134,8 @@ export function generateMetadata({
       },
     },
     verification: {
-      // replace these with your real verification codes
+      // replace with your real verification codes
       google: '9W1_ISWbLi5d_DxXc6Y0quUMCoXYRHgxqp2NlrhHQk4',
-      yandex: 'your-yandex-verification-code',
-      yahoo: 'your-yahoo-verification-code',
     },
   };
 
@@ -232,11 +230,6 @@ export function generateStructuredData(type: string, data: any = {}) {
         description: APP_CONFIG.description,
         url: APP_CONFIG.url,
         publisher: baseData,
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `${APP_CONFIG.url}/search?q={search_term_string}`,
-          'query-input': 'required name=search_term_string',
-        },
       };
 
     case 'breadcrumb':

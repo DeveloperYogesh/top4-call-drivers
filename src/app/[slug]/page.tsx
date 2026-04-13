@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DriverJobPage from "@/components/pages/driverJobPage";
 import { generateCityMetadata, getCityData } from "@/lib/seo";
-import { SUPPORTED_CITIES } from "@/utils/constants";
+import { APP_CONFIG, SUPPORTED_CITIES } from "@/utils/constants";
 import CustomerCityPage from "@/components/pages/customerCityPage";
 
 // Use inline typing for params to avoid alias conflicts with Next.js generated types
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       title: `Car Driver Jobs in ${cityData.name} | TOP4 Call Drivers`,
       description: `Join TOP4 as a professional driver in ${cityData.name}. Earn competitive pay, enjoy flexible hours, and get full support. Apply now!`,
       alternates: {
-        canonical: `https://top4calldrivers.com/${slug}`,
+        canonical: `${APP_CONFIG.url}/${slug}`,
       },
     };
   }

@@ -1,10 +1,13 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: 'Privacy Policy | Top4 Call Drivers',
+export const metadata: Metadata = generateSEOMetadata({
+    title: 'Privacy Policy',
     description: 'Privacy Policy for Top4 Call Drivers. Learn how we collect, use, and protect your information.',
-};
+    url: '/privacy-policy',
+    noIndex: true,
+});
 
 export default function PrivacyPolicy() {
     return (
