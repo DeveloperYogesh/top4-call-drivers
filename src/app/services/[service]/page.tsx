@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { generateStructuredData } from "@/lib/seo";
+import { generateMetadata as generateSEOMetadata, generateStructuredData } from "@/lib/seo";
 import { APP_CONFIG } from "@/utils/constants";
 // Removed next/head; not used in the App Router
 // Link not used on this server component
@@ -165,24 +165,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return {
-    title: `${serviceData.name} | TOP4 Call Drivers`,
+  return generateSEOMetadata({
+    title: `${serviceData.name} - Professional Car Services`,
     description: serviceData.description,
     keywords: [
       `${serviceData.name.toLowerCase()} service`,
       `TOP4 ${serviceData.name.toLowerCase()}`,
       `car services ${serviceData.cities.join(", ")}`,
     ],
-    openGraph: {
-      title: `${serviceData.name}`,
-      description: serviceData.description,
-      type: "website",
-      url: `https://top4calldrivers.com/services/${serviceData.id}`,
-    },
-    alternates: {
-      canonical: `https://top4calldrivers.com/services/${serviceData.id}`,
-    },
-  };
+    url: `/services/${serviceData.id}`,
+    type: 'website',
+  });
 }
 
 export async function generateStaticParams() {

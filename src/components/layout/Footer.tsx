@@ -61,11 +61,11 @@ export default function Footer() {
           <FadeIn delay={0.3}>
             <h4 className="text-white font-semibold mb-6 text-lg">Our Services</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/services/driver-service" className="hover:text-blue-400 transition-colors">Acting Drivers</Link></li>
-              <li><Link href="/services/valet-parking" className="hover:text-blue-400 transition-colors">Valet Parking</Link></li>
-              <li><Link href="/services/outstation" className="hover:text-blue-400 transition-colors">Outstation Trips</Link></li>
+              <li><Link href="/services/professional-drivers" className="hover:text-blue-400 transition-colors">Acting Drivers</Link></li>
               <li><Link href="/services/car-wash" className="hover:text-blue-400 transition-colors">Car Wash</Link></li>
               <li><Link href="/services/car-maintenance" className="hover:text-blue-400 transition-colors">Car Maintenance</Link></li>
+              <li><Link href="/services/fastag-recharge" className="hover:text-blue-400 transition-colors">FASTag Recharge</Link></li>
+              <li><Link href="/services/car-insurance" className="hover:text-blue-400 transition-colors">Car Insurance</Link></li>
             </ul>
           </FadeIn>
 

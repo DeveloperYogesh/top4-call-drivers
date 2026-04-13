@@ -1,10 +1,13 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: 'Terms and Conditions | Top4 Call Drivers',
-    description: 'Terms and Conditions for Top4 Call Drivers.',
-};
+export const metadata: Metadata = generateSEOMetadata({
+    title: 'Terms and Conditions',
+    description: 'Terms and Conditions for Top4 Call Drivers. Read our service terms, user agreement, and policies.',
+    url: '/terms-and-conditions',
+    noIndex: true,
+});
 
 export default function TermsAndConditions() {
     return (

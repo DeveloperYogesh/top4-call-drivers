@@ -5,7 +5,7 @@ export const APP_CONFIG = {
   description: 'Professional Drivers & Car Services',
   version: '1.0.0',
   author: 'TOP4 Call Drivers Team',
-  url: 'https://www.top3.in',
+  url: 'https://top4calldrivers.com',
   supportPhone: '+91 88807 12345',
   supportEmail: 'support@top3.in',
   apiUrl: 'http://top4mobileapp.vbsit.in/',

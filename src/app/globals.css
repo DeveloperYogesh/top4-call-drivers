@@ -150,10 +150,7 @@ html {
   background: #a8a8a8;
 }
 
-/* Smooth transitions */
-* {
-  transition: all 0.2s ease-in-out;
-}
+/* Transitions are applied via Tailwind utility classes where needed */
 
 /* Glassmorphism Utilities */
 .glass {
