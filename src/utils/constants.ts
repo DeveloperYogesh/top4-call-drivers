@@ -183,7 +183,17 @@ export const SUPPORTED_CITIES = [
     ],
     description:
       'Hire verified professional drivers in Chennai for reliable transportation across the cultural capital of South India.',
-    keywords: ['driver hire chennai', 'professional drivers chennai', 'car driver booking chennai'],
+    keywords: [
+      'acting driver in Chennai',
+      'call drivers in Chennai',
+      'driver hire chennai',
+      'professional drivers chennai',
+      'car driver booking chennai',
+      'personal driver Chennai',
+      'outstation driver Chennai',
+    ],
+    metaTitle: 'Best Acting Driver in Chennai | TOP4 Call Drivers',
+    metaDescription: 'Book verified acting drivers in Chennai starting from ₹279. Available 24/7 across T. Nagar, Adyar, Anna Nagar, OMR & all areas. Call now!',
   },
   {
     name: 'Coimbatore',
@@ -207,7 +217,16 @@ export const SUPPORTED_CITIES = [
     ],
     description:
       'Book verified drivers in Coimbatore for reliable transportation across the Garden City of South India.',
-    keywords: ['driver hire coimbatore', 'professional drivers coimbatore', 'car driver booking coimbatore'],
+    keywords: [
+      'acting driver in Coimbatore',
+      'call drivers in Coimbatore',
+      'driver hire coimbatore',
+      'professional drivers coimbatore',
+      'car driver booking coimbatore',
+      'personal driver Coimbatore',
+    ],
+    metaTitle: 'Best Acting Driver in Coimbatore | TOP4 Call Drivers',
+    metaDescription: 'Hire professional acting drivers in Coimbatore starting from ₹289. Serving Gandhipuram, RS Puram, Peelamedu & all areas. Book instantly!',
   },
   {
     name: 'Madurai',
@@ -231,7 +250,16 @@ export const SUPPORTED_CITIES = [
     ],
     description:
       'Book professional drivers in Madurai for comfortable and punctual rides across the temple city.',
-    keywords: ['driver hire madurai', 'professional drivers madurai', 'car driver booking madurai'],
+    keywords: [
+      'acting driver in Madurai',
+      'call drivers in Madurai',
+      'driver hire madurai',
+      'professional drivers madurai',
+      'car driver booking madurai',
+      'personal driver Madurai',
+    ],
+    metaTitle: 'Best Acting Driver in Madurai | TOP4 Call Drivers',
+    metaDescription: 'Book verified acting drivers in Madurai starting from ₹259. Available across KK Nagar, Goripalayam, Alagar Kovil Road & all areas. 24/7 service.',
   },
   {
     name: 'Trichy',
@@ -255,7 +283,16 @@ export const SUPPORTED_CITIES = [
     ],
     description:
       'Hire TOP4 Call Drivers in Trichy for reliable transportation across Tiruchirappalli and surrounding localities.',
-    keywords: ['driver hire trichy', 'professional drivers trichy', 'car driver booking trichy'],
+    keywords: [
+      'acting driver in Trichy',
+      'call drivers in Trichy',
+      'driver hire trichy',
+      'professional drivers trichy',
+      'car driver booking trichy',
+      'personal driver Tiruchirappalli',
+    ],
+    metaTitle: 'Best Acting Driver in Trichy | TOP4 Call Drivers',
+    metaDescription: 'Hire professional acting drivers in Trichy starting from ₹249. Serving Srirangam, Thillai Nagar, BHEL Township & all areas. Call 7540014002.',
   },
 ];
 

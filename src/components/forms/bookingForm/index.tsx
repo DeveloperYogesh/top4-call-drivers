@@ -120,12 +120,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
 
   // tolerant lat/long extractor
   const getLatLong = (loc?: Location | null) => {
-    if (!loc) {
-      console.warn("getLatLong: location is null or undefined");
-      return "0, 0";
-    }
+    if (!loc) return "0, 0";
 
-    // Try different property names for latitude (check both direct and nested)
     const latValue =
       (loc as any)?.latitude ??
       (loc as any)?.lat ??
@@ -137,7 +133,6 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         ? (loc as any).geometry.location.lat()
         : undefined);
 
-    // Try different property names for longitude (check both direct and nested)
     const lngValue =
       (loc as any)?.longitude ??
       (loc as any)?.lng ??
@@ -150,16 +145,8 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         ? (loc as any).geometry.location.lng()
         : undefined);
 
-    // Convert to numbers and validate
     const lat = latValue != null && !isNaN(Number(latValue)) ? Number(latValue) : 0;
     const lng = lngValue != null && !isNaN(Number(lngValue)) ? Number(lngValue) : 0;
-
-    // Debug log to see what we're getting
-    if (lat === 0 && lng === 0) {
-      console.warn("getLatLong: coordinates are 0,0. Location object:", JSON.stringify(loc, null, 2));
-    } else {
-      console.log("getLatLong - location:", loc.name, "lat:", lat, "lng:", lng);
-    }
 
     return `${lat}, ${lng}`;
   };
@@ -287,7 +274,6 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       }
     } catch (err: any) {
       if (err?.name === "AbortError") return;
-      console.error("Fare calculation error (API):", err);
       setFareBreakdown(calculateFareBreakdown());
       setFareError("Couldn't fetch live fare — showing estimated fare.");
     } finally {
@@ -527,10 +513,6 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
         { value: "suv", label: "SUV" },
       ].find((v) => v.value === vehicleSize)?.label || vehicleSize;
 
-    // Debug: Log location objects before creating payload
-    console.log("pickupLocation object:", pickupLocation);
-    console.log("dropLocation object:", dropLocation);
-
     const payload: any = {
       tripType: selectedTripType === "one-way"
         ? "InCity"
@@ -555,8 +537,6 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       packageHours: String(estimatedUsage),
       mobileNumber: effectivePhone,
     };
-
-    console.log("payload", payload);
 
     if (selectedTripType === "daily") {
       payload.weekDays = dailyWeekDays
@@ -586,8 +566,7 @@ export default function BookingForm({ isEmbedded = false }: BookingFormProps) {
       setBookingResponse({ bookingNo, paymentType });
       setBookingSuccess(true);
     } catch (error: any) {
-      console.error("Booking error:", error);
-      setBookingError(error?.message || "An unknown error occurred. Please try again.");
+      setBookingError((error as Error)?.message || "An unknown error occurred. Please try again.");
     } finally {
       setBookingLoading(false);
     }

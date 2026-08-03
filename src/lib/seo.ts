@@ -206,20 +206,33 @@ export function generateStructuredData(type: string, data: any = {}) {
         '@type': 'LocalBusiness',
         ...baseData,
         '@id': `${APP_CONFIG.url}#organization`,
+        telephone: APP_CONFIG.primaryPhone,
+        email: APP_CONFIG.email,
         address: {
           '@type': 'PostalAddress',
-          addressCountry: 'IN',
-          // default to Tamil Nadu for your supported cities
+          streetAddress: APP_CONFIG.officeAddress.line2,
+          addressLocality: data.city || 'Chennai',
           addressRegion: data.state || 'Tamil Nadu',
-          addressLocality: data.city || 'Tiruppur',
+          postalCode: '600034',
+          addressCountry: 'IN',
         },
-        geo: data.coordinates && {
-          '@type': 'GeoCoordinates',
-          latitude: data.coordinates.lat,
-          longitude: data.coordinates.lng,
+        geo: data.coordinates
+          ? {
+              '@type': 'GeoCoordinates',
+              latitude: data.coordinates.lat,
+              longitude: data.coordinates.lng,
+            }
+          : undefined,
+        openingHoursSpecification: {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          opens: '00:00',
+          closes: '23:59',
         },
-        openingHours: 'Mo-Su 00:00-23:59',
         priceRange: '₹₹',
+        currenciesAccepted: 'INR',
+        paymentAccepted: 'Cash, UPI',
+        areaServed: ['Chennai', 'Trichy', 'Madurai', 'Coimbatore', 'Tiruppur'],
       };
 
     case 'website':
@@ -229,7 +242,22 @@ export function generateStructuredData(type: string, data: any = {}) {
         name: APP_CONFIG.name,
         description: APP_CONFIG.description,
         url: APP_CONFIG.url,
-        publisher: baseData,
+        publisher: {
+          '@type': 'Organization',
+          name: APP_CONFIG.name,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${APP_CONFIG.url}/images/top4-call-drivers-logo.png`,
+          },
+        },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${APP_CONFIG.url}/best-acting-drivers-in-{city}`,
+          },
+          'query-input': 'required name=city',
+        },
       };
 
     case 'breadcrumb':

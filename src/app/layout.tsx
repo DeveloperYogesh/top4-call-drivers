@@ -8,11 +8,13 @@ import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
 import HeaderServer from "@/components/layout/HeaderServer";
 import Script from "next/script";
 import StickyCTA from "@/components/layout/stickyFooter";
+import SkipToContent from "@/components/common/SkipToContent";
 
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-poppins",
+  display: "swap",
 });
 
 export const metadata: Metadata = generateSEOMetadata();
@@ -23,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <body className={poppins.className}>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-B5GWQYKD87"
@@ -40,7 +42,7 @@ export default function RootLayout({
         <AccessibilityProvider>
           <ThemeProvider>
             <div className="min-h-screen flex flex-col">
-              {/* <SkipToContent /> */}
+              <SkipToContent />
               <HeaderServer />
               <main
                 id="main-content"

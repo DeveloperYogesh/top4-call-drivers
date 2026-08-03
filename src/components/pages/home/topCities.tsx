@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 type City = {
@@ -46,47 +47,46 @@ const cities: City[] = [
   },
 ];
 
-export default function CallDrivers() {
+export default function TopCitiesSection() {
   return (
-    <section className="bg-gray-50">
-      <div className="custom-container ">
+    <section className="bg-gray-50" aria-label="Cities we serve">
+      <div className="custom-container">
         <div className="text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
             Hire TOP4 Call Drivers
           </h2>
           <p className="mt-4 text-gray-600 max-w-3xl mx-auto text-sm md:text-base">
-            We provide Call driver services both in city limits and to
+            We provide call driver services both in city limits and to
             outstations. We serve round the clock services with responsible
             drivers.
           </p>
         </div>
 
-        {/* Top row - 3 cards */}
         <div className="flex flex-wrap justify-center gap-8 mt-12">
           {cities.map((city) => (
-            <div
+            <Link
               key={city.id}
-              className="flex items-center bg-white rounded-full p-2 max-w-sm border-1 border-gray-200 hover:border-blue-600 group"
+              href={`/best-acting-drivers-in-${city.id}`}
+              title={`TOP4 Call Driver Services in ${city.name}`}
+              className="flex items-center bg-white rounded-full p-2 max-w-sm border border-gray-200 hover:border-blue-600 group transition-colors"
             >
               <div className="flex-shrink-0 mr-4">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-1 border-gray-100">
+                <div className="w-28 h-28 rounded-full overflow-hidden border border-gray-100">
                   <Image
                     src={city.imgSrc}
-                    alt={city.name}
-                    width={90}
-                    height={90}
+                    alt={`Call drivers in ${city.name}`}
+                    width={112}
+                    height={112}
                     className="object-cover w-full h-full"
                   />
                 </div>
               </div>
 
               <div className="text-left">
-                <h3 className="!m-0 group-hover:text-blue-600 cursor-pointer">
-                  <a href={`/best-acting-drivers-in-${city.id}`} title={`TOP4 Call Driver Services in ${city.name}`}>{city.name}</a>
-                </h3>
+                <h3 className="!m-0 group-hover:text-blue-600">{city.name}</h3>
                 <p className="text-sm text-gray-600 mt-1">{city.description}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

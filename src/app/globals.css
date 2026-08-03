@@ -173,13 +173,6 @@ html {
   color: white;
 }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-    animation: none !important;
-  }
-}
 
 .custom-container {
   @apply mx-auto py-8 md:py-10 lg:py-14 2xl:py-16 overflow-hidden px-3 md:px-10 lg:px-16 max-w-[1400px] m-0;

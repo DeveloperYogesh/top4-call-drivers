@@ -1,5 +1,5 @@
 // components/HeroSection.tsx
-import { JSX } from "@emotion/react/jsx-runtime";
+import type { JSX } from "react";
 import BookingForm from "../forms/bookingForm";
 
 export default function HeroSection(): JSX.Element {
@@ -20,7 +20,7 @@ export default function HeroSection(): JSX.Element {
           {/* Content aligned to bottom left */}
           <div>
             <h1 className="font-extrabold leading-tight mb-4 text-white text-4xl">
-              <span className="text-sm font-semibold tracking-wider mb-3 text-white">TOP4 CALL DRIVERS</span><br/>
+              <span className="text-sm font-semibold tracking-wider mb-3 text-white">TOP4 CALL DRIVERS</span><br />
               Your Ride, Our <span className="font-semibold tracking-wider mb-3 text-white">Responsibility</span>
             </h1>
             <p className="text-white !text-lg mb-5 lg:mb-0">Book Verified and Experienced Call Drivers Anytime for a Safe, Comfortable, and Hassle-Free Ride 24/7</p>
