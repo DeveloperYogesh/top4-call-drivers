@@ -213,7 +213,7 @@ export const SUPPORTED_CITIES = [
     name: 'Madurai',
     slug: 'madurai',
     state: 'Tamil Nadu',
-    // phoneNumber: '', // Default to primary
+    phoneNumber: '89396 69996',
     basePrice: 259,
     driversCount: 1000,
     areasCount: 30,
