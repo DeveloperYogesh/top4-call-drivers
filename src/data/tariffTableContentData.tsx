@@ -33,7 +33,7 @@ export const tariffTableContentData: Record<
         Cancel Charge
       </td>
       <td>
-        ₹350<br/>
+        ₹450<br/>
         ₹70<br/>
         ₹100 Extra<br/>
         ₹50/100<br/>
