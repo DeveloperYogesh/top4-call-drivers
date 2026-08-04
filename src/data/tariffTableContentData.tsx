@@ -34,7 +34,7 @@ export const tariffTableContentData: Record<
       </td>
       <td>
         ₹450<br/>
-        ₹70<br/>
+        ₹80<br/>
         ₹100 Extra<br/>
         ₹50/100<br/>
         ₹100
@@ -59,8 +59,8 @@ export const tariffTableContentData: Record<
         Cancel Charge
       </td>
       <td>
-        ₹400<br/>
-        ₹70<br/>
+        ₹500<br/>
+        ₹80<br/>
         ₹100 Extra<br/>
         ₹50/100<br/>
         ₹100
@@ -83,7 +83,7 @@ export const tariffTableContentData: Record<
         Supervisor (For Every 10 Drivers)
       </td>
       <td>
-        ₹500<br/>
+        ₹600<br/>
         ₹100<br/>
         ₹700
       </td>
@@ -354,8 +354,8 @@ Acting drivers are the backbone of seamless transportation in cities like Coimba
             Cancel Charge
           </td>
           <td>
-            ₹350<br/>
-            ₹70<br/>
+            ₹400<br/>
+            ₹80<br/>
             ₹100 Extra<br/>
             ₹50/100<br/>
             ₹100
@@ -381,7 +381,7 @@ Acting drivers are the backbone of seamless transportation in cities like Coimba
           </td>
           <td>
             ₹400<br/>
-            ₹70<br/>
+            ₹80<br/>
             ₹100 Extra<br/>
             ₹50/100<br/>
             ₹100
@@ -404,7 +404,7 @@ Acting drivers are the backbone of seamless transportation in cities like Coimba
             Supervisor (For Every 10 Drivers)
           </td>
           <td>
-            ₹500<br/>
+            ₹600<br/>
             ₹100<br/>
             ₹700
           </td>

@@ -37,7 +37,7 @@ export default function TariffPageCotainer() {
             <tbody>
               <tr>
                 <td className="header-cell">Minimum 3 Hours</td>
-                <td>₹400</td>
+                <td>₹450</td>
               </tr>
               <tr>
                 <td className="header-cell">Extra Per Hour</td>
