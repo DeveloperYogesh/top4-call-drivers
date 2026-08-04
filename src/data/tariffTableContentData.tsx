@@ -202,7 +202,7 @@ Acting drivers are the backbone of seamless transportation in cities like Coimba
             Cancel Charge
           </td>
           <td>
-            ₹350<br/>
+            ₹450<br/>
             ₹70<br/>
             ₹100 Extra<br/>
             ₹50/100<br/>

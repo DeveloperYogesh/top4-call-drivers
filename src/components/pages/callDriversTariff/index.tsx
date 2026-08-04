@@ -122,7 +122,7 @@ export default function TariffPageCotainer() {
             <tbody>
               <tr>
                 <td className="header-cell">Per Day (12hrs)</td>
-                <td>₹1200 + Accommodation</td>
+                <td>₹1300 + Accommodation</td>
               </tr>
               <tr>
                 <td className="header-cell">Extra Per Hour</td>
