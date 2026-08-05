@@ -126,7 +126,7 @@ export default function TariffPageCotainer() {
               </tr>
               <tr>
                 <td className="header-cell">Extra Per Hour</td>
-                <td>₹70</td>
+                <td>₹80</td>
               </tr>
               <tr>
                 <td className="header-cell">Cancel Charge</td>
